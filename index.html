@@ -1,0 +1,37 @@
+<script>
+  function showTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  function setNav(el, id) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    showTab(id, document.querySelector('.tab[onclick*="' + id + '"]'));
+  }
+
+  function toggleAgent(el) {
+    const body = el.nextElementSibling;
+    body.classList.toggle('open');
+    el.querySelector('.agent-toggle').classList.toggle('open');
+  }
+
+  function toggleSwitch(e, el) {
+    e.stopPropagation();
+    el.classList.toggle('on');
+  }
+
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (e.target.id === 'modal') {
+      e.target.classList.remove('open');
+    }
+  }
+</script>
+
