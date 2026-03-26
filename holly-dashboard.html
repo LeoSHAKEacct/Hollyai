@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holly.ai — Clinic Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --midnight: #0a0e1a;
+    --navy: #0f1629;
+    --panel: #141b2d;
+    --panel2: #1a2240;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #e4c97a;
+    --gold-glow: rgba(201,168,76,0.15);
+    --teal: #3ecfcf;
+    --teal-dim: rgba(62,207,207,0.12);
+    --rose: #f0637a;
+    --rose-dim: rgba(240,99,122,0.12);
+    --green: #4cd9a0;
+    --green-dim: rgba(76,217,160,0.12);
+    --amber: #f5a623;
+    --text: #e8eaf0;
+    --text-dim: #7b85a0;
+    --text-muted: #4a5268;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--midnight);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--navy);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-text {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--gold-light);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-dot { color: var(--teal); }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .clinic-badge {
+    margin: 16px;
+    padding: 10px 14px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .clinic-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .clinic-plan {
+    font-size: 10px;
+    color: var(--gold);
+    background: var(--gold-glow);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+    font-family: var(--font-mono);
+  }
+
+  .nav { padding: 8px 0; flex: 1; }
+
+  .nav-section {
+    padding: 16px 16px 6px;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 1px 8px;
+    transition: all 0.15s;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 400;
+    position: relative;
+  }
+
+  .nav-item:hover { background: var(--panel); color: var(--text); }
+
+  .nav-item.active {
+    background: var(--gold-glow);
+    color: var(--gold-light);
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 16px;
+    background: var(--gold);
+    border-radius: 0 2px 2px 0;
+  }
+
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--rose);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+  }
+
+  .nav-badge.green { background: var(--green); color: var(--midnight); }
+
+  .sidebar-bottom {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .agent-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--green-dim);
+    border: 1px solid rgba(76,217,160,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .status-pulse {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(76,217,160,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(76,217,160,0); }
+  }
+
+  .status-text { font-size: 11px; font-weight: 600; color: var(--green); }
+  .status-sub { font-size: 10px; color: var(--text-muted); }
+
+  /* ---- MAIN CONTENT ---- */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ---- TOPBAR ---- */
+  .topbar {
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--text);
+  }
+
+  .topbar-title span { color: var(--gold-light); }
+
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+  .topbar-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--panel);
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .live-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--rose-dim);
+    border: 1px solid rgba(240,99,122,0.25);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--rose);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: var(--rose);
+    border-radius: 50%;
+    animation: pulse-rose 1.5s infinite;
+  }
+
+  @keyframes pulse-rose {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ---- PAGE CONTENT ---- */
+  .content {
+    padding: 28px 32px;
+    flex: 1;
+  }
+
+  /* ---- TABS ---- */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 28px;
+    background: var(--panel);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab.active {
+    background: var(--gold-glow);
+    color: var(--gold-light);
+    border: 1px solid rgba(201,168,76,0.25);
+  }
+
+  .tab:hover:not(.active) { color: var(--text); background: var(--panel2); }
+
+  /* ---- TAB PAGES ---- */
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  /* ---- STATS ROW ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .stat-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .stat-card.gold::before { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .stat-card.teal::before { background: linear-gradient(90deg, var(--teal), #7ee8e8); }
+  .stat-card.rose::before { background: linear-gradient(90deg, var(--rose), #f8a3b3); }
+  .stat-card.green::before { background: linear-gradient(90deg, var(--green), #8ef0cf); }
+
+  .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .stat-value { font-size: 32px; font-family: var(--font-display); color: var(--text); line-height: 1; }
+  .stat-value span { font-size: 16px; color: var(--text-dim); }
+  .stat-change {
+    margin-top: 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .stat-change.up { color: var(--green); }
+  .stat-change.dn { color: var(--rose); }
+
+  .stat-icon {
+    position: absolute;
+    right: 16px; top: 16px;
+    font-size: 22px;
+    opacity: 0.3;
+  }
+
+  /* ---- GRID ---- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+  /* ---- PANELS ---- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title-icon { font-size: 14px; }
+
+  .panel-action {
+    font-size: 11px;
+    color: var(--gold);
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .panel-action:hover { color: var(--gold-light); }
+
+  /* ---- CALL LIST ---- */
+  .call-list { }
+
+  .call-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .call-item:last-child { border-bottom: none; }
+  .call-item:hover { background: var(--panel2); }
+
+  .call-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .call-info { flex: 1; min-width: 0; }
+  .call-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .call-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .call-meta { text-align: right; flex-shrink: 0; }
+  .call-time { font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); }
+  .call-duration { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  .call-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .badge-booked { background: var(--green-dim); color: var(--green); border: 1px solid rgba(76,217,160,0.2); }
+  .badge-followup { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(62,207,207,0.2); }
+  .badge-noshow { background: var(--rose-dim); color: var(--rose); border: 1px solid rgba(240,99,122,0.2); }
+  .badge-pending { background: rgba(245,166,35,0.12); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+  .badge-live {
+    background: var(--rose-dim); color: var(--rose);
+    border: 1px solid rgba(240,99,122,0.25);
+    animation: blink-border 1.5s infinite;
+  }
+
+  @keyframes blink-border {
+    0%, 100% { border-color: rgba(240,99,122,0.25); }
+    50% { border-color: rgba(240,99,122,0.6); }
+  }
+
+  /* ---- BOOKING CALENDAR ---- */
+  .booking-slots { padding: 16px 20px; }
+
+  .slot-day-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .slot-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+
+  .slot {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid;
+  }
+
+  .slot.taken {
+    background: var(--green-dim);
+    border-color: rgba(76,217,160,0.25);
+    color: var(--green);
+  }
+
+  .slot.free {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text-muted);
+  }
+
+  .slot.free:hover { border-color: var(--gold); color: var(--gold); }
+
+  .slot.live-slot {
+    background: var(--rose-dim);
+    border-color: rgba(240,99,122,0.4);
+    color: var(--rose);
+    animation: blink-border 1.5s infinite;
+  }
+
+  /* ---- AGENT FLOW CARDS ---- */
+  .agent-cards { display: flex; flex-direction: column; gap: 16px; }
+
+  .agent-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .agent-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+
+  .agent-card-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .agent-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .agent-icon.gold { background: var(--gold-glow); border: 1px solid rgba(201,168,76,0.25); }
+  .agent-icon.teal { background: var(--teal-dim); border: 1px solid rgba(62,207,207,0.2); }
+  .agent-icon.rose { background: var(--rose-dim); border: 1px solid rgba(240,99,122,0.2); }
+
+  .agent-info { flex: 1; }
+  .agent-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .agent-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  .agent-toggle {
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+
+  .agent-toggle.open { transform: rotate(90deg); }
+
+  .agent-enabled {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 12px;
+  }
+
+  .toggle-switch {
+    width: 36px; height: 20px;
+    background: var(--panel2);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .toggle-switch.on { background: var(--green); border-color: var(--green); }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .toggle-switch.on::after { left: 18px; }
+
+  .agent-body {
+    display: none;
+    padding: 0;
+  }
+
+  .agent-body.open { display: block; }
+
+  /* ---- FLOW DIAGRAM ---- */
+  .flow-diagram {
+    padding: 24px 20px;
+    overflow-x: auto;
+  }
+
+  .flow-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: 600px;
+  }
+
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border) 0%, var(--border) 100%);
+    z-index: 0;
+  }
+
+  .flow-node {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    z-index: 1;
+    border: 2px solid;
+    position: relative;
+  }
+
+  .flow-node.gold { background: var(--gold-glow); border-color: var(--gold); }
+  .flow-node.teal { background: var(--teal-dim); border-color: var(--teal); }
+  .flow-node.rose { background: var(--rose-dim); border-color: var(--rose); }
+  .flow-node.green { background: var(--green-dim); border-color: var(--green); }
+  .flow-node.gray { background: var(--panel2); border-color: var(--border); }
+
+  .flow-label {
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .flow-sublabel {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+
+  /* ---- SCRIPT PANEL ---- */
+  .script-panel {
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .script-section {}
+
+  .script-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .convo-bubble {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .bubble-holly {
+    background: var(--gold-glow);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 10px 10px 10px 2px;
+    color: var(--text);
+  }
+
+  .bubble-patient {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 10px 10px 2px 10px;
+    color: var(--text-dim);
+    margin-left: 12px;
+  }
+
+  .bubble-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .bubble-label.holly { color: var(--gold); }
+  .bubble-label.patient { color: var(--text-muted); }
+
+  .data-fields { display: flex; flex-direction: column; gap: 6px; }
+
+  .data-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 10px;
+    background: var(--panel2);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .data-field-key { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+  .data-field-val { font-size: 11px; color: var(--teal); font-weight: 500; font-family: var(--font-mono); }
+  .data-field-val.empty { color: var(--text-muted); font-style: italic; }
+
+  /* ---- INTEGRATION CHIPS ---- */
+  .integrations {
+    border-top: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .int-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+
+  .int-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    border: 1px solid;
+    font-weight: 500;
+  }
+
+  .int-chip.connected { background: var(--green-dim); border-color: rgba(76,217,160,0.25); color: var(--green); }
+  .int-chip.pending { background: rgba(245,166,35,0.1); border-color: rgba(245,166,35,0.25); color: var(--amber); }
+
+  /* ---- PATIENT TABLE ---- */
+  .patient-table { width: 100%; }
+
+  .pt-head {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+    padding: 10px 20px;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+    background: var(--midnight);
+  }
+
+  .pt-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .pt-row:hover { background: var(--panel2); }
+  .pt-row:last-child { border-bottom: none; }
+
+  .pt-name { font-weight: 500; color: var(--text); }
+  .pt-phone { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; }
+  .pt-reason { color: var(--text-dim); }
+  .pt-date { color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; }
+
+  /* ---- ANALYTICS ---- */
+  .analytics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  .mini-chart {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .mini-chart-title { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .mini-chart-val { font-size: 28px; font-family: var(--font-display); color: var(--text); }
+  .mini-chart-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 50px; margin-top: 10px; }
+  .bar { flex: 1; border-radius: 3px 3px 0 0; transition: opacity 0.2s; }
+  .bar:hover { opacity: 0.8; }
+
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.4; }
+  .empty-text { font-size: 13px; }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tab-page.active { animation: slide-in 0.2s ease-out; }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--panel2); border-radius: 4px; }
+
+  /* ---- DETAIL MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--navy);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title { font-family: var(--font-display); font-size: 18px; }
+  .modal-close { cursor: pointer; color: var(--text-muted); font-size: 20px; }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { padding: 24px; }
+
+  .modal-section { margin-bottom: 20px; }
+  .modal-section-title {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .transcript-line {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .transcript-who {
+    font-weight: 700;
+    font-size: 10px;
+    color: var(--gold);
+    min-width: 52px;
+    padding-top: 2px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+  }
+
+  .transcript-who.patient { color: var(--text-muted); }
+  .transcript-text { color: var(--text-dim); flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Holly<span class="logo-dot">.</span>ai</div>
+    <div class="logo-sub">Clinic Dashboard</div>
+  </div>
+
+  <div class="clinic-badge">
+    <div class="clinic-name">Clínica Verde</div>
+    <div class="clinic-plan">✦ PREMIUM</div>
+  </div>
+
+  <div class="nav">
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="setNav(this,'dashboard')">
+      <span class="nav-icon">⬡</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="setNav(this,'calls')">
+      <span class="nav-icon">📞</span> Live Calls
+      <span class="nav-badge">2</span>
+    </div>
+
+    <div class="nav-section">Agents</div>
+    <div class="nav-item" onclick="setNav(this,'agents')">
+      <span class="nav-icon">🤖</span> Agent Flows
+      <span class="nav-badge green">3</span>
+    </div>
+    <div class="nav-item" onclick="setNav(this,'patients')">
+      <span class="nav-icon">👤</span> Patients
+    </div>
+
+    <div class="nav-section">Reports</div>
+    <div class="nav-item" onclick="setNav(this,'analytics')">
+      <span class="nav-icon">📊</span> Analytics
+    </div>
+    <div class="nav-item" onclick="setNav(this,'calendar')">
+      <span class="nav-icon">🗓</span> Calendar Sync
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="agent-status">
+      <div class="status-pulse"></div>
+      <div>
+        <div class="status-text">Holly is Live</div>
+        <div class="status-sub">3 agents active</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Good morning, <span>Dr. Vargas</span> 👋</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="clock">Thu, Mar 26 · 09:14 AM</div>
+      <div class="live-chip"><div class="live-dot"></div> 2 ACTIVE CALLS</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('dashboard',this)">Dashboard</div>
+      <div class="tab" onclick="showTab('agents',this)">Agent Flows</div>
+      <div class="tab" onclick="showTab('patients',this)">Patients</div>
+      <div class="tab" onclick="showTab('analytics',this)">Analytics</div>
+    </div>
+
+    <!-- DASHBOARD TAB -->
+    <div class="tab-page active" id="tab-dashboard">
+      <div class="stats-row">
+        <div class="stat-card gold">
+          <span class="stat-icon">📞</span>
+          <div class="stat-label">Calls Today</div>
+          <div class="stat-value">24<span> calls</span></div>
+          <div class="stat-change up">↑ +8 vs yesterday</div>
+        </div>
+        <div class="stat-card green">
+          <span class="stat-icon">✅</span>
+          <div class="stat-label">Appointments Booked</div>
+          <div class="stat-value">19<span> appts</span></div>
+          <div class="stat-change up">↑ 79% conversion</div>
+        </div>
+        <div class="stat-card rose">
+          <span class="stat-icon">🚫</span>
+          <div class="stat-label">No-Shows Contacted</div>
+          <div class="stat-value">3<span> patients</span></div>
+          <div class="stat-change up">↑ 2 rescheduled</div>
+        </div>
+        <div class="stat-card teal">
+          <span class="stat-icon">💬</span>
+          <div class="stat-label">Follow-ups Sent</div>
+          <div class="stat-value">11<span> sent</span></div>
+          <div class="stat-change dn">↓ 1 no-response</div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <!-- LIVE CALLS -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><span class="panel-title-icon">📞</span> Recent & Live Calls</div>
+            <div class="panel-action" onclick="showTab('agents',document.querySelectorAll('.tab')[1])">View agents →</div>
+          </div>
+          <div class="call-list">
+            <div class="call-item" onclick="openModal()">
+              <div class="call-avatar" style="background:var(--rose-dim);color:var(--rose);">MC</div>
+              <div class="call-info">
+                <div class="call-name">María Castro</div>
+                <div class="call-detail">Booking — General consultation · Inbound</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <span class="call-badge badge-live">🔴 LIVE</span>
+                <div class="call-duration">2m 14s</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-avatar" style="background:var(--teal-dim);color:var(--teal);">JR</div>
+              <div class="call-info">
+                <div class="call-name">Jorge Ramírez</div>
+                <div class="call-detail">Follow-up — Post dermatology visit</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <span class="call-badge badge-live">🔴 LIVE</span>
+                <div class="call-duration">0m 48s</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-avatar" style="background:var(--green-dim);color:var(--green);">AL</div>
+              <div class="call-info">
+                <div class="call-name">Ana López</div>
+                <div class="call-detail">Booking — Dentist · Apr 2, 10:00 AM</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <span class="call-badge badge-booked">BOOKED</span>
+                <div class="call-time">09:02 AM</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-avatar" style="background:var(--rose-dim);color:var(--rose);">PM</div>
+              <div class="call-info">
+                <div class="call-name">Pedro Morales</div>
+                <div class="call-detail">No-show recovery — Missed Mar 25 appt</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <span class="call-badge badge-noshow">RESCHEDULED</span>
+                <div class="call-time">08:47 AM</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-avatar" style="background:rgba(201,168,76,0.15);color:var(--gold);">SF</div>
+              <div class="call-info">
+                <div class="call-name">Sofía Fernández</div>
+                <div class="call-detail">Booking — Pediatric checkup</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <span class="call-badge badge-pending">PENDING</span>
+                <div class="call-time">08:31 AM</div>
+              </div>
+            </div>
+            <div class="call-item">
+              <div class="call-avatar" style="background:var(--teal-dim);color:var(--teal);">RV</div>
+              <div class="call-info">
+                <div class="call-name">Ricardo Vega</div>
+                <div class="call-detail">Follow-up — Post physio session feedback</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <span class="call-badge badge-followup">FOLLOW-UP</span>
+                <div class="call-time">08:15 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TODAY SLOTS -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><span class="panel-title-icon">🗓</span> Today's Slots</div>
+            <div class="panel-action">+ Add slot</div>
+          </div>
+          <div class="booking-slots">
+            <div class="slot-day-label">Thursday, March 26</div>
+            <div class="slot-grid">
+              <div class="slot taken">8:00 AM</div>
+              <div class="slot taken">8:30 AM</div>
+              <div class="slot taken">9:00 AM</div>
+              <div class="slot live-slot">9:30 AM</div>
+              <div class="slot taken">10:00 AM</div>
+              <div class="slot free">10:30 AM</div>
+              <div class="slot free">11:00 AM</div>
+              <div class="slot taken">11:30 AM</div>
+              <div class="slot free">2:00 PM</div>
+              <div class="slot free">2:30 PM</div>
+              <div class="slot free">3:00 PM</div>
+              <div class="slot taken">3:30 PM</div>
+              <div class="slot free">4:00 PM</div>
+              <div class="slot free">4:30 PM</div>
+            </div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);">
+              <span style="display:flex;align-items:center;gap:5px;">
+                <span style="width:10px;height:10px;border-radius:3px;background:var(--green-dim);border:1px solid rgba(76,217,160,0.3);display:inline-block;"></span>Booked
+              </span>
+              <span style="display:flex;align-items:center;gap:5px;">
+                <span style="width:10px;height:10px;border-radius:3px;background:transparent;border:1px solid var(--border);display:inline-block;"></span>Free
+              </span>
+              <span style="display:flex;align-items:center;gap:5px;">
+                <span style="width:10px;height:10px;border-radius:3px;background:var(--rose-dim);border:1px solid rgba(240,99,122,0.4);display:inline-block;"></span>In progress
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENTS TAB -->
+    <div class="tab-page" id="tab-agents">
+      <div style="margin-bottom:16px;font-size:13px;color:var(--text-muted);">
+        Three agents work together to cover the full patient journey — from first call to post-visit follow-up.
+      </div>
+      <div class="agent-cards">
+
+        <!-- AGENT 1: INBOUND BOOKING -->
+        <div class="agent-card">
+          <div class="agent-card-header" onclick="toggleAgent(this)">
+            <div class="agent-icon gold">📞</div>
+            <div class="agent-info">
+              <div class="agent-name">Inbound Booking Agent</div>
+              <div class="agent-desc">Answers all inbound calls · Collects patient data · Books via Google Calendar</div>
+            </div>
+            <div class="agent-enabled">
+              <div class="toggle-switch on" onclick="toggleSwitch(event,this)"></div>
+              <span style="font-size:11px;color:var(--green);">ON</span>
+            </div>
+            <div class="agent-toggle">▶</div>
+          </div>
+          <div class="agent-body open">
+            <div class="flow-diagram">
+              <div class="flow-steps">
+                <div class="flow-step">
+                  <div class="flow-node gold">📲</div>
+                  <div class="flow-label">Inbound<br>Call</div>
+                  <div class="flow-sublabel">Patient calls<br>clinic number</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node gold">👋</div>
+                  <div class="flow-label">Greeting &<br>Intent</div>
+                  <div class="flow-sublabel">Holly answers,<br>detects intent</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node gold">📋</div>
+                  <div class="flow-label">Collect<br>Patient Data</div>
+                  <div class="flow-sublabel">Name, DOB,<br>reason, insurance</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node teal">🗓</div>
+                  <div class="flow-label">Check<br>Availability</div>
+                  <div class="flow-sublabel">Google Calendar<br>real-time query</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node green">✅</div>
+                  <div class="flow-label">Book &<br>Confirm</div>
+                  <div class="flow-sublabel">Creates event,<br>sends SMS</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node gold">📁</div>
+                  <div class="flow-label">Log to<br>Dashboard</div>
+                  <div class="flow-sublabel">Patient record<br>saved</div>
+                </div>
+              </div>
+            </div>
+            <div class="script-panel">
+              <div class="script-section">
+                <div class="script-title">🎙 Sample Conversation</div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Thank you for calling Clínica Verde! I'm Holly. Are you calling to schedule an appointment?
+                </div>
+                <div class="convo-bubble bubble-patient">
+                  <span class="bubble-label patient">PATIENT</span>
+                  Yes, I need to see a doctor about back pain.
+                </div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Of course! Can I get your full name and date of birth to get started?
+                </div>
+                <div class="convo-bubble bubble-patient">
+                  <span class="bubble-label patient">PATIENT</span>
+                  María Castro, October 12, 1988.
+                </div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Perfect, María. I have Tuesday April 1st at 10:30 AM available with Dr. Vargas. Does that work for you?
+                </div>
+              </div>
+              <div class="script-section">
+                <div class="script-title">📦 Data Collected</div>
+                <div class="data-fields">
+                  <div class="data-field"><span class="data-field-key">name</span><span class="data-field-val">María Castro</span></div>
+                  <div class="data-field"><span class="data-field-key">dob</span><span class="data-field-val">1988-10-12</span></div>
+                  <div class="data-field"><span class="data-field-key">reason</span><span class="data-field-val">Back pain</span></div>
+                  <div class="data-field"><span class="data-field-key">phone</span><span class="data-field-val">+506 8823-4411</span></div>
+                  <div class="data-field"><span class="data-field-key">slot</span><span class="data-field-val">Apr 1 · 10:30 AM</span></div>
+                  <div class="data-field"><span class="data-field-key">cal_event</span><span class="data-field-val">✓ Created</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="integrations">
+              <span class="int-label">Integrations</span>
+              <span class="int-chip connected">✓ Google Calendar</span>
+              <span class="int-chip connected">✓ SMS via Twilio</span>
+              <span class="int-chip pending">⏳ Retell AI voice</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGENT 2: FOLLOW-UP -->
+        <div class="agent-card">
+          <div class="agent-card-header" onclick="toggleAgent(this)">
+            <div class="agent-icon teal">💬</div>
+            <div class="agent-info">
+              <div class="agent-name">Post-Visit Follow-up Agent</div>
+              <div class="agent-desc">Calls patients 24h after appointment · Collects feedback · Flags concerns</div>
+            </div>
+            <div class="agent-enabled">
+              <div class="toggle-switch on" onclick="toggleSwitch(event,this)"></div>
+              <span style="font-size:11px;color:var(--green);">ON</span>
+            </div>
+            <div class="agent-toggle">▶</div>
+          </div>
+          <div class="agent-body">
+            <div class="flow-diagram">
+              <div class="flow-steps">
+                <div class="flow-step">
+                  <div class="flow-node teal">🗓</div>
+                  <div class="flow-label">Appointment<br>Completed</div>
+                  <div class="flow-sublabel">Calendar event<br>marked done</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node teal">⏰</div>
+                  <div class="flow-label">24h Timer<br>Triggers</div>
+                  <div class="flow-sublabel">Auto-scheduled<br>outbound call</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node teal">📞</div>
+                  <div class="flow-label">Holly Calls<br>Patient</div>
+                  <div class="flow-sublabel">Warm, personal<br>check-in call</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node teal">📝</div>
+                  <div class="flow-label">Collect<br>Feedback</div>
+                  <div class="flow-sublabel">Symptoms, meds,<br>satisfaction</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node rose">🚨</div>
+                  <div class="flow-label">Flag if<br>Concern</div>
+                  <div class="flow-sublabel">Alerts doctor<br>if urgent</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node green">📁</div>
+                  <div class="flow-label">Log to<br>Record</div>
+                  <div class="flow-sublabel">Notes saved<br>to patient file</div>
+                </div>
+              </div>
+            </div>
+            <div class="script-panel">
+              <div class="script-section">
+                <div class="script-title">🎙 Sample Conversation</div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Hi, this is Holly calling from Clínica Verde. You visited yesterday — how are you feeling today?
+                </div>
+                <div class="convo-bubble bubble-patient">
+                  <span class="bubble-label patient">PATIENT</span>
+                  A bit better, thanks. The medication is helping.
+                </div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Wonderful! Are you experiencing any side effects or new symptoms I should note for Dr. Vargas?
+                </div>
+                <div class="convo-bubble bubble-patient">
+                  <span class="bubble-label patient">PATIENT</span>
+                  No, nothing unusual.
+                </div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Great. On a scale of 1–5, how would you rate your experience with us?
+                </div>
+              </div>
+              <div class="script-section">
+                <div class="script-title">📦 Data Collected</div>
+                <div class="data-fields">
+                  <div class="data-field"><span class="data-field-key">recovery</span><span class="data-field-val">Improving</span></div>
+                  <div class="data-field"><span class="data-field-key">side_effects</span><span class="data-field-val">None</span></div>
+                  <div class="data-field"><span class="data-field-key">med_compliance</span><span class="data-field-val">Yes</span></div>
+                  <div class="data-field"><span class="data-field-key">satisfaction</span><span class="data-field-val">5 / 5 ⭐</span></div>
+                  <div class="data-field"><span class="data-field-key">flag_urgent</span><span class="data-field-val" style="color:var(--green);">false</span></div>
+                  <div class="data-field"><span class="data-field-key">next_appt</span><span class="data-field-val">Suggested</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="integrations">
+              <span class="int-label">Integrations</span>
+              <span class="int-chip connected">✓ Google Calendar</span>
+              <span class="int-chip connected">✓ SMS via Twilio</span>
+              <span class="int-chip pending">⏳ Retell AI voice</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGENT 3: NO-SHOW RECOVERY -->
+        <div class="agent-card">
+          <div class="agent-card-header" onclick="toggleAgent(this)">
+            <div class="agent-icon rose">🚫</div>
+            <div class="agent-info">
+              <div class="agent-name">No-Show Recovery Agent</div>
+              <div class="agent-desc">Detects missed appointments · Calls to reschedule · Logs reason</div>
+            </div>
+            <div class="agent-enabled">
+              <div class="toggle-switch on" onclick="toggleSwitch(event,this)"></div>
+              <span style="font-size:11px;color:var(--green);">ON</span>
+            </div>
+            <div class="agent-toggle">▶</div>
+          </div>
+          <div class="agent-body">
+            <div class="flow-diagram">
+              <div class="flow-steps">
+                <div class="flow-step">
+                  <div class="flow-node rose">📆</div>
+                  <div class="flow-label">Missed<br>Detected</div>
+                  <div class="flow-sublabel">Calendar slot<br>passed, no check-in</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node rose">⏱</div>
+                  <div class="flow-label">30-min Wait<br>Then Call</div>
+                  <div class="flow-sublabel">Delay to confirm<br>it's a true no-show</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node rose">📞</div>
+                  <div class="flow-label">Holly Calls<br>Patient</div>
+                  <div class="flow-sublabel">Warm, non-<br>judgmental tone</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node rose">❓</div>
+                  <div class="flow-label">Reason &<br>Reschedule</div>
+                  <div class="flow-sublabel">Offer next<br>available slot</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node teal">🗓</div>
+                  <div class="flow-label">Rebook on<br>Calendar</div>
+                  <div class="flow-sublabel">New event<br>created</div>
+                </div>
+                <div class="flow-step">
+                  <div class="flow-node gold">📊</div>
+                  <div class="flow-label">Log Reason<br>& Outcome</div>
+                  <div class="flow-sublabel">Reason tracked<br>for reporting</div>
+                </div>
+              </div>
+            </div>
+            <div class="script-panel">
+              <div class="script-section">
+                <div class="script-title">🎙 Sample Conversation</div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Hi Pedro, this is Holly from Clínica Verde. We noticed you missed your appointment today — is everything okay?
+                </div>
+                <div class="convo-bubble bubble-patient">
+                  <span class="bubble-label patient">PATIENT</span>
+                  Oh, I completely forgot. I'm so sorry.
+                </div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  No worries at all! I have Thursday March 27th at 3:00 PM or Friday at 11:00 AM available. Which works better?
+                </div>
+                <div class="convo-bubble bubble-patient">
+                  <span class="bubble-label patient">PATIENT</span>
+                  Friday at 11 works great!
+                </div>
+                <div class="convo-bubble bubble-holly">
+                  <span class="bubble-label holly">HOLLY</span>
+                  Perfect, Pedro! I've rebooked you for Friday March 28th at 11:00 AM. You'll get a reminder the day before.
+                </div>
+              </div>
+              <div class="script-section">
+                <div class="script-title">📦 Data Collected</div>
+                <div class="data-fields">
+                  <div class="data-field"><span class="data-field-key">no_show_reason</span><span class="data-field-val">Forgot</span></div>
+                  <div class="data-field"><span class="data-field-key">rescheduled</span><span class="data-field-val" style="color:var(--green);">true</span></div>
+                  <div class="data-field"><span class="data-field-key">new_slot</span><span class="data-field-val">Mar 28 · 11:00 AM</span></div>
+                  <div class="data-field"><span class="data-field-key">cal_event</span><span class="data-field-val">✓ Rebooked</span></div>
+                  <div class="data-field"><span class="data-field-key">sms_confirm</span><span class="data-field-val">✓ Sent</span></div>
+                  <div class="data-field"><span class="data-field-key">reminder_set</span><span class="data-field-val">24h before</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="integrations">
+              <span class="int-label">Integrations</span>
+              <span class="int-chip connected">✓ Google Calendar</span>
+              <span class="int-chip connected">✓ SMS via Twilio</span>
+              <span class="int-chip pending">⏳ Retell AI voice</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PATIENTS TAB -->
+    <div class="tab-page" id="tab-patients">
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="panel-header">
+          <div class="panel-title">👤 Patient Records</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div style="background:var(--panel2);border:1px solid var(--border);padding:6px 12px;border-radius:7px;font-size:12px;color:var(--text-muted);">🔍 Search patients…</div>
+            <div class="panel-action">Export CSV</div>
+          </div>
+        </div>
+        <div class="patient-table">
+          <div class="pt-head">
+            <div>Patient</div>
+            <div>Phone</div>
+            <div>Reason</div>
+            <div>Next Appt</div>
+            <div>Status</div>
+          </div>
+          <div class="pt-row" onclick="openModal()">
+            <div class="pt-name">María Castro</div>
+            <div class="pt-phone">+506 8823-4411</div>
+            <div class="pt-reason">Back pain</div>
+            <div class="pt-date">Apr 1 · 10:30</div>
+            <div><span class="call-badge badge-booked">BOOKED</span></div>
+          </div>
+          <div class="pt-row">
+            <div class="pt-name">Jorge Ramírez</div>
+            <div class="pt-phone">+506 7712-9934</div>
+            <div class="pt-reason">Dermatology</div>
+            <div class="pt-date">Mar 27 · 09:00</div>
+            <div><span class="call-badge badge-followup">FOLLOW-UP</span></div>
+          </div>
+          <div class="pt-row">
+            <div class="pt-name">Ana López</div>
+            <div class="pt-phone">+506 6654-2201</div>
+            <div class="pt-reason">Dental checkup</div>
+            <div class="pt-date">Apr 2 · 10:00</div>
+            <div><span class="call-badge badge-booked">BOOKED</span></div>
+          </div>
+          <div class="pt-row">
+            <div class="pt-name">Pedro Morales</div>
+            <div class="pt-phone">+506 8899-1122</div>
+            <div class="pt-reason">Hypertension</div>
+            <div class="pt-date">Mar 28 · 11:00</div>
+            <div><span class="call-badge badge-noshow">RESCHEDULED</span></div>
+          </div>
+          <div class="pt-row">
+            <div class="pt-name">Sofía Fernández</div>
+            <div class="pt-phone">+506 7700-5566</div>
+            <div class="pt-reason">Pediatric — fever</div>
+            <div class="pt-date">TBD</div>
+            <div><span class="call-badge badge-pending">PENDING</span></div>
+          </div>
+          <div class="pt-row">
+            <div class="pt-name">Ricardo Vega</div>
+            <div class="pt-phone">+506 8811-3300</div>
+            <div class="pt-reason">Physio follow-up</div>
+            <div class="pt-date">Apr 4 · 14:00</div>
+            <div><span class="call-badge badge-followup">FOLLOW-UP</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div class="tab-page" id="tab-analytics">
+      <div class="analytics-grid">
+        <div class="mini-chart">
+          <div class="mini-chart-title">Booking Rate</div>
+          <div class="mini-chart-val">79%</div>
+          <div class="mini-chart-sub">Calls → confirmed appts</div>
+          <div class="bar-chart">
+            <div class="bar" style="height:60%;background:var(--gold);opacity:0.6;"></div>
+            <div class="bar" style="height:70%;background:var(--gold);opacity:0.7;"></div>
+            <div class="bar" style="height:65%;background:var(--gold);opacity:0.6;"></div>
+            <div class="bar" style="height:80%;background:var(--gold);opacity:0.8;"></div>
+            <div class="bar" style="height:75%;background:var(--gold);opacity:0.7;"></div>
+            <div class="bar" style="height:79%;background:var(--gold);"></div>
+          </div>
+        </div>
+        <div class="mini-chart">
+          <div class="mini-chart-title">No-Show Recovery</div>
+          <div class="mini-chart-val">67%</div>
+          <div class="mini-chart-sub">No-shows rescheduled</div>
+          <div class="bar-chart">
+            <div class="bar" style="height:40%;background:var(--rose);opacity:0.5;"></div>
+            <div class="bar" style="height:55%;background:var(--rose);opacity:0.6;"></div>
+            <div class="bar" style="height:60%;background:var(--rose);opacity:0.7;"></div>
+            <div class="bar" style="height:50%;background:var(--rose);opacity:0.6;"></div>
+            <div class="bar" style="height:65%;background:var(--rose);opacity:0.8;"></div>
+            <div class="bar" style="height:67%;background:var(--rose);"></div>
+          </div>
+        </div>
+        <div class="mini-chart">
+          <div class="mini-chart-title">Avg Call Duration</div>
+          <div class="mini-chart-val">2m 47s</div>
+          <div class="mini-chart-sub">Across all agent types</div>
+          <div class="bar-chart">
+            <div class="bar" style="height:65%;background:var(--teal);opacity:0.6;"></div>
+            <div class="bar" style="height:80%;background:var(--teal);opacity:0.7;"></div>
+            <div class="bar" style="height:70%;background:var(--teal);opacity:0.6;"></div>
+            <div class="bar" style="height:75%;background:var(--teal);opacity:0.7;"></div>
+            <div class="bar" style="height:72%;background:var(--teal);opacity:0.8;"></div>
+            <div class="bar" style="height:74%;background:var(--teal);"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📊 Calls This Week</div>
+          </div>
+          <div style="padding:20px;">
+            <div style="display:flex;align-items:flex-end;gap:8px;height:100px;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="height:50px;width:100%;background:var(--gold-glow);border:1px solid rgba(201,168,76,0.3);border-radius:4px;"></div>
+                <div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">Mon</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="height:70px;width:100%;background:var(--gold-glow);border:1px solid rgba(201,168,76,0.3);border-radius:4px;"></div>
+                <div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">Tue</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="height:60px;width:100%;background:var(--gold-glow);border:1px solid rgba(201,168,76,0.3);border-radius:4px;"></div>
+                <div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">Wed</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="height:90px;width:100%;background:linear-gradient(0deg,rgba(201,168,76,0.3),rgba(201,168,76,0.6));border:1px solid rgba(201,168,76,0.5);border-radius:4px;"></div>
+                <div style="font-size:10px;color:var(--gold);font-family:var(--font-mono);font-weight:600;">Thu ←</div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="height:40px;width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:4px;opacity:0.4;"></div>
+                <div style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">Fri</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🤖 Agent Performance</div>
+          </div>
+          <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;">
+                <span style="color:var(--text);">📞 Inbound Booking</span>
+                <span style="color:var(--gold);font-family:var(--font-mono);">79%</span>
+              </div>
+              <div style="height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:79%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:3px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;">
+                <span style="color:var(--text);">💬 Follow-up Agent</span>
+                <span style="color:var(--teal);font-family:var(--font-mono);">91%</span>
+              </div>
+              <div style="height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:91%;background:linear-gradient(90deg,var(--teal),#7ee8e8);border-radius:3px;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;">
+                <span style="color:var(--text);">🚫 No-Show Recovery</span>
+                <span style="color:var(--rose);font-family:var(--font-mono);">67%</span>
+              </div>
+              <div style="height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:67%;background:linear-gradient(90deg,var(--rose),#f8a3b3);border-radius:3px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CALL DETAIL MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">María Castro <span style="color:var(--gold)">· Live Call</span></div>
+      <div class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-title">Patient Info</div>
+        <div class="data-fields">
+          <div class="data-field"><span class="data-field-key">phone</span><span class="data-field-val">+506 8823-4411</span></div>
+          <div class="data-field"><span class="data-field-key">dob</span><span class="data-field-val">1988-10-12</span></div>
+          <div class="data-field"><span class="data-field-key">reason</span><span class="data-field-val">Back pain</span></div>
+          <div class="data-field"><span class="data-field-key">duration</span><span class="data-field-val" id="modal-dur">2m 14s</span></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Live Transcript</div>
+        <div class="transcript-line">
+          <span class="transcript-who">HOLLY</span>
+          <span class="transcript-text">Thank you for calling Clínica Verde! I'm Holly, your virtual assistant. Are you calling to schedule a new appointment?</span>
+        </div>
+        <div class="transcript-line">
+          <span class="transcript-who patient">PATIENT</span>
+          <span class="transcript-text">Yes, I've been having back pain for the last week and need to see a doctor.</span>
+        </div>
+        <div class="transcript-line">
+          <span class="transcript-who">HOLLY</span>
+          <span class="transcript-text">I'm sorry to hear that. Let me help you get that scheduled right away. Can I get your full name and date of birth?</span>
+        </div>
+        <div class="transcript-line">
+          <span class="transcript-who patient">PATIENT</span>
+          <span class="transcript-text">María Castro, October 12, 1988.</span>
+        </div>
+        <div class="transcript-line">
+          <span class="transcript-who">HOLLY</span>
+          <span class="transcript-text">Perfect, María. I'm checking Dr. Vargas's availability now…</span>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Calendar Check</div>
+        <div style="background:var(--teal-dim);border:1px solid rgba(62,207,207,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--teal);">
+          ✓ Checking Google Calendar… 3 slots available Apr 1–3
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    document.getElementById('clock').textContent =
+      `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()} · ${h12}:${m} ${ampm}`;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // Tabs
+  function showTab(id, el) {
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    if (el && el.classList) el.classList.add('active');
+  }
+
+  // Nav
+  function setNav(el, tab) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    const map = { dashboard: 'dashboard', calls: 'dashboard', agents: 'agents', patients: 'patients', analytics: 'analytics', calendar: 'analytics' };
+    const tabEl = document.querySelectorAll('.tab')[['dashboard','agents','patients','analytics'].indexOf(map[tab])];
+    showTab(map[tab], tabEl);
+  }
+
+  // Toggle agent body
+  function toggleAgent(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.agent-toggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    arrow.classList.toggle('open', !isOpen);
+  }
+
+  // Toggle switch
+  function toggleSwitch(e, sw) {
+    e.stopPropagation();
+    sw.classList.toggle('on');
+    const label = sw.nextElementSibling;
+    if (sw.classList.contains('on')) {
+      label.textContent = 'ON';
+      label.style.color = 'var(--green)';
+    } else {
+      label.textContent = 'OFF';
+      label.style.color = 'var(--text-muted)';
+    }
+  }
+
+  // Modal
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+    let s = 134;
+    const timer = setInterval(() => {
+      s++;
+      const m = Math.floor(s/60);
+      document.getElementById('modal-dur').textContent = m + 'm ' + (s%60) + 's';
+    }, 1000);
+  }
+
+  function closeModal(e) {
+    if (e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
+  }
+</script>
+</body>
+</html>
