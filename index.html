@@ -1141,7 +1141,8 @@
     <li><a href="#how">How it works</a></li>
     <li><a href="#agent">Live Demo</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li><a href="#pricing" class="nav-cta" onclick="openModal('Essential')">Get Started</a></li>
+    <li><a href="holly-dashboard.html">Log In</a></li>
+    <li><a href="holly-dashboard.html" class="nav-cta">Get Started</a></li>
   </ul>
 </nav>
 
@@ -1152,8 +1153,49 @@
   <h1>Never miss a<br><em>patient</em> again.</h1>
   <p class="hero-sub">Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep.</p>
   <div class="hero-actions">
-    <button class="btn-primary" onclick="openModal('Essential')">Start Free Trial</button>
-    <a href="#agent" class="btn-ghost">▶ Hear Holly Live</a>
+    <a href="holly-dashboard.html" class="btn-primary">Start Free Trial</a>
+    <a href="#demo" class="btn-ghost">▶ Try Holly Now</a>
+  </div>
+
+  <!-- LIVE DEMO BAR -->
+  <div id="demo" style="margin-top:48px;width:100%;max-width:860px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:32px 40px;display:flex;align-items:center;gap:48px;flex-wrap:wrap;justify-content:center;">
+    <div style="text-align:center;">
+      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:10px;">🔴 LIVE — Call Holly Now</div>
+      <a href="tel:+15186282549" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--white);text-decoration:none;letter-spacing:-0.02em;">+1 (518) 628-2549</a>
+      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;">Real AI · Real booking · Answers in 2s</div>
+    </div>
+    <div style="width:1px;height:60px;background:rgba(248,245,239,0.1);"></div>
+    <div style="text-align:center;">
+      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:10px;">💬 No Phone? Chat Demo</div>
+      <button onclick="openChatDemo()" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;background:none;border:none;color:var(--white);cursor:pointer;letter-spacing:-0.01em;">Try Holly in Browser →</button>
+      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;">No download · No signup needed</div>
+    </div>
+  </div>
+
+  <!-- CHAT DEMO MODAL -->
+  <div id="chat-demo-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,14,26,0.92);backdrop-filter:blur(12px);z-index:600;align-items:center;justify-content:center;padding:40px;">
+    <div style="background:var(--navy);border:1px solid rgba(201,168,76,0.2);border-radius:8px;width:100%;max-width:480px;overflow:hidden;position:relative;">
+      <div style="padding:20px 24px;border-bottom:1px solid rgba(248,245,239,0.06);display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,0.04);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:10px;height:10px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></div>
+          <div>
+            <div style="font-size:0.875rem;font-weight:600;">Holly — Live Demo</div>
+            <div style="font-size:0.68rem;color:var(--white-dim);letter-spacing:0.06em;">Holly.ai Demo Clinic</div>
+          </div>
+        </div>
+        <button onclick="closeChatDemo()" style="background:none;border:none;color:var(--white-dim);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+      </div>
+      <div id="chat-messages" style="padding:24px;height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+        <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.15);color:var(--white);padding:12px 16px;border-radius:2px;max-width:85%;font-size:0.875rem;line-height:1.5;">
+          <div style="font-size:0.6rem;font-family:'DM Mono',monospace;color:var(--gold);letter-spacing:0.1em;margin-bottom:4px;">HOLLY</div>
+          Hello! Thank you for calling Holly.ai Demo Clinic. My name is Holly. Are you calling to schedule an appointment?
+        </div>
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid rgba(248,245,239,0.06);display:flex;gap:12px;background:rgba(201,168,76,0.04);">
+        <input id="chat-input" type="text" placeholder="Type your message..." onkeydown="if(event.key==='Enter')sendChat()" style="flex:1;background:rgba(248,245,239,0.06);border:1px solid rgba(248,245,239,0.1);border-radius:4px;padding:12px 16px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.875rem;outline:none;" />
+        <button onclick="sendChat()" style="background:var(--gold);border:none;border-radius:4px;padding:12px 20px;color:var(--ink);font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Send</button>
+      </div>
+    </div>
   </div>
   <div class="stats-bar">
     <div class="stat-item">
@@ -1244,6 +1286,8 @@
               <button class="call-btn mute" title="Mute">🔇</button>
               <button class="call-btn end" title="End">📵</button>
             </div>
+            <audio id="holly-audio" src="holly-demo.wav"></audio>
+            <button id="play-demo-btn" onclick="toggleAudio()" style="margin-top:16px;background:var(--gold);border:none;border-radius:100px;padding:10px 24px;color:var(--ink);font-family:DM Sans,sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin-left:auto;margin-right:auto;transition:all 0.2s;"><span id="play-icon">▶</span> <span id="play-label">Hear Holly Live</span></button>
           </div>
         </div>
       </div>
@@ -1364,7 +1408,7 @@
         <li>Clinic dashboard access</li>
         <li>English + Spanish support</li>
       </ul>
-      <a href="#" class="btn-plan" onclick="openModal('Essential'); return false;">Get Started →</a>
+      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
     </div>
 
     <!-- Premium -->
@@ -1388,7 +1432,7 @@
         <li class="extra">Multi-location support</li>
         <li class="extra">EHR integration</li>
       </ul>
-      <a href="#" class="btn-plan" onclick="openModal('Premium'); return false;">Get Started →</a>
+      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
     </div>
   </div>
 </section>
@@ -1503,9 +1547,114 @@
     if (e.target === document.getElementById('modal')) closeModal();
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
+    const form = document.getElementById('modal-form');
+    const firstName = form.querySelector('input[placeholder="Maria"]').value;
+    const lastName = form.querySelector('input[placeholder="Gonzalez"]').value;
+    const clinic = form.querySelector('input[placeholder="Sunshine Clinic"]').value;
+    const email = form.querySelector('input[type="email"]').value;
+    const phone = form.querySelector('input[type="tel"]').value;
+    const plan = document.getElementById('modal-select').value;
+
+    if (!firstName || !email || !clinic) {
+      alert('Please fill in your name, clinic, and email.');
+      return;
+    }
+
+    try {
+      await fetch('https://formspree.io/f/mjkwqvnb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'contact@shakeapp.today',
+          name: firstName + ' ' + lastName,
+          email: email,
+          clinic: clinic,
+          phone: phone,
+          plan: plan,
+          _replyto: email,
+          _subject: '🏥 New Holly.ai Signup — ' + plan + ' — ' + clinic
+        })
+      });
+    } catch(e) { console.log('Form error', e); }
+
     document.getElementById('modal-form').style.display = 'none';
     document.getElementById('modal-success').classList.add('show');
+  }
+
+  // ── AUDIO DEMO ──
+  let audioPlaying = false;
+  function toggleAudio() {
+    const audio = document.getElementById('holly-audio');
+    const icon = document.getElementById('play-icon');
+    const label = document.getElementById('play-label');
+    const btn = document.getElementById('play-demo-btn');
+    if (!audioPlaying) {
+      audio.play();
+      audioPlaying = true;
+      icon.textContent = '⏸';
+      label.textContent = 'Pause';
+      btn.style.background = 'var(--teal)';
+      audio.onended = () => {
+        audioPlaying = false;
+        icon.textContent = '▶';
+        label.textContent = 'Hear Holly Live';
+        btn.style.background = 'var(--gold)';
+      };
+    } else {
+      audio.pause();
+      audioPlaying = false;
+      icon.textContent = '▶';
+      label.textContent = 'Hear Holly Live';
+      btn.style.background = 'var(--gold)';
+    }
+  }
+
+  // ── CHAT DEMO ──
+  function openChatDemo() {
+    const el = document.getElementById('chat-demo-overlay');
+    el.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeChatDemo() {
+    document.getElementById('chat-demo-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  const hollyReplies = [
+    "Of course! Could I get your full name please?",
+    "Thank you! And could I get your date of birth for verification?",
+    "Perfect. What is the reason for your visit today?",
+    "Do you have a preferred doctor, or is any available doctor okay?",
+    "I have availability this Thursday at 10 AM or Friday at 2 PM. Which works better for you?",
+    "Your appointment is confirmed! You'll receive an SMS confirmation shortly. Is there anything else I can help you with?",
+    "Thank you for calling Holly.ai Demo Clinic. We look forward to seeing you! Goodbye!"
+  ];
+  let hollyStep = 0;
+
+  function sendChat() {
+    const input = document.getElementById('chat-input');
+    const messages = document.getElementById('chat-messages');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const patientMsg = document.createElement('div');
+    patientMsg.style.cssText = 'background:rgba(248,245,239,0.06);border:1px solid rgba(248,245,239,0.08);color:rgba(248,245,239,0.7);padding:12px 16px;border-radius:2px;max-width:85%;font-size:0.875rem;line-height:1.5;align-self:flex-end;';
+    patientMsg.innerHTML = '<div style="font-size:0.6rem;font-family:DM Mono,monospace;color:rgba(248,245,239,0.5);letter-spacing:0.1em;margin-bottom:4px;text-align:right;">YOU</div>' + text;
+    messages.appendChild(patientMsg);
+    input.value = '';
+    messages.scrollTop = messages.scrollHeight;
+
+    setTimeout(() => {
+      const reply = hollyReplies[hollyStep] || "Thank you for trying Holly! Call +1 (518) 628-2549 for a real booking.";
+      hollyStep = Math.min(hollyStep + 1, hollyReplies.length - 1);
+      const hollyMsg = document.createElement('div');
+      hollyMsg.style.cssText = 'background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.15);color:var(--white);padding:12px 16px;border-radius:2px;max-width:85%;font-size:0.875rem;line-height:1.5;';
+      hollyMsg.innerHTML = '<div style="font-size:0.6rem;font-family:DM Mono,monospace;color:#c9a84c;letter-spacing:0.1em;margin-bottom:4px;">HOLLY</div>' + reply;
+      messages.appendChild(hollyMsg);
+      messages.scrollTop = messages.scrollHeight;
+    }, 800);
   }
 
   // ── SCROLL REVEAL ──
