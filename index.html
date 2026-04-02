@@ -1241,8 +1241,8 @@
               <div class="wave-bar"></div>
             </div>
             <div class="call-btns">
-              <button class="call-btn mute" id="call-audio-btn" title="Play call audio" onclick="toggleCallAudio()">🔊</button>
-              <button class="call-btn end" title="End" onclick="endDemoCall()">📵</button>
+              <button class="call-btn mute" title="Mute">🔇</button>
+              <button class="call-btn end" title="End">📵</button>
             </div>
           </div>
         </div>
@@ -1475,78 +1475,6 @@
     if (el) el.textContent = `${m}:${s}`;
   }, 1000);
 
-  // ── PHONE DEMO AUDIO ──
-  const callTranscript = [
-    { speaker: 'Holly', text: 'Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?' },
-    { speaker: 'Patient', text: 'Hi, yes — I\'d like to book an appointment with Doctor Martinez. My back has been hurting for a few days.' },
-    { speaker: 'Holly', text: 'Of course! I can help you with that. Could I start with your full name, please?' },
-    { speaker: 'Patient', text: 'Sure, it\'s Maria Gonzalez.' },
-    { speaker: 'Holly', text: 'Thank you, Maria. And your date of birth so I can pull up your file?' },
-    { speaker: 'Patient', text: 'March 3rd, 1988.' },
-    { speaker: 'Holly', text: 'Perfect. Doctor Martinez has availability this Thursday at 10 A M or Friday at 2 P M. Which works better for you?' },
-    { speaker: 'Patient', text: 'Thursday at 10 works great!' },
-    { speaker: 'Holly', text: 'Wonderful! I\'ve booked you in for Thursday at 10 A M with Doctor Martinez. You\'ll receive a confirmation SMS shortly. Is there anything else I can help you with?' }
-  ];
-
-  let callAudioPlaying = false;
-  let callAudioLineIndex = 0;
-
-  function updateCallAudioButton() {
-    const btn = document.getElementById('call-audio-btn');
-    if (!btn) return;
-    btn.textContent = callAudioPlaying ? '⏸️' : '🔊';
-    btn.title = callAudioPlaying ? 'Pause call audio' : 'Play call audio';
-    btn.setAttribute('aria-label', btn.title);
-  }
-
-  function playNextCallLine() {
-    if (!callAudioPlaying) return;
-
-    if (callAudioLineIndex >= callTranscript.length) {
-      callAudioPlaying = false;
-      callAudioLineIndex = 0;
-      updateCallAudioButton();
-      return;
-    }
-
-    const line = callTranscript[callAudioLineIndex];
-    const utterance = new SpeechSynthesisUtterance(line.text);
-    utterance.rate = line.speaker === 'Holly' ? 1 : 0.97;
-    utterance.pitch = line.speaker === 'Holly' ? 1.08 : 0.92;
-    utterance.onend = () => {
-      if (!callAudioPlaying) return;
-      callAudioLineIndex++;
-      setTimeout(playNextCallLine, 120);
-    };
-    speechSynthesis.speak(utterance);
-  }
-
-  function toggleCallAudio() {
-    if (!('speechSynthesis' in window)) {
-      alert('Audio playback is not supported in this browser.');
-      return;
-    }
-
-    if (callAudioPlaying) {
-      callAudioPlaying = false;
-      speechSynthesis.cancel();
-      updateCallAudioButton();
-      return;
-    }
-
-    callAudioPlaying = true;
-    if (callAudioLineIndex >= callTranscript.length) callAudioLineIndex = 0;
-    updateCallAudioButton();
-    playNextCallLine();
-  }
-
-  function endDemoCall() {
-    callAudioPlaying = false;
-    callAudioLineIndex = 0;
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
-    updateCallAudioButton();
-  }
-
   // ── PRICING TOGGLE ──
   const prices = { monthly: { essential: 149, premium: 349 }, annual: { essential: 119, premium: 279 } };
   function setFreq(freq, btn) {
@@ -1591,7 +1519,6 @@
   }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  updateCallAudioButton();
 </script>
 </body>
 </html>
