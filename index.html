@@ -1102,16 +1102,20 @@
 
   .footer-links a:hover { color: var(--white); }
 
-  /* ── SCROLL REVEAL ── */
-  .reveal {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+  /* ── MSG HIGHLIGHT ── */
+  .msg.speaking {
+    box-shadow: 0 0 0 2px var(--gold);
+    transition: box-shadow 0.2s;
+  }
+  .msg.patient.speaking {
+    box-shadow: 0 0 0 2px var(--teal);
   }
 
-  .js-reveal .reveal {
+  /* ── SCROLL REVEAL ── */
+  .reveal {
     opacity: 0;
     transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
   }
 
   .reveal.visible {
@@ -1135,22 +1139,7 @@
     .form-row { grid-template-columns: 1fr; }
     .stats-bar { flex-wrap: wrap; }
   }
-
-  /* ── INTEREST MODAL EXTRAS ── */
-  #interest-email-error {
-    color: var(--red);
-    font-size: 0.8rem;
-    margin-top: 8px;
-    display: none;
-  }
-
-  #interest-submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1303,11 +1292,10 @@
               <div class="wave-bar"></div>
             </div>
             <div class="call-btns">
-              <button class="call-btn mute" title="Mute">🔇</button>
-              <button class="call-btn end" title="End">📵</button>
+              <button class="call-btn mute" title="Mute" onclick="toggleMute()" id="mute-btn">🔇</button>
+              <button class="call-btn end" title="End" onclick="stopDemo()">📵</button>
             </div>
-            <audio id="holly-audio" src="holly-demo.wav"></audio>
-            <button id="play-demo-btn" onclick="toggleAudio()" style="margin-top:16px;background:var(--gold);border:none;border-radius:100px;padding:10px 24px;color:var(--ink);font-family:DM Sans,sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin-left:auto;margin-right:auto;transition:all 0.2s;"><span id="play-icon">▶</span> <span id="play-label">Hear Holly Live</span></button>
+            <button id="play-demo-btn" onclick="toggleDemo()" style="margin-top:16px;background:var(--gold);border:none;border-radius:100px;padding:10px 24px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin-left:auto;margin-right:auto;transition:all 0.2s;letter-spacing:0.02em;"><span id="play-icon">▶</span> <span id="play-label">Hear Holly Live</span></button>
           </div>
         </div>
       </div>
@@ -1325,16 +1313,16 @@
           <div style="font-size:0.72rem; color: var(--gold); font-family: 'DM Mono', monospace;">RECORDING</div>
         </div>
 
-        <div class="convo-body">
-          <div class="msg holly">Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?</div>
-          <div class="msg patient">Hi, yes — I'd like to book an appointment with Dr. Martinez. My back has been hurting for a few days.</div>
-          <div class="msg holly">Of course! I can help you with that. Could I start with your full name, please?</div>
-          <div class="msg patient">Sure, it's Maria Gonzalez.</div>
-          <div class="msg holly">Thank you, Maria. And your date of birth so I can pull up your file?</div>
-          <div class="msg patient">March 3rd, 1988.</div>
-          <div class="msg holly">Perfect. Dr. Martinez has availability this Thursday at 10 AM or Friday at 2 PM. Which works better for you?</div>
-          <div class="msg patient">Thursday at 10 works great!</div>
-          <div class="msg holly">Wonderful! I've booked you in for Thursday at 10 AM with Dr. Martinez. You'll receive a confirmation SMS shortly. Is there anything else I can help you with?</div>
+        <div class="convo-body" id="convo-body">
+          <div class="msg holly" id="cmsg-0">Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?</div>
+          <div class="msg patient" id="cmsg-1">Hi, yes — I'd like to book an appointment with Dr. Martinez. My back has been hurting for a few days.</div>
+          <div class="msg holly" id="cmsg-2">Of course! I can help you with that. Could I start with your full name, please?</div>
+          <div class="msg patient" id="cmsg-3">Sure, it's Maria Gonzalez.</div>
+          <div class="msg holly" id="cmsg-4">Thank you, Maria. And your date of birth so I can pull up your file?</div>
+          <div class="msg patient" id="cmsg-5">March 3rd, 1988.</div>
+          <div class="msg holly" id="cmsg-6">Perfect. Dr. Martinez has availability this Thursday at 10 AM or Friday at 2 PM. Which works better for you?</div>
+          <div class="msg patient" id="cmsg-7">Thursday at 10 works great!</div>
+          <div class="msg holly" id="cmsg-8">Wonderful! I've booked you in for Thursday at 10 AM with Dr. Martinez. You'll receive a confirmation SMS shortly. Is there anything else I can help you with?</div>
         </div>
 
         <div class="convo-footer">
@@ -1428,7 +1416,7 @@
         <li>Clinic dashboard access</li>
         <li>English + Spanish support</li>
       </ul>
-      <button class="btn-plan" onclick="openInterestModal('Essential')">Get Started →</button>
+      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
     </div>
 
     <!-- Premium -->
@@ -1452,7 +1440,7 @@
         <li class="extra">Multi-location support</li>
         <li class="extra">EHR integration</li>
       </ul>
-      <button class="btn-plan" onclick="openInterestModal('Premium')">Get Started →</button>
+      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
     </div>
   </div>
 </section>
@@ -1467,7 +1455,7 @@
     <li><a href="#">Privacy</a></li>
     <li><a href="#">Terms</a></li>
     <li><a href="#">HIPAA</a></li>
-    <li><a href="#">Contact</a></li>
+    <li><a href="mailto:contact@shakeapp.today">Contact</a></li>
   </ul>
 </footer>
 
@@ -1528,101 +1516,7 @@
   </div>
 </div>
 
-<!-- INTEREST CAPTURE MODAL -->
-<div class="modal-overlay" id="interest-modal" onclick="closeInterestModalOutside(event)">
-  <div class="modal">
-    <button class="modal-close" onclick="closeInterestModal()">✕</button>
-
-    <!-- Form State -->
-    <div id="interest-form-wrap">
-      <div class="modal-plan-badge" id="interest-plan-badge">Holly Essential</div>
-      <h2>Confirm your interest</h2>
-      <p class="modal-sub">Enter your email and we'll reach out within 24 hours to get Holly set up for your clinic.</p>
-      <div class="form-group">
-        <label for="interest-email">Email Address</label>
-        <input type="email" id="interest-email" placeholder="you@yourclinic.com" />
-        <p id="interest-email-error">Please enter a valid email address.</p>
-      </div>
-      <button class="form-submit" id="interest-submit-btn" onclick="handleInterestSubmit()">Confirm Interest</button>
-      <p class="form-note">🔒 No spam. We'll only reach out about Holly.</p>
-    </div>
-
-    <!-- Success State -->
-    <div class="success-msg" id="interest-success">
-      <span class="success-icon">🎉</span>
-      <h3>You're in the list!</h3>
-      <p style="margin-bottom:16px;">We'll reach out within 24 hours to get Holly set up for your clinic.</p>
-      <p style="color:var(--gold);font-weight:500;">Check your email for next steps.</p>
-    </div>
-  </div>
-</div>
-
 <script>
-  // ── SUPABASE ──
-  // ⚠️  Replace these two values with your actual Supabase project credentials
-  const SUPABASE_URL      = 'YOUR_SUPABASE_PROJECT_URL';
-  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // ── INTEREST MODAL ──
-  let _interestPlan = '';
-
-  function openInterestModal(plan) {
-    _interestPlan = plan;
-    document.getElementById('interest-plan-badge').textContent = 'Holly ' + plan;
-    const emailInput = document.getElementById('interest-email');
-    emailInput.value = '';
-    emailInput.style.borderColor = '';
-    document.getElementById('interest-email-error').style.display = 'none';
-    document.getElementById('interest-form-wrap').style.display = '';
-    document.getElementById('interest-success').classList.remove('show');
-    const btn = document.getElementById('interest-submit-btn');
-    btn.textContent = 'Confirm Interest';
-    btn.disabled = false;
-    document.getElementById('interest-modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeInterestModal() {
-    document.getElementById('interest-modal').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function closeInterestModalOutside(e) {
-    if (e.target === document.getElementById('interest-modal')) closeInterestModal();
-  }
-
-  async function handleInterestSubmit() {
-    const emailInput = document.getElementById('interest-email');
-    const errorEl    = document.getElementById('interest-email-error');
-    const submitBtn  = document.getElementById('interest-submit-btn');
-    const email      = emailInput.value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!email || !emailRegex.test(email)) {
-      errorEl.style.display = 'block';
-      emailInput.style.borderColor = 'var(--red)';
-      return;
-    }
-
-    errorEl.style.display = 'none';
-    emailInput.style.borderColor = '';
-    submitBtn.textContent = 'Sending\u2026';
-    submitBtn.disabled = true;
-
-    try {
-      const { error } = await supabaseClient
-        .from('hollyai_leads')
-        .insert({ email: email, plan: _interestPlan, status: 'new' });
-      if (error) console.error('Supabase insert error:', error);
-    } catch (err) {
-      console.error('Interest submit error:', err);
-    }
-
-    document.getElementById('interest-form-wrap').style.display = 'none';
-    document.getElementById('interest-success').classList.add('show');
-  }
-
   // ── TIMER ──
   let seconds = 0;
   setInterval(() => {
@@ -1696,32 +1590,161 @@
     document.getElementById('modal-success').classList.add('show');
   }
 
-  // ── AUDIO DEMO ──
-  let audioPlaying = false;
-  function toggleAudio() {
-    const audio = document.getElementById('holly-audio');
-    const icon = document.getElementById('play-icon');
-    const label = document.getElementById('play-label');
-    const btn = document.getElementById('play-demo-btn');
-    if (!audioPlaying) {
-      audio.play();
-      audioPlaying = true;
-      icon.textContent = '⏸';
-      label.textContent = 'Pause';
-      btn.style.background = 'var(--teal)';
-      audio.onended = () => {
-        audioPlaying = false;
-        icon.textContent = '▶';
-        label.textContent = 'Hear Holly Live';
-        btn.style.background = 'var(--gold)';
-      };
+  // ── VOICE DEMO ──
+  // Script: alternating Holly (AI) and Patient lines
+  const demoScript = [
+    { role: 'holly',   id: 'cmsg-0', text: "Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?" },
+    { role: 'patient', id: 'cmsg-1', text: "Hi, yes, I'd like to book an appointment with Dr. Martinez. My back has been hurting for a few days." },
+    { role: 'holly',   id: 'cmsg-2', text: "Of course! I can help you with that. Could I start with your full name, please?" },
+    { role: 'patient', id: 'cmsg-3', text: "Sure, it's Maria Gonzalez." },
+    { role: 'holly',   id: 'cmsg-4', text: "Thank you, Maria. And your date of birth so I can pull up your file?" },
+    { role: 'patient', id: 'cmsg-5', text: "March 3rd, 1988." },
+    { role: 'holly',   id: 'cmsg-6', text: "Perfect. Dr. Martinez has availability this Thursday at 10 AM or Friday at 2 PM. Which works better for you?" },
+    { role: 'patient', id: 'cmsg-7', text: "Thursday at 10 works great!" },
+    { role: 'holly',   id: 'cmsg-8', text: "Wonderful! I've booked you in for Thursday at 10 AM with Dr. Martinez. You'll receive a confirmation SMS shortly. Is there anything else I can help you with?" }
+  ];
+
+  let demoPlaying = false;
+  let demoMuted = false;
+  let demoIndex = 0;
+  let currentUtterance = null;
+  let demoTimeout = null;
+
+  function getVoice(role) {
+    const voices = window.speechSynthesis.getVoices();
+    if (role === 'holly') {
+      // Prefer a natural-sounding female voice — the "retail AI" style
+      const preferred = ['Samantha', 'Karen', 'Moira', 'Victoria', 'Allison', 'Ava', 'Susan', 'Zoe'];
+      for (const name of preferred) {
+        const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+        if (v) return v;
+      }
+      // Fallback: any English female voice
+      return voices.find(v => v.lang.startsWith('en') && /female|woman/i.test(v.name))
+          || voices.find(v => v.lang.startsWith('en'))
+          || null;
     } else {
-      audio.pause();
-      audioPlaying = false;
-      icon.textContent = '▶';
-      label.textContent = 'Hear Holly Live';
-      btn.style.background = 'var(--gold)';
+      // Patient: slightly different voice
+      const preferred = ['Alex', 'Fred', 'Daniel', 'Tom', 'Oliver'];
+      for (const name of preferred) {
+        const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+        if (v) return v;
+      }
+      return voices.find(v => v.lang.startsWith('en')) || null;
     }
+  }
+
+  function highlightMsg(id) {
+    document.querySelectorAll('.msg').forEach(m => m.classList.remove('speaking'));
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('speaking');
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  function clearHighlight() {
+    document.querySelectorAll('.msg').forEach(m => m.classList.remove('speaking'));
+  }
+
+  function playLine(index) {
+    if (index >= demoScript.length || !demoPlaying) {
+      // Demo finished
+      stopDemo();
+      return;
+    }
+    const line = demoScript[index];
+    highlightMsg(line.id);
+
+    // Animate wave bars only when Holly speaks
+    const waveBars = document.querySelectorAll('.wave-bar');
+    if (line.role === 'holly') {
+      waveBars.forEach(b => b.style.animationPlayState = 'running');
+    } else {
+      waveBars.forEach(b => b.style.animationPlayState = 'paused');
+    }
+
+    const utter = new SpeechSynthesisUtterance(line.text);
+    utter.voice = getVoice(line.role);
+    utter.rate  = line.role === 'holly' ? 1.05 : 0.98;
+    utter.pitch = line.role === 'holly' ? 1.15 : 0.9;
+    utter.volume = demoMuted ? 0 : 1;
+    currentUtterance = utter;
+
+    utter.onend = () => {
+      if (!demoPlaying) return;
+      // Small pause between lines
+      const pause = line.role === 'holly' ? 900 : 600;
+      demoTimeout = setTimeout(() => playLine(index + 1), pause);
+    };
+    utter.onerror = () => {
+      demoTimeout = setTimeout(() => playLine(index + 1), 400);
+    };
+
+    window.speechSynthesis.speak(utter);
+    demoIndex = index + 1;
+  }
+
+  function toggleDemo() {
+    if (!demoPlaying) {
+      startDemo();
+    } else {
+      pauseDemo();
+    }
+  }
+
+  function startDemo() {
+    window.speechSynthesis.cancel();
+    demoPlaying = true;
+    demoIndex = 0;
+    const btn = document.getElementById('play-demo-btn');
+    document.getElementById('play-icon').textContent = '⏸';
+    document.getElementById('play-label').textContent = 'Pause';
+    btn.style.background = 'var(--teal)';
+    // Ensure voices are loaded
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => { playLine(0); };
+    } else {
+      playLine(0);
+    }
+  }
+
+  function pauseDemo() {
+    demoPlaying = false;
+    window.speechSynthesis.cancel();
+    clearTimeout(demoTimeout);
+    clearHighlight();
+    document.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'paused');
+    const btn = document.getElementById('play-demo-btn');
+    document.getElementById('play-icon').textContent = '▶';
+    document.getElementById('play-label').textContent = 'Hear Holly Live';
+    btn.style.background = 'var(--gold)';
+  }
+
+  function stopDemo() {
+    demoPlaying = false;
+    window.speechSynthesis.cancel();
+    clearTimeout(demoTimeout);
+    clearHighlight();
+    document.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'running');
+    const btn = document.getElementById('play-demo-btn');
+    document.getElementById('play-icon').textContent = '▶';
+    document.getElementById('play-label').textContent = 'Hear Holly Live';
+    btn.style.background = 'var(--gold)';
+  }
+
+  function toggleMute() {
+    demoMuted = !demoMuted;
+    const btn = document.getElementById('mute-btn');
+    btn.textContent = demoMuted ? '🔕' : '🔇';
+    btn.title = demoMuted ? 'Unmute' : 'Mute';
+    if (currentUtterance) currentUtterance.volume = demoMuted ? 0 : 1;
+  }
+
+  // Preload voices on page load
+  window.speechSynthesis.getVoices();
+  if (typeof window.speechSynthesis !== 'undefined') {
+    window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
   }
 
   // ── CHAT DEMO ──
@@ -1772,15 +1795,14 @@
   }
 
   // ── SCROLL REVEAL ──
-  document.documentElement.classList.add('js-reveal');
-
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
         e.target.classList.add('visible');
+        observer.unobserve(e.target);
       }
     });
-  }, { threshold: 0.05, rootMargin: '0px 0px -50px 0px' });
+  }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
