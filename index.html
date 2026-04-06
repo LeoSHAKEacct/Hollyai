@@ -1130,7 +1130,22 @@
     .form-row { grid-template-columns: 1fr; }
     .stats-bar { flex-wrap: wrap; }
   }
+
+  /* ── INTEREST MODAL EXTRAS ── */
+  #interest-email-error {
+    color: var(--red);
+    font-size: 0.8rem;
+    margin-top: 8px;
+    display: none;
+  }
+
+  #interest-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1408,7 +1423,7 @@
         <li>Clinic dashboard access</li>
         <li>English + Spanish support</li>
       </ul>
-      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
+      <button class="btn-plan" onclick="openInterestModal('Essential')">Get Started →</button>
     </div>
 
     <!-- Premium -->
@@ -1432,7 +1447,7 @@
         <li class="extra">Multi-location support</li>
         <li class="extra">EHR integration</li>
       </ul>
-      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
+      <button class="btn-plan" onclick="openInterestModal('Premium')">Get Started →</button>
     </div>
   </div>
 </section>
@@ -1508,7 +1523,101 @@
   </div>
 </div>
 
+<!-- INTEREST CAPTURE MODAL -->
+<div class="modal-overlay" id="interest-modal" onclick="closeInterestModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeInterestModal()">✕</button>
+
+    <!-- Form State -->
+    <div id="interest-form-wrap">
+      <div class="modal-plan-badge" id="interest-plan-badge">Holly Essential</div>
+      <h2>Confirm your interest</h2>
+      <p class="modal-sub">Enter your email and we'll reach out within 24 hours to get Holly set up for your clinic.</p>
+      <div class="form-group">
+        <label for="interest-email">Email Address</label>
+        <input type="email" id="interest-email" placeholder="you@yourclinic.com" />
+        <p id="interest-email-error">Please enter a valid email address.</p>
+      </div>
+      <button class="form-submit" id="interest-submit-btn" onclick="handleInterestSubmit()">Confirm Interest</button>
+      <p class="form-note">🔒 No spam. We'll only reach out about Holly.</p>
+    </div>
+
+    <!-- Success State -->
+    <div class="success-msg" id="interest-success">
+      <span class="success-icon">🎉</span>
+      <h3>You're in the list!</h3>
+      <p style="margin-bottom:16px;">We'll reach out within 24 hours to get Holly set up for your clinic.</p>
+      <p style="color:var(--gold);font-weight:500;">Check your email for next steps.</p>
+    </div>
+  </div>
+</div>
+
 <script>
+  // ── SUPABASE ──
+  // ⚠️  Replace these two values with your actual Supabase project credentials
+  const SUPABASE_URL      = 'YOUR_SUPABASE_PROJECT_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── INTEREST MODAL ──
+  let _interestPlan = '';
+
+  function openInterestModal(plan) {
+    _interestPlan = plan;
+    document.getElementById('interest-plan-badge').textContent = 'Holly ' + plan;
+    const emailInput = document.getElementById('interest-email');
+    emailInput.value = '';
+    emailInput.style.borderColor = '';
+    document.getElementById('interest-email-error').style.display = 'none';
+    document.getElementById('interest-form-wrap').style.display = '';
+    document.getElementById('interest-success').classList.remove('show');
+    const btn = document.getElementById('interest-submit-btn');
+    btn.textContent = 'Confirm Interest';
+    btn.disabled = false;
+    document.getElementById('interest-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeInterestModal() {
+    document.getElementById('interest-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function closeInterestModalOutside(e) {
+    if (e.target === document.getElementById('interest-modal')) closeInterestModal();
+  }
+
+  async function handleInterestSubmit() {
+    const emailInput = document.getElementById('interest-email');
+    const errorEl    = document.getElementById('interest-email-error');
+    const submitBtn  = document.getElementById('interest-submit-btn');
+    const email      = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email || !emailRegex.test(email)) {
+      errorEl.style.display = 'block';
+      emailInput.style.borderColor = 'var(--red)';
+      return;
+    }
+
+    errorEl.style.display = 'none';
+    emailInput.style.borderColor = '';
+    submitBtn.textContent = 'Sending\u2026';
+    submitBtn.disabled = true;
+
+    try {
+      const { error } = await supabaseClient
+        .from('hollyai_leads')
+        .insert({ email: email, plan: _interestPlan, status: 'new' });
+      if (error) console.error('Supabase insert error:', error);
+    } catch (err) {
+      console.error('Interest submit error:', err);
+    }
+
+    document.getElementById('interest-form-wrap').style.display = 'none';
+    document.getElementById('interest-success').classList.add('show');
+  }
+
   // ── TIMER ──
   let seconds = 0;
   setInterval(() => {
