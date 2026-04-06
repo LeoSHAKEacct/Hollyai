@@ -911,6 +911,10 @@
     display: flex;
   }
 
+  .modal-overlay.active {
+    display: flex;
+  }
+
   .modal {
     background: var(--navy);
     border: 1px solid rgba(201,168,76,0.2);
@@ -1151,7 +1155,7 @@
     <li><a href="#agent">Live Demo</a></li>
     <li><a href="#pricing">Pricing</a></li>
     <li><a href="holly-dashboard.html">Log In</a></li>
-    <li><a href="holly-dashboard.html" class="nav-cta">Get Started</a></li>
+    <li><a href="#" onclick="openLeadModal(event)" class="nav-cta">Get Started</a></li>
   </ul>
 </nav>
 
@@ -1162,8 +1166,8 @@
   <h1>Never miss a<br><em>patient</em> again.</h1>
   <p class="hero-sub">Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep.</p>
   <div class="hero-actions">
-    <a href="holly-dashboard.html" class="btn-primary">Start Free Trial</a>
-    <a href="#demo" class="btn-ghost">▶ Try Holly Now</a>
+    <a href="#" onclick="openLeadModal(event)" class="btn-primary">Start Free Trial</a>
+    <a href="holly-dashboard.html" class="btn-ghost">▶ Try Holly Now</a>
   </div>
 
   <!-- LIVE DEMO BAR -->
@@ -1416,7 +1420,7 @@
         <li>Clinic dashboard access</li>
         <li>English + Spanish support</li>
       </ul>
-      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
+      <a href="#" onclick="openLeadModal(event)" class="btn-plan">Get Started →</a>
     </div>
 
     <!-- Premium -->
@@ -1440,7 +1444,7 @@
         <li class="extra">Multi-location support</li>
         <li class="extra">EHR integration</li>
       </ul>
-      <a href="holly-dashboard.html" class="btn-plan">Get Started →</a>
+      <a href="#" onclick="openLeadModal(event)" class="btn-plan">Get Started →</a>
     </div>
   </div>
 </section>
@@ -1460,12 +1464,12 @@
 </footer>
 
 <!-- SIGNUP MODAL -->
-<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+<div class="modal-overlay" id="leadModal" onclick="closeModalOutside(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
 
     <!-- Form -->
-    <div id="modal-form">
+    <div id="modalForm">
       <div class="modal-plan-badge" id="modal-plan-label">Holly Essential</div>
       <h2>Start Your Free Trial</h2>
       <p class="modal-sub">14 days free, no credit card required. We'll have Holly answering your calls within 24 hours.</p>
@@ -1473,7 +1477,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>First Name</label>
-          <input type="text" placeholder="Maria" />
+          <input id="leadName" type="text" placeholder="Maria" />
         </div>
         <div class="form-group">
           <label>Last Name</label>
@@ -1486,12 +1490,12 @@
       </div>
       <div class="form-group">
         <label>Work Email</label>
-        <input type="email" placeholder="maria@sunshineclinic.com" />
+        <input id="leadEmail" type="email" placeholder="maria@sunshineclinic.com" />
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Phone Number</label>
-          <input type="tel" placeholder="+1 (555) 000-0000" />
+          <input id="leadPhone" type="tel" placeholder="+1 (555) 000-0000" />
         </div>
         <div class="form-group">
           <label>Plan</label>
@@ -1507,7 +1511,7 @@
     </div>
 
     <!-- Success -->
-    <div class="success-msg" id="modal-success">
+    <div class="success-msg" id="modalSuccess">
       <span class="success-icon">🎉</span>
       <h3>You're in the list!</h3>
       <p style="margin-bottom:12px;">We'll reach out within 24 hours to get Holly set up for your clinic.</p>
@@ -1538,25 +1542,37 @@
 
   // ── MODAL ──
   function openModal(plan) {
-    document.getElementById('modal').classList.add('open');
+    document.getElementById('leadModal').classList.add('open');
     document.getElementById('modal-plan-label').textContent = `Holly ${plan}`;
     document.getElementById('modal-select').value = plan;
-    document.getElementById('modal-form').style.display = 'block';
-    document.getElementById('modal-success').classList.remove('show');
+    document.getElementById('modalForm').style.display = 'block';
+    document.getElementById('modalSuccess').style.display = 'none';
     document.body.style.overflow = 'hidden';
   }
 
+  function openLeadModal(e) {
+    if(e) e.preventDefault();
+    document.getElementById('modalForm').style.display = 'block';
+    document.getElementById('modalSuccess').style.display = 'none';
+    document.getElementById('leadName').value = '';
+    document.getElementById('leadEmail').value = '';
+    document.getElementById('leadPhone').value = '';
+    document.getElementById('leadModal').classList.add('active');
+  }
+
   function closeModal() {
-    document.getElementById('modal').classList.remove('open');
+    const modal = document.getElementById('leadModal');
+    modal.classList.remove('open');
+    modal.classList.remove('active');
     document.body.style.overflow = '';
   }
 
   function closeModalOutside(e) {
-    if (e.target === document.getElementById('modal')) closeModal();
+    if (e.target === document.getElementById('leadModal')) closeModal();
   }
 
   async function handleSubmit() {
-    const form = document.getElementById('modal-form');
+    const form = document.getElementById('modalForm');
     const firstName = form.querySelector('input[placeholder="Maria"]').value;
     const lastName = form.querySelector('input[placeholder="Gonzalez"]').value;
     const clinic = form.querySelector('input[placeholder="Sunshine Clinic"]').value;
@@ -1586,8 +1602,8 @@
       });
     } catch(e) { console.log('Form error', e); }
 
-    document.getElementById('modal-form').style.display = 'none';
-    document.getElementById('modal-success').classList.add('show');
+    document.getElementById('modalForm').style.display = 'none';
+    document.getElementById('modalSuccess').style.display = 'block';
   }
 
   // ── VOICE DEMO ──
