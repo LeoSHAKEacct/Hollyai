@@ -1471,18 +1471,12 @@
     <!-- Form -->
     <div id="modalForm">
       <div class="modal-plan-badge" id="modal-plan-label">Holly Essential</div>
-      <h2>Start Your Free Trial</h2>
-      <p class="modal-sub">14 days free, no credit card required. We'll have Holly answering your calls within 24 hours.</p>
+      <h2>Start Your 5-Day Free Trial</h2>
+      <p class="modal-sub">5 days free, no credit card required. We'll have Holly answering your calls within 24 hours.</p>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>First Name</label>
-          <input id="leadName" type="text" placeholder="Maria" />
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" placeholder="Gonzalez" />
-        </div>
+      <div class="form-group">
+        <label>NAME</label>
+        <input type="text" id="trialName" placeholder="Maria Gonzalez" />
       </div>
       <div class="form-group">
         <label>Clinic Name</label>
@@ -1490,24 +1484,16 @@
       </div>
       <div class="form-group">
         <label>Work Email</label>
-        <input id="leadEmail" type="email" placeholder="maria@sunshineclinic.com" />
+        <input id="trialEmail" type="email" placeholder="maria@sunshineclinic.com" />
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input id="leadPhone" type="tel" placeholder="+1 (555) 000-0000" />
-        </div>
-        <div class="form-group">
-          <label>Plan</label>
-          <select id="modal-select">
-            <option value="Essential">Holly Essential — $149/mo</option>
-            <option value="Premium">Holly Premium — $349/mo</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input id="trialPhone" type="tel" placeholder="+1 (555) 000-0000" />
       </div>
 
-      <button class="form-submit" onclick="handleSubmit()">Start Free Trial — 14 Days Free</button>
-      <p class="form-note">🔒 HIPAA compliant · No credit card needed · Cancel anytime</p>
+      <p id="trialError" style="color:#ef4444;font-size:0.82rem;margin:0 0 8px;display:none;">Please fill in all fields to continue.</p>
+      <button class="form-submit" onclick="handleSubmit()">Start Free Trial — 5 Days Free</button>
+      <p class="form-note">🔒 5 days free · HIPAA compliant · No credit card needed · Cancel anytime</p>
     </div>
 
     <!-- Success -->
@@ -1544,7 +1530,6 @@
   function openModal(plan) {
     document.getElementById('leadModal').classList.add('open');
     document.getElementById('modal-plan-label').textContent = `Holly ${plan}`;
-    document.getElementById('modal-select').value = plan;
     document.getElementById('modalForm').style.display = 'block';
     document.getElementById('modalSuccess').style.display = 'none';
     document.body.style.overflow = 'hidden';
@@ -1554,9 +1539,10 @@
     if(e) e.preventDefault();
     document.getElementById('modalForm').style.display = 'block';
     document.getElementById('modalSuccess').style.display = 'none';
-    document.getElementById('leadName').value = '';
-    document.getElementById('leadEmail').value = '';
-    document.getElementById('leadPhone').value = '';
+    document.getElementById('trialName').value = '';
+    document.getElementById('trialEmail').value = '';
+    document.getElementById('trialPhone').value = '';
+    document.getElementById('trialError').style.display = 'none';
     document.getElementById('leadModal').classList.add('active');
   }
 
@@ -1573,17 +1559,17 @@
 
   async function handleSubmit() {
     const form = document.getElementById('modalForm');
-    const firstName = form.querySelector('input[placeholder="Maria"]').value;
-    const lastName = form.querySelector('input[placeholder="Gonzalez"]').value;
-    const clinic = form.querySelector('input[placeholder="Sunshine Clinic"]').value;
-    const email = form.querySelector('input[type="email"]').value;
-    const phone = form.querySelector('input[type="tel"]').value;
-    const plan = document.getElementById('modal-select').value;
+    const name = document.getElementById('trialName').value.trim();
+    const email = document.getElementById('trialEmail').value.trim();
+    const phone = document.getElementById('trialPhone').value.trim();
+    document.getElementById('trialError').style.display = 'none';
 
-    if (!firstName || !email || !clinic) {
-      alert('Please fill in your name, clinic, and email.');
+    if (!name || !email || !phone) {
+      document.getElementById('trialError').style.display = 'block';
       return;
     }
+
+    const clinic = form.querySelector('input[placeholder="Sunshine Clinic"]').value;
 
     try {
       await fetch('https://formspree.io/f/mjkwqvnb', {
@@ -1591,13 +1577,13 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: 'contact@shakeapp.today',
-          name: firstName + ' ' + lastName,
+          name: name,
           email: email,
           clinic: clinic,
           phone: phone,
-          plan: plan,
+          plan: 'Trial',
           _replyto: email,
-          _subject: '🏥 New Holly.ai Signup — ' + plan + ' — ' + clinic
+          _subject: '🏥 New Holly.ai Signup — Trial — ' + (clinic || 'Clinic Not Provided')
         })
       });
     } catch(e) { console.log('Form error', e); }
