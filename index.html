@@ -1144,36 +1144,38 @@
     .stats-bar { flex-wrap: wrap; }
   }
 
-  .global-lang-switcher {
-    position: fixed;
-    top: 14px;
-    right: 18px;
-    z-index: 1200;
+  /* ── NAV LANGUAGE SWITCHER ── */
+  .nav-lang {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border: 1px solid rgba(248,245,239,0.2);
-    border-radius: 6px;
-    background: rgba(10,14,26,0.9);
-    backdrop-filter: blur(12px);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--white-dim);
-    font-family: 'DM Mono', monospace;
+    gap: 2px;
+    margin-left: 20px;
+    flex-shrink: 0;
   }
 
-  .lang-select {
-    border: 1px solid rgba(248,245,239,0.2);
-    background: rgba(248,245,239,0.04);
-    color: var(--white);
+  .lang-btn {
+    padding: 5px 11px;
     border-radius: 4px;
-    padding: 4px 6px;
-    font-size: 0.72rem;
+    border: 1px solid rgba(248,245,239,0.15);
+    background: transparent;
+    color: var(--white-dim);
     font-family: 'DM Mono', monospace;
-    outline: none;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
     cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .lang-btn:hover {
+    border-color: rgba(248,245,239,0.35);
+    color: var(--white);
+  }
+
+  .lang-btn.active {
+    background: rgba(201,168,76,0.12);
+    border-color: rgba(201,168,76,0.45);
+    color: var(--gold);
   }
 
   #google_translate_element {
@@ -1200,14 +1202,6 @@
 </head>
 <body>
 
-<div class="global-lang-switcher">
-  <span>Language</span>
-  <select id="language-picker" class="lang-select" onchange="changeSiteLanguage(this.value)">
-    <option value="en">EN</option>
-    <option value="es">ES</option>
-  </select>
-</div>
-
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">Holly<span>.ai</span></a>
@@ -1218,6 +1212,10 @@
     <li><a href="holly-dashboard.html">Log In</a></li>
     <li><a href="#" onclick="openLeadModal(event)" class="nav-cta">Get Started</a></li>
   </ul>
+  <div class="nav-lang">
+    <button class="lang-btn" id="btn-en" onclick="changeSiteLanguage('en')">EN</button>
+    <button class="lang-btn" id="btn-es" onclick="changeSiteLanguage('es')">ES</button>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -1882,6 +1880,13 @@
     window.location.reload();
   }
 
+  function syncLangButtons(lang) {
+    const btnEn = document.getElementById('btn-en');
+    const btnEs = document.getElementById('btn-es');
+    if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+    if (btnEs) btnEs.classList.toggle('active', lang === 'es');
+  }
+
   function googleTranslateElementInit() {
     if (!window.google || !window.google.translate) return;
     new google.translate.TranslateElement({
@@ -1892,9 +1897,8 @@
   }
 
   (function initLanguage() {
-    const picker = document.getElementById('language-picker');
-    const saved = localStorage.getItem('hollyLanguage') || 'en';
-    if (picker) picker.value = saved;
+    const saved = localStorage.getItem('hollyLanguage') || 'es';
+    syncLangButtons(saved);
     applyGoogleTranslateCookie(saved);
 
     const script = document.createElement('script');
