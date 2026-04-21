@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Holly.ai — Never Miss a Patient Again</title>
+<!-- Set html lang before body renders -->
+<script>
+document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1144,60 +1148,46 @@
     .stats-bar { flex-wrap: wrap; }
   }
 
+  /* ── NAV RIGHT SIDE ── */
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
   /* ── NAV LANGUAGE SWITCHER ── */
   .nav-lang {
     display: flex;
     align-items: center;
-    gap: 2px;
-    margin-left: 20px;
-    flex-shrink: 0;
+    gap: 3px;
   }
 
   .lang-btn {
-    padding: 5px 11px;
+    padding: 6px 13px;
     border-radius: 4px;
-    border: 1px solid rgba(248,245,239,0.15);
-    background: transparent;
-    color: var(--white-dim);
+    border: 1px solid rgba(248,245,239,0.35);
+    background: rgba(248,245,239,0.07);
+    color: var(--white);
     font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .lang-btn:hover {
-    border-color: rgba(248,245,239,0.35);
-    color: var(--white);
+    border-color: rgba(248,245,239,0.6);
+    background: rgba(248,245,239,0.12);
   }
 
   .lang-btn.active {
-    background: rgba(201,168,76,0.12);
-    border-color: rgba(201,168,76,0.45);
+    background: rgba(201,168,76,0.18);
+    border-color: rgba(201,168,76,0.6);
     color: var(--gold);
   }
 
-  #google_translate_element {
-    position: fixed;
-    left: -9999px;
-    top: -9999px;
-  }
-
-  .goog-te-banner-frame.skiptranslate,
-  .goog-logo-link,
-  .goog-te-gadget span {
-    display: none !important;
-  }
-
-  .goog-te-gadget {
-    font-size: 0 !important;
-    color: transparent !important;
-  }
-
-  body {
-    top: 0 !important;
-  }
 </style>
 </head>
 <body>
@@ -1205,42 +1195,44 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">Holly<span>.ai</span></a>
-  <ul class="nav-links">
-    <li><a href="#how">How it works</a></li>
-    <li><a href="#agent">Live Demo</a></li>
-    <li><a href="#pricing">Pricing</a></li>
-    <li><a href="holly-dashboard.html">Log In</a></li>
-    <li><a href="#" onclick="openLeadModal(event)" class="nav-cta">Get Started</a></li>
-  </ul>
-  <div class="nav-lang">
-    <button class="lang-btn" id="btn-en" onclick="changeSiteLanguage('en')">EN</button>
-    <button class="lang-btn" id="btn-es" onclick="changeSiteLanguage('es')">ES</button>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#how" data-en="How it works" data-es="Cómo funciona">How it works</a></li>
+      <li><a href="#agent" data-en="Live Demo" data-es="Demo en vivo">Live Demo</a></li>
+      <li><a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a></li>
+      <li><a href="holly-dashboard.html" data-en="Log In" data-es="Iniciar sesión">Log In</a></li>
+      <li><a href="#" onclick="openLeadModal(event)" class="nav-cta" data-en="Get Started" data-es="Comenzar">Get Started</a></li>
+    </ul>
+    <div class="nav-lang">
+      <button class="lang-btn" id="btn-en" onclick="changeSiteLanguage('en')">EN</button>
+      <button class="lang-btn" id="btn-es" onclick="changeSiteLanguage('es')">ES</button>
+    </div>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg"></div>
-  <div class="hero-badge">AI Voice Agent for Healthcare</div>
-  <h1>Never miss a<br><em>patient</em> again.</h1>
-  <p class="hero-sub">Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep.</p>
+  <div class="hero-badge" data-en="AI Voice Agent for Healthcare" data-es="Agente de Voz IA para Salud">AI Voice Agent for Healthcare</div>
+  <h1 data-en="Never miss a&lt;br&gt;&lt;em&gt;patient&lt;/em&gt; again." data-es="Nunca pierdas a un&lt;br&gt;&lt;em&gt;paciente&lt;/em&gt; más.">Never miss a<br><em>patient</em> again.</h1>
+  <p class="hero-sub" data-en="Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep." data-es="Holly responde cada llamada, reserva cada cita y recopila la información necesaria — para que tu clínica crezca incluso mientras duermes.">Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep.</p>
   <div class="hero-actions">
-    <a href="#" onclick="openLeadModal(event)" class="btn-primary">Start Free Trial</a>
-    <a href="holly-dashboard.html" class="btn-ghost">▶ Try Holly Now</a>
+    <a href="#" onclick="openLeadModal(event)" class="btn-primary" data-en="Start Free Trial" data-es="Prueba Gratuita">Start Free Trial</a>
+    <a href="holly-dashboard.html" class="btn-ghost" data-en="▶ Try Holly Now" data-es="▶ Probar Holly">▶ Try Holly Now</a>
   </div>
 
   <!-- LIVE DEMO BAR -->
   <div id="demo" style="margin-top:48px;width:100%;max-width:860px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:32px 40px;display:flex;align-items:center;gap:48px;flex-wrap:wrap;justify-content:center;">
     <div style="text-align:center;">
-      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:10px;">🔴 LIVE — Call Holly Now</div>
+      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:10px;" data-en="🔴 LIVE — Call Holly Now" data-es="🔴 EN VIVO — Llama a Holly">🔴 LIVE — Call Holly Now</div>
       <a href="tel:+15186282549" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--white);text-decoration:none;letter-spacing:-0.02em;">+1 (518) 628-2549</a>
-      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;">Real AI · Real booking · Answers in 2s</div>
+      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;" data-en="Real AI · Real booking · Answers in 2s" data-es="IA real · Reservas reales · Responde en 2s">Real AI · Real booking · Answers in 2s</div>
     </div>
     <div style="width:1px;height:60px;background:rgba(248,245,239,0.1);"></div>
     <div style="text-align:center;">
-      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:10px;">💬 No Phone? Chat Demo</div>
-      <button onclick="openChatDemo()" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;background:none;border:none;color:var(--white);cursor:pointer;letter-spacing:-0.01em;">Try Holly in Browser →</button>
-      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;">No download · No signup needed</div>
+      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:10px;" data-en="💬 No Phone? Chat Demo" data-es="💬 ¿Sin teléfono? Demo de chat">💬 No Phone? Chat Demo</div>
+      <button onclick="openChatDemo()" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;background:none;border:none;color:var(--white);cursor:pointer;letter-spacing:-0.01em;" data-en="Try Holly in Browser →" data-es="Prueba Holly en el navegador →">Try Holly in Browser →</button>
+      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;" data-en="No download · No signup needed" data-es="Sin descarga · Sin registro">No download · No signup needed</div>
     </div>
   </div>
 
@@ -1272,19 +1264,19 @@
   <div class="stats-bar">
     <div class="stat-item">
       <span class="stat-num">38%</span>
-      <span class="stat-label">Avg missed calls per clinic/day</span>
+      <span class="stat-label" data-en="Avg missed calls per clinic/day" data-es="Llamadas perdidas promedio por día">Avg missed calls per clinic/day</span>
     </div>
     <div class="stat-item">
       <span class="stat-num">24/7</span>
-      <span class="stat-label">Holly answers every call</span>
+      <span class="stat-label" data-en="Holly answers every call" data-es="Holly responde cada llamada">Holly answers every call</span>
     </div>
     <div class="stat-item">
-      <span class="stat-num">< 2s</span>
-      <span class="stat-label">Average pickup time</span>
+      <span class="stat-num">&lt; 2s</span>
+      <span class="stat-label" data-en="Average pickup time" data-es="Tiempo promedio de respuesta">Average pickup time</span>
     </div>
     <div class="stat-item">
       <span class="stat-num">4.9★</span>
-      <span class="stat-label">Patient satisfaction score</span>
+      <span class="stat-label" data-en="Patient satisfaction score" data-es="Puntuación de satisfacción">Patient satisfaction score</span>
     </div>
   </div>
 </section>
@@ -1293,34 +1285,34 @@
 <div id="how">
   <div class="inner">
     <div class="reveal">
-      <div class="section-tag">The process</div>
-      <h2 class="section-title">Four steps. Zero missed calls.</h2>
-      <p class="section-sub">Holly handles the entire appointment journey — from the first ring to post-visit follow-up.</p>
+      <div class="section-tag" data-en="The process" data-es="El proceso">The process</div>
+      <h2 class="section-title" data-en="Four steps. Zero missed calls." data-es="Cuatro pasos. Cero llamadas perdidas.">Four steps. Zero missed calls.</h2>
+      <p class="section-sub" data-en="Holly handles the entire appointment journey — from the first ring to post-visit follow-up." data-es="Holly gestiona todo el proceso de citas — desde el primer tono hasta el seguimiento post-visita.">Holly handles the entire appointment journey — from the first ring to post-visit follow-up.</p>
     </div>
     <div class="steps reveal">
       <div class="step">
         <span class="step-num">01</span>
         <span class="step-icon">📞</span>
-        <h3>Patient Calls</h3>
-        <p>Holly picks up in under 2 seconds with a warm, professional greeting — even at midnight.</p>
+        <h3 data-en="Patient Calls" data-es="El paciente llama">Patient Calls</h3>
+        <p data-en="Holly picks up in under 2 seconds with a warm, professional greeting — even at midnight." data-es="Holly responde en menos de 2 segundos con un saludo cálido y profesional — incluso a medianoche.">Holly picks up in under 2 seconds with a warm, professional greeting — even at midnight.</p>
       </div>
       <div class="step">
         <span class="step-num">02</span>
         <span class="step-icon">📋</span>
-        <h3>Data Collected</h3>
-        <p>Name, DOB, reason for visit, insurance, preferred doctor — Holly captures everything.</p>
+        <h3 data-en="Data Collected" data-es="Datos recopilados">Data Collected</h3>
+        <p data-en="Name, DOB, reason for visit, insurance, preferred doctor — Holly captures everything." data-es="Nombre, fecha de nacimiento, motivo de visita, seguro y médico preferido — Holly captura todo.">Name, DOB, reason for visit, insurance, preferred doctor — Holly captures everything.</p>
       </div>
       <div class="step">
         <span class="step-num">03</span>
         <span class="step-icon">📅</span>
-        <h3>Appointment Booked</h3>
-        <p>Holly checks availability and confirms the slot in real time. SMS confirmation sent.</p>
+        <h3 data-en="Appointment Booked" data-es="Cita reservada">Appointment Booked</h3>
+        <p data-en="Holly checks availability and confirms the slot in real time. SMS confirmation sent." data-es="Holly verifica disponibilidad y confirma el horario en tiempo real. Se envía confirmación por SMS.">Holly checks availability and confirms the slot in real time. SMS confirmation sent.</p>
       </div>
       <div class="step">
         <span class="step-num">04</span>
         <span class="step-icon">🔔</span>
-        <h3>Follow Up Sent</h3>
-        <p>Premium: Holly calls or texts 24h before & after the visit to reduce no-shows.</p>
+        <h3 data-en="Follow Up Sent" data-es="Seguimiento enviado">Follow Up Sent</h3>
+        <p data-en="Premium: Holly calls or texts 24h before &amp; after the visit to reduce no-shows." data-es="Premium: Holly llama o envía mensajes 24h antes y después de la visita para reducir ausencias.">Premium: Holly calls or texts 24h before &amp; after the visit to reduce no-shows.</p>
       </div>
     </div>
   </div>
@@ -1407,39 +1399,39 @@
 <!-- FEATURES -->
 <section id="features">
   <div class="reveal">
-    <div class="section-tag">Capabilities</div>
-    <h2 class="section-title">Everything your front<br>desk does — and more.</h2>
+    <div class="section-tag" data-en="Capabilities" data-es="Capacidades">Capabilities</div>
+    <h2 class="section-title" data-en="Everything your front&lt;br&gt;desk does — and more." data-es="Todo lo que hace tu recepcionista&lt;br&gt;— y más.">Everything your front<br>desk does — and more.</h2>
   </div>
   <div class="features-grid reveal">
     <div class="feature">
       <span class="feature-icon">🎙️</span>
-      <h3>Natural Voice Conversations</h3>
-      <p>Holly sounds human. Powered by advanced voice AI, she handles accents, interruptions, and natural speech patterns with ease.</p>
+      <h3 data-en="Natural Voice Conversations" data-es="Conversaciones de voz naturales">Natural Voice Conversations</h3>
+      <p data-en="Holly sounds human. Powered by advanced voice AI, she handles accents, interruptions, and natural speech patterns with ease." data-es="Holly suena humana. Impulsada por IA de voz avanzada, maneja acentos, interrupciones y patrones de habla natural con facilidad.">Holly sounds human. Powered by advanced voice AI, she handles accents, interruptions, and natural speech patterns with ease.</p>
     </div>
     <div class="feature">
       <span class="feature-icon">🌙</span>
-      <h3>24/7 Always Available</h3>
-      <p>Bank holidays, weekends, late nights — Holly never takes a day off and never calls in sick. Your clinic is always open.</p>
+      <h3 data-en="24/7 Always Available" data-es="Disponible 24/7">24/7 Always Available</h3>
+      <p data-en="Bank holidays, weekends, late nights — Holly never takes a day off and never calls in sick. Your clinic is always open." data-es="Feriados, fines de semana, noches — Holly nunca descansa ni se enferma. Tu clínica siempre está abierta.">Bank holidays, weekends, late nights — Holly never takes a day off and never calls in sick. Your clinic is always open.</p>
     </div>
     <div class="feature">
       <span class="feature-icon">📊</span>
-      <h3>Instant Dashboard</h3>
-      <p>Every call, every booking, every piece of patient data captured and organized in your live clinic dashboard in real time.</p>
+      <h3 data-en="Instant Dashboard" data-es="Panel en tiempo real">Instant Dashboard</h3>
+      <p data-en="Every call, every booking, every piece of patient data captured and organized in your live clinic dashboard in real time." data-es="Cada llamada, cada reserva y cada dato del paciente capturado y organizado en tu panel de clínica en tiempo real.">Every call, every booking, every piece of patient data captured and organized in your live clinic dashboard in real time.</p>
     </div>
     <div class="feature">
       <span class="feature-icon">🔗</span>
-      <h3>EHR Integration</h3>
-      <p>Holly connects with your existing clinic management software — no workflow disruption, just smarter intake.</p>
+      <h3 data-en="EHR Integration" data-es="Integración con sistemas de salud">EHR Integration</h3>
+      <p data-en="Holly connects with your existing clinic management software — no workflow disruption, just smarter intake." data-es="Holly se conecta con tu software de gestión — sin interrupciones en el flujo de trabajo, solo una admisión más inteligente.">Holly connects with your existing clinic management software — no workflow disruption, just smarter intake.</p>
     </div>
     <div class="feature">
       <span class="feature-icon">💬</span>
-      <h3>SMS Confirmations</h3>
-      <p>Automatic confirmations sent to every patient after booking. Premium adds reminders and post-visit check-ins.</p>
+      <h3 data-en="SMS Confirmations" data-es="Confirmaciones por SMS">SMS Confirmations</h3>
+      <p data-en="Automatic confirmations sent to every patient after booking. Premium adds reminders and post-visit check-ins." data-es="Confirmaciones automáticas enviadas a cada paciente tras la reserva. Premium agrega recordatorios y seguimiento post-visita.">Automatic confirmations sent to every patient after booking. Premium adds reminders and post-visit check-ins.</p>
     </div>
     <div class="feature">
       <span class="feature-icon">🌐</span>
-      <h3>Multilingual Support</h3>
-      <p>Serve your full community. Holly speaks English, Spanish, Portuguese, and more — switching languages naturally mid-call.</p>
+      <h3 data-en="Multilingual Support" data-es="Soporte multilingüe">Multilingual Support</h3>
+      <p data-en="Serve your full community. Holly speaks English, Spanish, Portuguese, and more — switching languages naturally mid-call." data-es="Sirve a toda tu comunidad. Holly habla inglés, español, portugués y más — cambiando idiomas de forma natural durante la llamada.">Serve your full community. Holly speaks English, Spanish, Portuguese, and more — switching languages naturally mid-call.</p>
     </div>
   </div>
 </section>
@@ -1447,63 +1439,63 @@
 <!-- PRICING -->
 <section id="pricing">
   <div class="reveal">
-    <div class="section-tag">Pricing</div>
-    <h2 class="section-title">Simple, transparent pricing.</h2>
-    <p class="section-sub">One agent, two plans. Start small and upgrade when you're ready. No long-term contracts.</p>
+    <div class="section-tag" data-en="Pricing" data-es="Precios">Pricing</div>
+    <h2 class="section-title" data-en="Simple, transparent pricing." data-es="Precios simples y transparentes.">Simple, transparent pricing.</h2>
+    <p class="section-sub" data-en="One agent, two plans. Start small and upgrade when you&#39;re ready. No long-term contracts." data-es="Un agente, dos planes. Empieza pequeño y actualiza cuando estés listo. Sin contratos a largo plazo.">One agent, two plans. Start small and upgrade when you're ready. No long-term contracts.</p>
   </div>
 
   <div style="display:flex;justify-content:center;" class="reveal">
     <div class="pricing-toggle">
-      <button class="toggle-btn active" onclick="setFreq('monthly', this)">Monthly</button>
-      <button class="toggle-btn" onclick="setFreq('annual', this)">Annual <span style="color:var(--gold);font-size:0.75rem;">Save 20%</span></button>
+      <button class="toggle-btn active" onclick="setFreq('monthly', this)" data-en="Monthly" data-es="Mensual">Monthly</button>
+      <button class="toggle-btn" onclick="setFreq('annual', this)"><span data-en="Annual" data-es="Anual">Annual</span> <span style="color:var(--gold);font-size:0.75rem;" data-en="Save 20%" data-es="Ahorra 20%">Save 20%</span></button>
     </div>
   </div>
 
   <div class="plans reveal">
     <!-- Essential -->
     <div class="plan">
-      <div class="plan-name">Holly Essential</div>
-      <div class="plan-title">Starter</div>
-      <div class="plan-desc">Perfect for small clinics ready to stop missing calls and start booking more appointments.</div>
+      <div class="plan-name" data-en="Holly Essential" data-es="Holly Esencial">Holly Essential</div>
+      <div class="plan-title" data-en="Starter" data-es="Básico">Starter</div>
+      <div class="plan-desc" data-en="Perfect for small clinics ready to stop missing calls and start booking more appointments." data-es="Perfecto para clínicas pequeñas listas para dejar de perder llamadas y reservar más citas.">Perfect for small clinics ready to stop missing calls and start booking more appointments.</div>
       <div class="plan-price">
         <span class="currency">$</span>
         <span class="amount" id="price-essential">149</span>
-        <span class="period">&nbsp;/ month</span>
+        <span class="period" data-en="&amp;nbsp;/ month" data-es="&amp;nbsp;/ mes">&nbsp;/ month</span>
       </div>
       <ul class="plan-features">
-        <li>Inbound call answering 24/7</li>
-        <li>Patient name, DOB & reason for visit</li>
-        <li>Real-time appointment booking</li>
-        <li>SMS booking confirmation</li>
-        <li>Up to 300 calls/month</li>
-        <li>Clinic dashboard access</li>
-        <li>English + Spanish support</li>
+        <li data-en="Inbound call answering 24/7" data-es="Respuesta de llamadas entrantes 24/7">Inbound call answering 24/7</li>
+        <li data-en="Patient name, DOB &amp; reason for visit" data-es="Nombre del paciente, fecha de nacimiento y motivo">Patient name, DOB &amp; reason for visit</li>
+        <li data-en="Real-time appointment booking" data-es="Reserva de citas en tiempo real">Real-time appointment booking</li>
+        <li data-en="SMS booking confirmation" data-es="Confirmación de reserva por SMS">SMS booking confirmation</li>
+        <li data-en="Up to 300 calls/month" data-es="Hasta 300 llamadas/mes">Up to 300 calls/month</li>
+        <li data-en="Clinic dashboard access" data-es="Acceso al panel de la clínica">Clinic dashboard access</li>
+        <li data-en="English + Spanish support" data-es="Soporte en inglés y español">English + Spanish support</li>
       </ul>
-      <a href="#" onclick="openLeadModal(event)" class="btn-plan">Get Started →</a>
+      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Comenzar →">Get Started →</a>
     </div>
 
     <!-- Premium -->
     <div class="plan featured">
-      <div class="plan-name">Holly Premium</div>
-      <div class="plan-title">Pro Clinic</div>
-      <div class="plan-desc">Full intake, follow-ups, and post-visit care. The complete AI front desk experience.</div>
+      <div class="plan-name" data-en="Holly Premium" data-es="Holly Premium">Holly Premium</div>
+      <div class="plan-title" data-en="Pro Clinic" data-es="Clínica Pro">Pro Clinic</div>
+      <div class="plan-desc" data-en="Full intake, follow-ups, and post-visit care. The complete AI front desk experience." data-es="Admisión completa, seguimientos y atención post-visita. La experiencia completa de recepcionista IA.">Full intake, follow-ups, and post-visit care. The complete AI front desk experience.</div>
       <div class="plan-price">
         <span class="currency">$</span>
         <span class="amount" id="price-premium">349</span>
-        <span class="period">&nbsp;/ month</span>
+        <span class="period" data-en="&amp;nbsp;/ month" data-es="&amp;nbsp;/ mes">&nbsp;/ month</span>
       </div>
       <ul class="plan-features">
-        <li>Everything in Essential</li>
-        <li>Full patient intake (insurance, allergies, medications)</li>
-        <li class="extra">Pre-appointment reminder calls (24h before)</li>
-        <li class="extra">Post-appointment follow-up calls</li>
-        <li class="extra">No-show reschedule outreach</li>
-        <li class="extra">Unlimited calls</li>
-        <li class="extra">Priority support & onboarding</li>
-        <li class="extra">Multi-location support</li>
-        <li class="extra">EHR integration</li>
+        <li data-en="Everything in Essential" data-es="Todo lo incluido en Esencial">Everything in Essential</li>
+        <li data-en="Full patient intake (insurance, allergies, medications)" data-es="Admisión completa (seguro, alergias, medicamentos)">Full patient intake (insurance, allergies, medications)</li>
+        <li class="extra" data-en="Pre-appointment reminder calls (24h before)" data-es="Llamadas de recordatorio previas (24h antes)">Pre-appointment reminder calls (24h before)</li>
+        <li class="extra" data-en="Post-appointment follow-up calls" data-es="Llamadas de seguimiento post-cita">Post-appointment follow-up calls</li>
+        <li class="extra" data-en="No-show reschedule outreach" data-es="Llamadas de reagendamiento por ausencia">No-show reschedule outreach</li>
+        <li class="extra" data-en="Unlimited calls" data-es="Llamadas ilimitadas">Unlimited calls</li>
+        <li class="extra" data-en="Priority support &amp; onboarding" data-es="Soporte prioritario y configuración asistida">Priority support &amp; onboarding</li>
+        <li class="extra" data-en="Multi-location support" data-es="Soporte para múltiples ubicaciones">Multi-location support</li>
+        <li class="extra" data-en="EHR integration" data-es="Integración con registros médicos electrónicos">EHR integration</li>
       </ul>
-      <a href="#" onclick="openLeadModal(event)" class="btn-plan">Get Started →</a>
+      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Comenzar →">Get Started →</a>
     </div>
   </div>
 </section>
@@ -1512,13 +1504,13 @@
 <footer>
   <div>
     <div class="footer-logo">Holly<span>.ai</span></div>
-    <div class="footer-copy" style="margin-top:8px;">© 2026 Holly.ai — All rights reserved.</div>
+    <div class="footer-copy" style="margin-top:8px;" data-en="© 2026 Holly.ai — All rights reserved." data-es="© 2026 Holly.ai — Todos los derechos reservados.">© 2026 Holly.ai — All rights reserved.</div>
   </div>
   <ul class="footer-links">
-    <li><a href="#">Privacy</a></li>
-    <li><a href="#">Terms</a></li>
+    <li><a href="#" data-en="Privacy" data-es="Privacidad">Privacy</a></li>
+    <li><a href="#" data-en="Terms" data-es="Términos">Terms</a></li>
     <li><a href="#">HIPAA</a></li>
-    <li><a href="mailto:contact@shakeapp.today">Contact</a></li>
+    <li><a href="mailto:contact@shakeapp.today" data-en="Contact" data-es="Contacto">Contact</a></li>
   </ul>
 </footer>
 
@@ -1530,37 +1522,37 @@
     <!-- Form -->
     <div id="modalForm">
       <div class="modal-plan-badge" id="modal-plan-label">Holly Essential</div>
-      <h2>Start Your 5-Day Free Trial</h2>
-      <p class="modal-sub">5 days free, no credit card required. We'll have Holly answering your calls within 24 hours.</p>
+      <h2 data-en="Start Your 5-Day Free Trial" data-es="Comienza tu Prueba Gratuita de 5 Días">Start Your 5-Day Free Trial</h2>
+      <p class="modal-sub" data-en="5 days free, no credit card required. We&#39;ll have Holly answering your calls within 24 hours." data-es="5 días gratis, sin tarjeta de crédito. Holly estará respondiendo tus llamadas en 24 horas.">5 days free, no credit card required. We'll have Holly answering your calls within 24 hours.</p>
 
       <div class="form-group">
-        <label>NAME</label>
+        <label data-en="NAME" data-es="NOMBRE">NAME</label>
         <input type="text" id="trialName" placeholder="Maria Gonzalez" />
       </div>
       <div class="form-group">
-        <label>Clinic Name</label>
+        <label data-en="Clinic Name" data-es="Nombre de la Clínica">Clinic Name</label>
         <input type="text" placeholder="Sunshine Clinic" />
       </div>
       <div class="form-group">
-        <label>Work Email</label>
+        <label data-en="Work Email" data-es="Correo del trabajo">Work Email</label>
         <input id="trialEmail" type="email" placeholder="maria@sunshineclinic.com" />
       </div>
       <div class="form-group">
-        <label>Phone Number</label>
+        <label data-en="Phone Number" data-es="Número de teléfono">Phone Number</label>
         <input id="trialPhone" type="tel" placeholder="+1 (555) 000-0000" />
       </div>
 
-      <p id="trialError" style="color:#ef4444;font-size:0.82rem;margin:0 0 8px;display:none;">Please fill in all fields to continue.</p>
-      <button class="form-submit" onclick="handleSubmit()">Start Free Trial — 5 Days Free</button>
-      <p class="form-note">🔒 5 days free · HIPAA compliant · No credit card needed · Cancel anytime</p>
+      <p id="trialError" style="color:#ef4444;font-size:0.82rem;margin:0 0 8px;display:none;" data-en="Please fill in all fields to continue." data-es="Por favor completa todos los campos para continuar.">Please fill in all fields to continue.</p>
+      <button class="form-submit" onclick="handleSubmit()" data-en="Start Free Trial — 5 Days Free" data-es="Iniciar Prueba Gratis — 5 Días Gratis">Start Free Trial — 5 Days Free</button>
+      <p class="form-note" data-en="🔒 5 days free · HIPAA compliant · No credit card needed · Cancel anytime" data-es="🔒 5 días gratis · Cumple HIPAA · Sin tarjeta de crédito · Cancela cuando quieras">🔒 5 days free · HIPAA compliant · No credit card needed · Cancel anytime</p>
     </div>
 
     <!-- Success -->
     <div class="success-msg" id="modalSuccess">
       <span class="success-icon">🎉</span>
-      <h3>You're in the list!</h3>
-      <p style="margin-bottom:12px;">We'll reach out within 24 hours to get Holly set up for your clinic.</p>
-      <p style="color:var(--gold);">Check your email for next steps.</p>
+      <h3 data-en="You&#39;re in the list!" data-es="¡Estás en la lista!">You're in the list!</h3>
+      <p style="margin-bottom:12px;" data-en="We&#39;ll reach out within 24 hours to get Holly set up for your clinic." data-es="Nos pondremos en contacto en 24 horas para configurar Holly para tu clínica.">We'll reach out within 24 hours to get Holly set up for your clinic.</p>
+      <p style="color:var(--gold);" data-en="Check your email for next steps." data-es="Revisa tu correo para los próximos pasos.">Check your email for next steps.</p>
     </div>
   </div>
 </div>
@@ -1867,46 +1859,30 @@
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // ── LANGUAGE PICKER (EN/ES) ──
-  function applyGoogleTranslateCookie(lang) {
-    const value = lang === 'es' ? '/en/es' : '/en/en';
-    document.cookie = `googtrans=${value}; path=/`;
-    document.cookie = `googtrans=${value}; path=/; domain=${window.location.hostname}`;
-  }
-
-  function changeSiteLanguage(lang) {
+  // ── LANGUAGE (EN / ES) ──
+  function setLanguage(lang) {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-en]').forEach(function(el) {
+      el.innerHTML = lang === 'es'
+        ? (el.getAttribute('data-es') || el.getAttribute('data-en'))
+        : el.getAttribute('data-en');
+    });
     localStorage.setItem('hollyLanguage', lang);
-    applyGoogleTranslateCookie(lang);
-    window.location.reload();
-  }
-
-  function syncLangButtons(lang) {
-    const btnEn = document.getElementById('btn-en');
-    const btnEs = document.getElementById('btn-es');
+    var btnEn = document.getElementById('btn-en');
+    var btnEs = document.getElementById('btn-es');
     if (btnEn) btnEn.classList.toggle('active', lang === 'en');
     if (btnEs) btnEs.classList.toggle('active', lang === 'es');
   }
 
-  function googleTranslateElementInit() {
-    if (!window.google || !window.google.translate) return;
-    new google.translate.TranslateElement({
-      pageLanguage: 'en',
-      includedLanguages: 'en,es',
-      autoDisplay: false
-    }, 'google_translate_element');
+  function changeSiteLanguage(lang) {
+    setLanguage(lang);
   }
 
-  (function initLanguage() {
-    const saved = localStorage.getItem('hollyLanguage') || 'es';
-    syncLangButtons(saved);
-    applyGoogleTranslateCookie(saved);
-
-    const script = document.createElement('script');
-    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.head.appendChild(script);
-  })();
+  document.addEventListener('DOMContentLoaded', function() {
+    // Always default to 'es' for new visitors (no stored preference)
+    var lang = localStorage.getItem('hollyLanguage') || 'es';
+    setLanguage(lang);
+  });
 </script>
-<div id="google_translate_element"></div>
 </body>
 </html>
