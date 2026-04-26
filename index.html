@@ -1439,10 +1439,6 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
               <div class="wave-bar"></div>
               <div class="wave-bar"></div>
             </div>
-            <div class="call-btns" id="call-btns-row" style="display:none">
-              <button class="call-btn mute" title="Mute" onclick="toggleRetellMute()" id="mute-btn">🎙️</button>
-              <button class="call-btn end" title="End" onclick="stopRetellCall()">📵</button>
-            </div>
           </div>
         </div>
       </div>
@@ -1460,40 +1456,15 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
           <div id="recording-badge" style="font-size:0.72rem; color:var(--gold); font-family:'DM Mono',monospace; opacity:0; transition:opacity 0.3s;" data-en="RECORDING" data-es="GRABANDO">RECORDING</div>
         </div>
 
-        <!-- IDLE -->
-        <div id="retell-idle" class="retell-state" style="display:flex">
+        <!-- DEMO -->
+        <div class="retell-state" style="display:flex">
           <div class="retell-idle-icon">🎙️</div>
-          <p class="retell-prompt" data-en="Speak with Holly directly — she handles real patient intake, books appointments, and answers every question naturally." data-es="Habla con Holly en vivo — gestiona la admisión de pacientes, reserva citas y responde cada pregunta de forma natural.">Speak with Holly directly — she handles real patient intake, books appointments, and answers every question naturally.</p>
-          <button class="retell-cta" id="start-call-btn" onclick="startRetellCall()">
-            <span data-en="▶ Talk to Holly" data-es="▶ Hablar con Holly">▶ Talk to Holly</span>
+          <p class="retell-prompt" data-en="Listen to a real Holly call — patient intake handled start to finish, naturally and efficiently." data-es="Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.">Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.</p>
+          <button class="retell-cta" id="start-call-btn" onclick="toggleDemoAudio()">
+            <span id="demo-btn-play" data-en="▶ Hear Holly Live" data-es="▶ Hablar con Holly">▶ Hablar con Holly</span>
+            <span id="demo-btn-stop" data-en="⏹ Stop" data-es="⏹ Detener" style="display:none">⏹ Detener</span>
           </button>
-          <p class="retell-mic-note" data-en="Microphone required · No download needed" data-es="Micrófono requerido · Sin descarga">Microphone required · No download needed</p>
-        </div>
-
-        <!-- CONNECTING -->
-        <div id="retell-connecting" class="retell-state" style="display:none">
-          <div class="retell-spinner"></div>
-          <p style="margin-top:18px; color:var(--white-dim); font-size:0.875rem;" data-en="Connecting to Holly…" data-es="Conectando con Holly…">Connecting to Holly…</p>
-        </div>
-
-        <!-- ACTIVE -->
-        <div id="retell-active" class="retell-state" style="display:none; padding:0;">
-          <div class="retell-transcript-wrap" id="retell-transcript"></div>
-          <div class="retell-live-controls">
-            <button id="retell-mute-btn" class="call-btn mute" onclick="toggleRetellMute()" title="Mute">🎙️</button>
-            <button class="retell-end-btn" onclick="stopRetellCall()">
-              <span data-en="End Call" data-es="Terminar Llamada">End Call</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- ENDED -->
-        <div id="retell-ended" class="retell-state" style="display:none">
-          <div style="font-size:2.4rem; margin-bottom:16px;">✓</div>
-          <p style="color:var(--white-dim); font-size:0.875rem; margin-bottom:28px;" data-en="Call ended. Holly is ready when you are." data-es="Llamada terminada. Holly está lista cuando quieras.">Call ended. Holly is ready when you are.</p>
-          <button class="retell-cta" onclick="resetRetellCall()">
-            <span data-en="↺ Call Again" data-es="↺ Llamar de nuevo">↺ Call Again</span>
-          </button>
+          <p class="retell-mic-note" data-en="No download · No signup needed" data-es="Sin descarga · Sin registro">Sin descarga · Sin registro</p>
         </div>
       </div>
     </div>
@@ -1737,147 +1708,94 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     document.getElementById('modalSuccess').style.display = 'block';
   }
 
-  // ── RETELL WEB CALL ──
-  var RETELL_AGENT_ID = 'agent_974fee51cfeef9670c4daa5d9a';
-  // To get an access token, call your backend or the Retell API directly:
-  // POST https://api.retellai.com/v2/create-web-call  { agent_id: RETELL_AGENT_ID }
-  // Set RETELL_API_KEY or point RETELL_TOKEN_URL to a serverless proxy endpoint.
-  var RETELL_API_KEY   = '';   // ← set your Retell API key here
-  var RETELL_TOKEN_URL = '';   // ← or set a backend proxy URL (overrides API key)
+  // ── AUDIO DEMO ──
+  var _demoAudio   = null;
+  var _demoTimer   = null;
+  var _demoSecs    = 0;
+  var _demoPlaying = false;
 
-  var _retellClient  = null;
-  var _retellMuted   = false;
-  var _retellTimer   = null;
-  var _retellSecs    = 0;
+  function toggleDemoAudio() {
+    if (_demoPlaying) { stopDemoAudio(); } else { startDemoAudio(); }
+  }
 
-  function _retellShowState(state) {
-    ['idle','connecting','active','ended'].forEach(function(s) {
-      var el = document.getElementById('retell-' + s);
-      if (el) el.style.display = s === state ? 'flex' : 'none';
+  function startDemoAudio() {
+    _demoPlaying = true;
+    _demoSecs = 0;
+    var lang = document.documentElement.lang || 'es';
+
+    // Toggle button labels
+    var playSpan = document.getElementById('demo-btn-play');
+    var stopSpan = document.getElementById('demo-btn-stop');
+    if (playSpan) playSpan.style.display = 'none';
+    if (stopSpan) stopSpan.style.display = '';
+
+    // Animate wave bars
+    document.querySelectorAll('.wave-bar').forEach(function(b) {
+      b.style.animationPlayState = 'running';
     });
-    var waveBars = document.querySelectorAll('.wave-bar');
-    var dot      = document.getElementById('holly-status-dot');
-    var badge    = document.getElementById('recording-badge');
-    var btns     = document.getElementById('call-btns-row');
-    var lang     = document.documentElement.lang || 'es';
+
+    // Phone status + recording badge
     var statusEl = document.getElementById('call-phone-status');
-    if (state === 'active') {
-      waveBars.forEach(function(b){ b.style.animationPlayState = 'running'; });
-      if (dot)    dot.style.background = 'var(--green)';
-      if (badge)  badge.style.opacity  = '1';
-      if (btns)   btns.style.display   = 'flex';
-      if (statusEl) statusEl.textContent = lang === 'es' ? '● LLAMADA EN VIVO' : '● LIVE CALL ACTIVE';
-    } else {
-      waveBars.forEach(function(b){ b.style.animationPlayState = 'paused'; });
-      if (badge) badge.style.opacity = '0';
-      if (btns)  btns.style.display  = 'none';
-      if (statusEl) statusEl.textContent = lang === 'es' ? '● Lista' : '● Ready';
-      if (dot) dot.style.background = state === 'idle' ? 'var(--green)' : 'var(--gold)';
+    if (statusEl) statusEl.textContent = lang === 'es' ? '● LLAMADA EN VIVO' : '● LIVE CALL ACTIVE';
+    var badge = document.getElementById('recording-badge');
+    if (badge) badge.style.opacity = '1';
+    var dot = document.getElementById('holly-status-dot');
+    if (dot) dot.style.background = 'var(--green)';
+
+    // Start timer
+    _demoTimer = setInterval(function() {
+      _demoSecs++;
+      var m = String(Math.floor(_demoSecs / 60)).padStart(2, '0');
+      var s = String(_demoSecs % 60).padStart(2, '0');
+      var el = document.getElementById('timer');
+      if (el) el.textContent = m + ':' + s;
+    }, 1000);
+
+    // Play audio
+    _demoAudio = new Audio('holly-demo-call.wav');
+    _demoAudio.addEventListener('ended', resetDemoAudio);
+    _demoAudio.play().catch(function(e) { console.warn('Audio play failed:', e); });
+  }
+
+  function stopDemoAudio() {
+    if (_demoAudio) {
+      _demoAudio.pause();
+      _demoAudio.currentTime = 0;
+      _demoAudio = null;
     }
+    resetDemoAudio();
   }
 
-  async function startRetellCall() {
-    if (_retellClient) return;
-    _retellShowState('connecting');
-    try {
-      var tokenUrl = RETELL_TOKEN_URL ||
-        'https://api.retellai.com/v2/create-web-call';
-      var headers = { 'Content-Type': 'application/json' };
-      if (!RETELL_TOKEN_URL && RETELL_API_KEY) {
-        headers['Authorization'] = 'Bearer ' + RETELL_API_KEY;
-      }
-      var res = await fetch(tokenUrl, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ agent_id: RETELL_AGENT_ID })
-      });
-      if (!res.ok) throw new Error('Token request failed (' + res.status + ')');
-      var data = await res.json();
-      var accessToken = data.access_token;
+  function resetDemoAudio() {
+    _demoPlaying = false;
+    clearInterval(_demoTimer);
+    _demoTimer = null;
+    _demoSecs  = 0;
+    _demoAudio = null;
 
-      _retellClient = new RetellWebClient();
-
-      _retellClient.on('call-started', function() {
-        _retellShowState('active');
-        _retellSecs = 0;
-        _retellTimer = setInterval(function() {
-          _retellSecs++;
-          var m = String(Math.floor(_retellSecs / 60)).padStart(2, '0');
-          var s = String(_retellSecs % 60).padStart(2, '0');
-          var el = document.getElementById('timer');
-          if (el) el.textContent = m + ':' + s;
-        }, 1000);
-      });
-
-      _retellClient.on('call-ended', function() {
-        _retellCleanup();
-        _retellShowState('ended');
-      });
-
-      _retellClient.on('error', function(err) {
-        console.error('Retell error:', err);
-        _retellCleanup();
-        _retellShowState('idle');
-      });
-
-      _retellClient.on('update', function(update) {
-        if (!update || !update.transcript) return;
-        var wrap = document.getElementById('retell-transcript');
-        if (!wrap) return;
-        wrap.innerHTML = update.transcript.map(function(turn) {
-          var isAgent = turn.role === 'agent';
-          var safeText = turn.content
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          return '<div class="msg ' + (isAgent ? 'holly' : 'patient') + '">' + safeText + '</div>';
-        }).join('');
-        wrap.scrollTop = wrap.scrollHeight;
-      });
-
-      await _retellClient.startCall({ accessToken: accessToken });
-    } catch(err) {
-      console.error('Retell start failed:', err);
-      _retellClient = null;
-      _retellShowState('idle');
-    }
-  }
-
-  function stopRetellCall() {
-    if (_retellClient) {
-      try { _retellClient.stopCall(); } catch(e) {}
-    }
-    _retellCleanup();
-    _retellShowState('ended');
-  }
-
-  function toggleRetellMute() {
-    if (!_retellClient) return;
-    _retellMuted = !_retellMuted;
-    try {
-      if (_retellMuted) _retellClient.mute(); else _retellClient.unmute();
-    } catch(e) { console.warn('Mute unavailable:', e); }
-    var btn = document.getElementById('retell-mute-btn');
-    if (btn) btn.textContent = _retellMuted ? '🔕' : '🎙️';
-    var phoneBtn = document.getElementById('mute-btn');
-    if (phoneBtn) phoneBtn.textContent = _retellMuted ? '🔕' : '🎙️';
-  }
-
-  function resetRetellCall() {
-    _retellClient = null;
-    _retellMuted  = false;
-    _retellSecs   = 0;
+    // Reset timer
     var el = document.getElementById('timer');
     if (el) el.textContent = '00:00';
-    var wrap = document.getElementById('retell-transcript');
-    if (wrap) wrap.innerHTML = '';
-    _retellShowState('idle');
-  }
 
-  function _retellCleanup() {
-    clearInterval(_retellTimer);
-    _retellTimer  = null;
-    _retellClient = null;
-    var el = document.getElementById('timer');
-    if (el) el.textContent = '00:00';
+    // Restore button labels
+    var playSpan = document.getElementById('demo-btn-play');
+    var stopSpan = document.getElementById('demo-btn-stop');
+    if (playSpan) playSpan.style.display = '';
+    if (stopSpan) stopSpan.style.display = 'none';
+
+    // Pause wave bars
+    document.querySelectorAll('.wave-bar').forEach(function(b) {
+      b.style.animationPlayState = 'paused';
+    });
+
+    // Reset phone status + badge
+    var lang = document.documentElement.lang || 'es';
+    var statusEl = document.getElementById('call-phone-status');
+    if (statusEl) statusEl.textContent = lang === 'es' ? '● Lista' : '● Ready';
+    var badge = document.getElementById('recording-badge');
+    if (badge) badge.style.opacity = '0';
+    var dot = document.getElementById('holly-status-dot');
+    if (dot) dot.style.background = 'var(--green)';
   }
 
   // ── CHAT DEMO ──
@@ -1962,10 +1880,9 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     // Always default to 'es' for new visitors (no stored preference)
     var lang = localStorage.getItem('hollyLanguage') || 'es';
     setLanguage(lang);
-    // Init retell panel state (wave bars paused until real call)
-    _retellShowState('idle');
+    // Init demo panel (wave bars paused until audio plays)
+    resetDemoAudio();
   });
 </script>
-<script src="https://cdn.retellai.com/sdk/web-sdk.js"></script>
 </body>
 </html>
