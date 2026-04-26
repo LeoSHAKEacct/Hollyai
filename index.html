@@ -1420,7 +1420,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
       <p class="section-sub" data-en="This is what your patients experience every time they call. Natural, warm, and efficient." data-es="Esto es lo que viven tus pacientes cada vez que llaman. Natural, cálida y eficiente.">This is what your patients experience every time they call. Natural, warm, and efficient.</p>
     </div>
 
-    <div class="demo-layout reveal">
+    <div class="demo-layout reveal" style="display:flex;flex-direction:column;align-items:center;gap:2rem;">
       <!-- Phone -->
       <div class="phone-wrap">
         <div class="phone">
@@ -1443,30 +1443,16 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
         </div>
       </div>
 
-      <!-- Live Call Panel -->
-      <div class="convo-panel" id="retell-panel">
-        <div class="convo-header">
-          <div class="convo-header-left">
-            <div class="holly-dot" id="holly-status-dot"></div>
-            <div>
-              <div class="convo-title" data-en="Holly — Patient Intake" data-es="Holly — Registro de Paciente">Holly — Patient Intake</div>
-              <div class="convo-sub" data-en="Sunshine Clinic · Live AI Demo" data-es="Sunshine Clinic · Demo IA en Vivo">Sunshine Clinic · Live AI Demo</div>
-            </div>
-          </div>
-          <div id="recording-badge" style="font-size:0.72rem; color:var(--gold); font-family:'DM Mono',monospace; opacity:0; transition:opacity 0.3s;" data-en="RECORDING" data-es="GRABANDO">RECORDING</div>
-        </div>
-
-        <!-- DEMO -->
-        <div class="retell-state" style="display:flex">
-          <div class="retell-idle-icon">🎙️</div>
-          <p class="retell-prompt" data-en="Listen to a real Holly call — patient intake handled start to finish, naturally and efficiently." data-es="Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.">Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.</p>
-          <button class="retell-cta" id="start-call-btn" onclick="toggleDemoAudio()">
-            <span id="demo-btn-play" data-en="▶ Hear Holly Live" data-es="▶ Hablar con Holly">▶ Hablar con Holly</span>
-            <span id="demo-btn-stop" data-en="⏹ Stop" data-es="⏹ Detener" style="display:none">⏹ Detener</span>
-          </button>
-          <p class="retell-mic-note" data-en="No download · No signup needed" data-es="Sin descarga · Sin registro">Sin descarga · Sin registro</p>
-        </div>
-      </div>
+      <!-- Caption + CTA -->
+      <p class="retell-prompt" style="text-align:center;max-width:520px;margin:0;"
+        data-en="🎙️ Listen to a real Holly call — patient intake handled start to finish, naturally and efficiently."
+        data-es="🎙️ Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.">
+        🎙️ Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.
+      </p>
+      <button class="retell-cta" id="start-call-btn" onclick="toggleDemoAudio()">
+        <span id="demo-btn-play" data-en="▶ Hear Holly Live" data-es="▶ Hablar con Holly">▶ Hablar con Holly</span>
+        <span id="demo-btn-stop" data-en="⏹ Stop" data-es="⏹ Detener" style="display:none">⏹ Detener</span>
+      </button>
     </div>
   </div>
 </div>
