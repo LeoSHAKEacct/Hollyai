@@ -19,11 +19,13 @@ function getOAuthClient() {
 }
 
 module.exports = async function handler(req, res) {
+  const supabaseKeys = Object.keys(process.env).filter(k => k.startsWith('SUPABASE'));
   console.log('ENV CHECK:', {
     hasClientId: !!process.env.GOOGLE_CLIENT_ID,
     hasSecret: !!process.env.GOOGLE_CLIENT_SECRET,
     hasRefresh: !!process.env.GOOGLE_REFRESH_TOKEN,
     calendarId: process.env.GOOGLE_CALENDAR_ID,
+    supabaseKeys,
   });
 
   // Handle CORS preflight
@@ -91,10 +93,13 @@ module.exports = async function handler(req, res) {
     const event_id = calendarResponse.data.id;
 
     // --- Supabase ---
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    console.log('SUPABASE INIT:', { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey });
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('SUPABASE MISSING:', { supabaseUrl, supabaseKey });
+    }
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { error: dbError } = await supabase.from('appointments').insert({
       patient_name,
@@ -106,7 +111,7 @@ module.exports = async function handler(req, res) {
     });
 
     if (dbError) {
-      console.error('Supabase insert error:', dbError);
+      console.error('Supabase insert error:', JSON.stringify(dbError));
       // Still return success if calendar event was created; log the DB error
     }
 
