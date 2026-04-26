@@ -19,6 +19,13 @@ function getOAuthClient() {
 }
 
 module.exports = async function handler(req, res) {
+  console.log('ENV CHECK:', {
+    hasClientId: !!process.env.GOOGLE_CLIENT_ID,
+    hasSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+    hasRefresh: !!process.env.GOOGLE_REFRESH_TOKEN,
+    calendarId: process.env.GOOGLE_CALENDAR_ID,
+  });
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, CORS_HEADERS);
@@ -74,8 +81,10 @@ module.exports = async function handler(req, res) {
       end: { dateTime: endTime.toISOString() },
     };
 
+    const calendarId = process.env.GOOGLE_CALENDAR_ID || 'leoneltelesmeneses@gmail.com';
+
     const calendarResponse = await calendar.events.insert({
-      calendarId: process.env.GOOGLE_CALENDAR_ID,
+      calendarId,
       resource: event,
     });
 
