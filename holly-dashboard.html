@@ -972,97 +972,6 @@
     color: var(--gold);
   }
 
-  /* ── AUTH OVERLAY ── */
-  .auth-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--midnight);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .auth-box {
-    width: 360px;
-    background: var(--navy);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px 36px;
-  }
-
-  .auth-logo {
-    font-family: var(--font-display);
-    font-size: 26px;
-    color: var(--gold-light);
-    text-align: center;
-    margin-bottom: 6px;
-  }
-
-  .auth-sub {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 28px;
-    letter-spacing: 0.5px;
-  }
-
-  .auth-field { margin-bottom: 14px; }
-
-  .auth-label {
-    display: block;
-    font-size: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-
-  .auth-input {
-    width: 100%;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: var(--font-body);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .auth-input:focus { border-color: rgba(201,168,76,0.4); }
-
-  .auth-btn {
-    width: 100%;
-    padding: 12px;
-    background: var(--gold);
-    color: var(--midnight);
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: var(--font-body);
-    transition: background 0.2s;
-    margin-top: 6px;
-  }
-
-  .auth-btn:hover { background: var(--gold-light); }
-  .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .auth-error {
-    display: none;
-    background: var(--rose-dim);
-    border: 1px solid rgba(240,99,122,0.3);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: var(--rose);
-    margin-bottom: 14px;
-  }
-
   /* ── LEADS TABLE ── */
   .leads-pt-head {
     display: grid;
@@ -1112,24 +1021,6 @@
 </style>
 </head>
 <body>
-
-<!-- AUTH OVERLAY -->
-<div class="auth-overlay" id="auth-overlay">
-  <div class="auth-box">
-    <div class="auth-logo">Holly<span style="color:var(--teal)">.</span>ai</div>
-    <div class="auth-sub">Dashboard Access</div>
-    <div class="auth-error" id="login-error"></div>
-    <div class="auth-field">
-      <label class="auth-label">Email</label>
-      <input class="auth-input" id="login-email" type="email" placeholder="you@clinic.com" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <div class="auth-field">
-      <label class="auth-label">Password</label>
-      <input class="auth-input" id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <button class="auth-btn" id="login-btn" onclick="doLogin()">Sign In</button>
-  </div>
-</div>
 
 <!-- SIDEBAR -->
 <nav class="sidebar">
@@ -1192,7 +1083,7 @@
         <button class="lang-btn" id="btn-en" onclick="changeSiteLanguage('en')">EN</button>
         <button class="lang-btn" id="btn-es" onclick="changeSiteLanguage('es')">ES</button>
       </div>
-      <div class="live-chip" style="cursor:pointer;" onclick="doLogout()" title="Sign out">⎋ Logout</div>
+      <div class="live-chip">⬤ Live</div>
     </div>
   </div>
 
@@ -1974,42 +1865,6 @@
 
   let allLeads = [];
 
-  // ── AUTH ──
-  async function checkAuth() {
-    const { data: { session } } = await _supabase.auth.getSession();
-    const overlay = document.getElementById('auth-overlay');
-    if (!session) {
-      overlay.style.display = 'flex';
-    } else {
-      overlay.style.display = 'none';
-      loadLeadsData();
-    }
-  }
-
-  async function doLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const errEl = document.getElementById('login-error');
-    const btn = document.getElementById('login-btn');
-    errEl.style.display = 'none';
-    btn.textContent = 'Signing in…';
-    btn.disabled = true;
-    const { error } = await _supabase.auth.signInWithPassword({ email, password });
-    btn.textContent = 'Sign In';
-    btn.disabled = false;
-    if (error) {
-      errEl.textContent = error.message;
-      errEl.style.display = 'block';
-    } else {
-      checkAuth();
-    }
-  }
-
-  async function doLogout() {
-    await _supabase.auth.signOut();
-    checkAuth();
-  }
-
   // ── LEADS DATA ──
   async function loadLeadsData() {
     const { data: leads, error } = await _supabase
@@ -2345,7 +2200,7 @@
   })();
 
   // ── INIT ──
-  checkAuth();
+  loadLeadsData();
 </script>
 <div id="google_translate_element"></div>
 </body>
