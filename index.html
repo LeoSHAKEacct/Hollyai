@@ -1322,9 +1322,9 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 <div id="agent">
   <div class="inner">
     <div class="reveal">
-      <div class="section-tag">Live agent demo</div>
-      <h2 class="section-title">Meet Holly — your<br><em>AI front desk.</em></h2>
-      <p class="section-sub">This is what your patients experience every time they call. Natural, warm, and efficient.</p>
+      <div class="section-tag" data-en="Live agent demo" data-es="Demo en vivo">Live agent demo</div>
+      <h2 class="section-title" data-en="Meet Holly — your&lt;br&gt;&lt;em&gt;AI front desk.&lt;/em&gt;" data-es="Conoce a Holly — tu&lt;br&gt;&lt;em&gt;recepción con IA.&lt;/em&gt;">Meet Holly — your<br><em>AI front desk.</em></h2>
+      <p class="section-sub" data-en="This is what your patients experience every time they call. Natural, warm, and efficient." data-es="Esto es lo que viven tus pacientes cada vez que llaman. Natural, cálida y eficiente.">This is what your patients experience every time they call. Natural, warm, and efficient.</p>
     </div>
 
     <div class="demo-layout reveal">
@@ -1335,7 +1335,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
           <div class="call-ui">
             <div class="call-avatar">🏥</div>
             <div class="call-name">Holly.ai</div>
-            <div class="call-status">● LIVE CALL ACTIVE</div>
+            <div class="call-status" data-en="● LIVE CALL ACTIVE" data-es="● LLAMADA EN VIVO">● LIVE CALL ACTIVE</div>
             <div class="call-timer" id="timer">00:00</div>
             <div class="call-wave">
               <div class="wave-bar"></div>
@@ -1361,16 +1361,16 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
           <div class="convo-header-left">
             <div class="holly-dot"></div>
             <div>
-              <div class="convo-title">Holly — Patient Intake</div>
-              <div class="convo-sub">Sunshine Clinic · Inbound Call</div>
+              <div class="convo-title" data-en="Holly — Patient Intake" data-es="Holly — Registro de Paciente">Holly — Patient Intake</div>
+              <div class="convo-sub" data-en="Sunshine Clinic · Inbound Call" data-es="Sunshine Clinic · Llamada Entrante">Sunshine Clinic · Inbound Call</div>
             </div>
           </div>
-          <div style="font-size:0.72rem; color: var(--gold); font-family: 'DM Mono', monospace;">RECORDING</div>
+          <div style="font-size:0.72rem; color: var(--gold); font-family: 'DM Mono', monospace;" data-en="RECORDING" data-es="GRABANDO">RECORDING</div>
         </div>
 
         <div class="convo-body" id="convo-body">
-          <div class="msg holly" id="cmsg-0">Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?</div>
-          <div class="msg patient" id="cmsg-1">Hi, yes — I'd like to book an appointment with Dr. Martinez. My back has been hurting for a few days.</div>
+          <div class="msg holly" id="cmsg-0" data-en="Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?" data-es="¡Hola! Gracias por llamar a Sunshine Clinic. Me llamo Holly. ¿En qué le puedo ayudar hoy?">Hello! Thank you for calling Sunshine Clinic. My name is Holly. How can I help you today?</div>
+          <div class="msg patient" id="cmsg-1" data-en="Hi, yes — I'd like to book an appointment with Dr. Martinez. My back has been hurting for a few days." data-es="Hola, sí — quisiera agendar una cita con el Dr. Martínez. Me ha dolido la espalda por varios días.">Hi, yes — I'd like to book an appointment with Dr. Martinez. My back has been hurting for a few days.</div>
           <div class="msg holly" id="cmsg-2">Of course! I can help you with that. Could I start with your full name, please?</div>
           <div class="msg patient" id="cmsg-3">Sure, it's Maria Gonzalez.</div>
           <div class="msg holly" id="cmsg-4">Thank you, Maria. And your date of birth so I can pull up your file?</div>
@@ -1381,14 +1381,14 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
         </div>
 
         <div class="convo-footer">
-          <div class="convo-label">✦ Data captured automatically</div>
+          <div class="convo-label" data-en="✦ Data captured automatically" data-es="✦ Datos capturados automáticamente">✦ Data captured automatically</div>
           <div class="data-captured">
-            <span class="data-tag">NAME: Maria Gonzalez</span>
-            <span class="data-tag">DOB: 03/03/1988</span>
-            <span class="data-tag">REASON: Back pain</span>
-            <span class="data-tag">DOCTOR: Martinez</span>
-            <span class="data-tag">DATE: Thu 10:00 AM</span>
-            <span class="data-tag">SMS: Sent ✓</span>
+            <span class="data-tag" data-en="NAME: Maria Gonzalez" data-es="NOMBRE: Maria Gonzalez">NAME: Maria Gonzalez</span>
+            <span class="data-tag" data-en="DOB: 03/03/1988" data-es="F.NAC: 03/03/1988">DOB: 03/03/1988</span>
+            <span class="data-tag" data-en="REASON: Back pain" data-es="MOTIVO: Dolor de espalda">REASON: Back pain</span>
+            <span class="data-tag" data-en="DOCTOR: Martinez" data-es="DOCTOR: Martínez">DOCTOR: Martinez</span>
+            <span class="data-tag" data-en="DATE: Thu 10:00 AM" data-es="FECHA: Jue 10:00 AM">DATE: Thu 10:00 AM</span>
+            <span class="data-tag" data-en="SMS: Sent ✓" data-es="SMS: Enviado ✓">SMS: Sent ✓</span>
           </div>
         </div>
       </div>
