@@ -1294,7 +1294,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
       <li><a href="#agent" data-en="Live Demo" data-es="Demo en vivo">Live Demo</a></li>
       <li><a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a></li>
       <li><a href="holly-dashboard.html" data-en="Log In" data-es="Iniciar sesión">Log In</a></li>
-      <li><a href="#" onclick="openLeadModal(event)" class="nav-cta" data-en="Get Started" data-es="Comenzar">Get Started</a></li>
+      <li><a href="#" onclick="openLeadModal(event)" class="nav-cta" data-en="Start Free Trial" data-es="Empezar gratis">Empezar gratis</a></li>
     </ul>
     <div class="nav-lang">
       <button class="lang-btn" id="btn-en" onclick="changeSiteLanguage('en')">EN</button>
@@ -1310,7 +1310,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   <h1 data-en="Never miss a&lt;br&gt;&lt;em&gt;patient&lt;/em&gt; again." data-es="Nunca pierdas a un&lt;br&gt;&lt;em&gt;paciente&lt;/em&gt; más.">Never miss a<br><em>patient</em> again.</h1>
   <p class="hero-sub" data-en="Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep." data-es="Holly responde cada llamada, reserva cada cita y recopila la información necesaria — para que tu clínica crezca incluso mientras duermes.">Holly answers every call, books every appointment, and collects the right information — so your clinic grows even while you sleep.</p>
   <div class="hero-actions">
-    <a href="#" onclick="openLeadModal(event)" class="btn-primary" data-en="Start Free Trial" data-es="Prueba Gratuita">Start Free Trial</a>
+    <a href="#" onclick="openLeadModal(event)" class="btn-primary" data-en="Start Free Trial" data-es="Empezar prueba gratis">Empezar prueba gratis</a>
     <a href="holly-dashboard.html" class="btn-ghost" data-en="▶ Try Holly Now" data-es="▶ Probar Holly">▶ Try Holly Now</a>
   </div>
 
@@ -1356,20 +1356,20 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   </div>
   <div class="stats-bar">
     <div class="stat-item">
-      <span class="stat-num">38%</span>
-      <span class="stat-label" data-en="Avg missed calls per clinic/day" data-es="Llamadas perdidas promedio por día">Avg missed calls per clinic/day</span>
+      <span class="stat-num">100%</span>
+      <span class="stat-label" data-en="Calls answered, even after hours" data-es="Llamadas atendidas, incluso fuera de horario">Llamadas atendidas, incluso fuera de horario</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">0</span>
+      <span class="stat-label" data-en="Missed calls due to busy line" data-es="Llamadas perdidas por línea ocupada">Llamadas perdidas por línea ocupada</span>
     </div>
     <div class="stat-item">
       <span class="stat-num">24/7</span>
-      <span class="stat-label" data-en="Holly answers every call" data-es="Holly responde cada llamada">Holly answers every call</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">&lt; 2s</span>
-      <span class="stat-label" data-en="Average pickup time" data-es="Tiempo promedio de respuesta">Average pickup time</span>
+      <span class="stat-label" data-en="Availability, no overtime cost" data-es="Disponibilidad sin costo de horas extra">Disponibilidad sin costo de horas extra</span>
     </div>
     <div class="stat-item">
       <span class="stat-num">4.9★</span>
-      <span class="stat-label" data-en="Patient satisfaction score" data-es="Puntuación de satisfacción">Patient satisfaction score</span>
+      <span class="stat-label" data-en="Patient satisfaction score" data-es="Puntuación de satisfacción">Puntuación de satisfacción</span>
     </div>
   </div>
 </section>
@@ -1515,49 +1515,65 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   <div class="plans reveal">
     <!-- Essential -->
     <div class="plan">
-      <div class="plan-name" data-en="Holly Essential" data-es="Holly Esencial">Holly Essential</div>
-      <div class="plan-title" data-en="Starter" data-es="Básico">Starter</div>
-      <div class="plan-desc" data-en="Perfect for small clinics ready to stop missing calls and start booking more appointments." data-es="Perfecto para clínicas pequeñas listas para dejar de perder llamadas y reservar más citas.">Perfect for small clinics ready to stop missing calls and start booking more appointments.</div>
+      <div class="plan-name" data-en="Holly Essential" data-es="Holly Esencial">Holly Esencial</div>
+      <div class="plan-title" data-en="Starter" data-es="Starter">Starter</div>
+      <div class="plan-desc" data-en="Ideal for clinics with one doctor or specialty." data-es="Ideal para clínicas con un médico o especialidad.">Ideal para clínicas con un médico o especialidad.</div>
       <div class="plan-price">
         <span class="currency">$</span>
-        <span class="amount" id="price-essential">149</span>
-        <span class="period" data-en="&amp;nbsp;/ month" data-es="&amp;nbsp;/ mes">&nbsp;/ month</span>
+        <span class="amount" id="price-essential">79</span>
+        <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
       </div>
       <ul class="plan-features">
-        <li data-en="Inbound call answering 24/7" data-es="Respuesta de llamadas entrantes 24/7">Inbound call answering 24/7</li>
-        <li data-en="Patient name, DOB &amp; reason for visit" data-es="Nombre del paciente, fecha de nacimiento y motivo">Patient name, DOB &amp; reason for visit</li>
-        <li data-en="Real-time appointment booking" data-es="Reserva de citas en tiempo real">Real-time appointment booking</li>
-        <li data-en="SMS booking confirmation" data-es="Confirmación de reserva por SMS">SMS booking confirmation</li>
-        <li data-en="Up to 300 calls/month" data-es="Hasta 300 llamadas/mes">Up to 300 calls/month</li>
-        <li data-en="Clinic dashboard access" data-es="Acceso al panel de la clínica">Clinic dashboard access</li>
-        <li data-en="English + Spanish support" data-es="Soporte en inglés y español">English + Spanish support</li>
+        <li data-en="7-day free trial to start" data-es="7 días gratis para empezar">7 días gratis para empezar</li>
+        <li data-en="Up to 200 calls/month" data-es="Hasta 200 llamadas/mes">Hasta 200 llamadas/mes</li>
+        <li data-en="Automatic scheduling" data-es="Agenda automática">Agenda automática</li>
+        <li data-en="WhatsApp confirmations" data-es="Confirmaciones por WhatsApp">Confirmaciones por WhatsApp</li>
+        <li data-en="Basic dashboard" data-es="Panel básico">Panel básico</li>
       </ul>
-      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Comenzar →">Get Started →</a>
+      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
 
     <!-- Premium -->
     <div class="plan featured">
       <div class="plan-name" data-en="Holly Premium" data-es="Holly Premium">Holly Premium</div>
-      <div class="plan-title" data-en="Pro Clinic" data-es="Clínica Pro">Pro Clinic</div>
-      <div class="plan-desc" data-en="Full intake, follow-ups, and post-visit care. The complete AI front desk experience." data-es="Admisión completa, seguimientos y atención post-visita. La experiencia completa de recepcionista IA.">Full intake, follow-ups, and post-visit care. The complete AI front desk experience.</div>
+      <div class="plan-title" data-en="Pro" data-es="Pro">Pro</div>
+      <div class="plan-desc" data-en="For clinics with multiple doctors or high patient turnover." data-es="Para clínicas con varios médicos o alta rotación de pacientes.">Para clínicas con varios médicos o alta rotación de pacientes.</div>
       <div class="plan-price">
         <span class="currency">$</span>
-        <span class="amount" id="price-premium">349</span>
-        <span class="period" data-en="&amp;nbsp;/ month" data-es="&amp;nbsp;/ mes">&nbsp;/ month</span>
+        <span class="amount" id="price-premium">199</span>
+        <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
       </div>
       <ul class="plan-features">
-        <li data-en="Everything in Essential" data-es="Todo lo incluido en Esencial">Everything in Essential</li>
-        <li data-en="Full patient intake (insurance, allergies, medications)" data-es="Admisión completa (seguro, alergias, medicamentos)">Full patient intake (insurance, allergies, medications)</li>
-        <li class="extra" data-en="Pre-appointment reminder calls (24h before)" data-es="Llamadas de recordatorio previas (24h antes)">Pre-appointment reminder calls (24h before)</li>
-        <li class="extra" data-en="Post-appointment follow-up calls" data-es="Llamadas de seguimiento post-cita">Post-appointment follow-up calls</li>
-        <li class="extra" data-en="No-show reschedule outreach" data-es="Llamadas de reagendamiento por ausencia">No-show reschedule outreach</li>
-        <li class="extra" data-en="Unlimited calls" data-es="Llamadas ilimitadas">Unlimited calls</li>
-        <li class="extra" data-en="Priority support &amp; onboarding" data-es="Soporte prioritario y configuración asistida">Priority support &amp; onboarding</li>
-        <li class="extra" data-en="Multi-location support" data-es="Soporte para múltiples ubicaciones">Multi-location support</li>
-        <li class="extra" data-en="EHR integration" data-es="Integración con registros médicos electrónicos">EHR integration</li>
+        <li data-en="Unlimited calls" data-es="Llamadas ilimitadas">Llamadas ilimitadas</li>
+        <li data-en="Multiple specialties" data-es="Múltiples especialidades">Múltiples especialidades</li>
+        <li class="extra" data-en="Automatic reminders" data-es="Recordatorios automáticos">Recordatorios automáticos</li>
+        <li class="extra" data-en="Advanced reports" data-es="Reportes avanzados">Reportes avanzados</li>
+        <li class="extra" data-en="Priority support" data-es="Soporte prioritario">Soporte prioritario</li>
       </ul>
-      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Comenzar →">Get Started →</a>
+      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section id="testimonial" style="text-align:center;padding-bottom:60px;">
+  <div class="reveal" style="max-width:760px;margin:0 auto;">
+    <blockquote style="font-family:'Playfair Display',serif;font-size:clamp(1.15rem,2.5vw,1.5rem);font-style:italic;line-height:1.65;color:var(--white);margin-bottom:28px;position:relative;padding:0 20px;">
+      <span style="color:var(--gold);font-size:3rem;line-height:0;vertical-align:-0.4em;margin-right:6px;">"</span><span
+        data-en="We used to miss 8–10 calls a day because the receptionist was with a patient. With Holly, no call goes unanswered — and my receptionist can finally focus on whoever is in front of her."
+        data-es="Antes perdíamos 8–10 llamadas diarias porque la recepcionista estaba con un paciente. Con Holly, ninguna llamada queda sin respuesta — y mi recepcionista por fin puede enfocarse en quien tiene enfrente."
+      >Antes perdíamos 8–10 llamadas diarias porque la recepcionista estaba con un paciente. Con Holly, ninguna llamada queda sin respuesta — y mi recepcionista por fin puede enfocarse en quien tiene enfrente.</span><span style="color:var(--gold);font-size:3rem;line-height:0;vertical-align:-0.4em;margin-left:6px;">"</span>
+    </blockquote>
+    <div style="font-size:0.875rem;color:var(--white-dim);letter-spacing:0.04em;">
+      <strong style="color:var(--white);">Dr. Camilo Herrera</strong>
+      <span style="color:var(--gold);margin:0 8px;">·</span>
+      <span data-en="General Medicine Clinic · Bogotá, Colombia" data-es="Clínica de Medicina General · Bogotá, Colombia">Clínica de Medicina General · Bogotá, Colombia</span>
+    </div>
+  </div>
+
+  <div class="reveal" style="margin-top:60px;">
+    <a href="#" onclick="openLeadModal(event)" class="btn-primary" style="font-size:1.05rem;padding:18px 48px;"
+      data-en="Start Free Trial" data-es="Empezar prueba gratis">Empezar prueba gratis</a>
   </div>
 </section>
 
@@ -1583,8 +1599,8 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     <!-- Form -->
     <div id="modalForm">
       <div class="modal-plan-badge" id="modal-plan-label">Holly Essential</div>
-      <h2 data-en="Start Your 5-Day Free Trial" data-es="Comienza tu Prueba Gratuita de 5 Días">Start Your 5-Day Free Trial</h2>
-      <p class="modal-sub" data-en="5 days free, no credit card required. We&#39;ll have Holly answering your calls within 24 hours." data-es="5 días gratis, sin tarjeta de crédito. Holly estará respondiendo tus llamadas en 24 horas.">5 days free, no credit card required. We'll have Holly answering your calls within 24 hours.</p>
+      <h2 data-en="Start Your 7-Day Free Trial" data-es="Comienza tu Prueba Gratuita de 7 Días">Comienza tu Prueba Gratuita de 7 Días</h2>
+      <p class="modal-sub" data-en="7 days free, no credit card required. We&#39;ll have Holly answering your calls within 24 hours." data-es="7 días gratis, sin tarjeta de crédito. Holly estará respondiendo tus llamadas en 24 horas.">7 días gratis, sin tarjeta de crédito. Holly estará respondiendo tus llamadas en 24 horas.</p>
 
       <div class="form-group">
         <label data-en="NAME" data-es="NOMBRE">NAME</label>
@@ -1604,8 +1620,8 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
       </div>
 
       <p id="trialError" style="color:#ef4444;font-size:0.82rem;margin:0 0 8px;display:none;" data-en="Please fill in all fields to continue." data-es="Por favor completa todos los campos para continuar.">Please fill in all fields to continue.</p>
-      <button class="form-submit" onclick="handleSubmit()" data-en="Start Free Trial — 5 Days Free" data-es="Iniciar Prueba Gratis — 5 Días Gratis">Start Free Trial — 5 Days Free</button>
-      <p class="form-note" data-en="🔒 5 days free · HIPAA compliant · No credit card needed · Cancel anytime" data-es="🔒 5 días gratis · Cumple HIPAA · Sin tarjeta de crédito · Cancela cuando quieras">🔒 5 days free · HIPAA compliant · No credit card needed · Cancel anytime</p>
+      <button class="form-submit" onclick="handleSubmit()" data-en="Start Free Trial — 7 Days Free" data-es="Empezar prueba gratis — 7 días">Empezar prueba gratis — 7 días</button>
+      <p class="form-note" data-en="🔒 7 days free · HIPAA compliant · No credit card needed · Cancel anytime" data-es="🔒 7 días gratis · Cumple HIPAA · Sin tarjeta de crédito · Cancela cuando quieras">🔒 7 días gratis · Cumple HIPAA · Sin tarjeta de crédito · Cancela cuando quieras</p>
     </div>
 
     <!-- Success -->
@@ -1620,7 +1636,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 
 <script>
   // ── PRICING TOGGLE ──
-  const prices = { monthly: { essential: 149, premium: 349 }, annual: { essential: 119, premium: 279 } };
+  const prices = { monthly: { essential: 79, premium: 199 }, annual: { essential: 63, premium: 159 } };
   function setFreq(freq, btn) {
     document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
