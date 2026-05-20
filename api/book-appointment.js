@@ -19,6 +19,9 @@ function getOAuthClient() {
 }
 
 module.exports = async function handler(req, res) {
+  // Full request body logged for debugging Retell function call payloads
+  console.log('REQUEST BODY:', JSON.stringify(req.body, null, 2));
+
   const supabaseKeys = Object.keys(process.env).filter(k => k.startsWith('SUPABASE'));
   console.log('ENV CHECK:', {
     hasClientId: !!process.env.GOOGLE_CLIENT_ID,
@@ -43,6 +46,10 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Retell Function nodes nest call arguments under "args"; support both formats
+  const args = req.body.args || req.body;
+  const call = req.body.call || null;
+
   const {
     patient_name,
     date_of_birth,
@@ -50,9 +57,7 @@ module.exports = async function handler(req, res) {
     doctor,
     appointment_time,
     phone_number,
-    // Retell sends call metadata; agent_id identifies which clinic's agent handled the call
-    call,
-  } = req.body;
+  } = args;
 
   const retell_agent_id = call?.agent_id || null;
 

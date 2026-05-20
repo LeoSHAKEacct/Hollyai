@@ -1,0 +1,14 @@
+{
+  "name": "book_appointment",
+  "description": "Books the appointment and saves to calendar and database",
+  "url": "https://hollyai.vercel.app/api/book-appointment",
+  "method": "POST",
+  "parameters": {
+    "patient_name": "string - full name of the patient",
+    "date_of_birth": "string - patient date of birth",
+    "reason": "string - reason for visit",
+    "doctor": "string - preferred doctor",
+    "appointment_time": "string - confirmed appointment datetime in ISO format",
+    "phone_number": "string - caller phone number"
+  }
+}
