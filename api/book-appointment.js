@@ -50,7 +50,11 @@ module.exports = async function handler(req, res) {
     doctor,
     appointment_time,
     phone_number,
+    // Retell sends call metadata; agent_id identifies which clinic's agent handled the call
+    call,
   } = req.body;
+
+  const retell_agent_id = call?.agent_id || null;
 
   if (!patient_name || !appointment_time) {
     res.status(400).json({ error: 'patient_name and appointment_time are required' });
@@ -105,6 +109,7 @@ module.exports = async function handler(req, res) {
       doctor,
       appointment_time,
       phone_number,
+      retell_agent_id,
     });
 
     if (dbError) {

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holly.ai — Panel de Clínica</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0a0f1e;
+      --navy-card: #111827;
+      --navy-border: #1e293b;
+      --gold: #d4af37;
+      --gold-light: #f0d060;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --green: #22c55e;
+      --radius: 12px;
+    }
+
+    body {
+      background: var(--navy);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── Login Screen ─────────────────────────────── */
+    #login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .login-logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 36px;
+    }
+
+    .clinic-name-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--navy);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-card input:focus {
+      border-color: var(--gold);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--gold);
+      color: #000;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .login-btn:hover { background: var(--gold-light); }
+
+    .login-error {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── Dashboard ────────────────────────────────── */
+    #dashboard { display: none; }
+
+    header {
+      background: var(--navy-card);
+      border-bottom: 1px solid var(--navy-border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .header-logo { font-size: 20px; font-weight: 700; color: var(--gold); }
+    .header-clinic { font-size: 14px; color: var(--text-muted); }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid var(--navy-border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+    main { padding: 32px; max-width: 1200px; margin: 0 auto; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title { font-size: 16px; font-weight: 600; }
+
+    .refresh-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .table-wrap {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead th {
+      background: var(--navy);
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--navy-border);
+    }
+
+    tbody tr { border-bottom: 1px solid var(--navy-border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(212,175,55,0.04); }
+
+    tbody td {
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(34,197,94,0.15);
+      color: var(--green);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+
+    .loading-row td { text-align: center; color: var(--text-muted); padding: 40px; }
+
+    /* spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--navy-border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Login Screen ──────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Holly.ai</div>
+    <div class="login-subtitle">Panel de administración de citas</div>
+    <div class="clinic-name-display" id="clinic-display">Cargando clínica…</div>
+    <input type="password" id="password-input" placeholder="Contraseña" autocomplete="current-password" />
+    <button class="login-btn" id="login-btn">Ingresar</button>
+    <div class="login-error" id="login-error">Contraseña incorrecta. Intenta de nuevo.</div>
+  </div>
+</div>
+
+<!-- ── Dashboard ─────────────────────────────────── -->
+<div id="dashboard">
+  <header>
+    <div>
+      <div class="header-logo">Holly.ai</div>
+      <div class="header-clinic" id="header-clinic-name"></div>
+    </div>
+    <button class="logout-btn" id="logout-btn">Cerrar sesión</button>
+  </header>
+  <main>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total de citas</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Citas de hoy</div>
+        <div class="stat-value" id="stat-today">—</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Citas</div>
+      <div class="refresh-label" id="refresh-label">Actualizando…</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Motivo</th>
+            <th>Doctor</th>
+            <th>Fecha y hora</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="appointments-body">
+          <tr class="loading-row">
+            <td colspan="6"><span class="spinner"></span>Cargando citas…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://lgnfiveyqlehnxlvspqb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbmZpdmV5cWxlaG54bHZzcHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTE4MTYsImV4cCI6MjA5MTA2NzgxNn0.uE3eWwbRBYR-KcImVgZL_8YFquTHYuYCx7vThL3MTVM';
+
+  // ── Helpers ──────────────────────────────────────
+  async function supabaseGet(path) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+    return res.json();
+  }
+
+  function getSlug() {
+    // Support both /clinic/drfelix and /clinic/drfelix/ paths
+    const parts = window.location.pathname.replace(/\/$/, '').split('/');
+    return parts[parts.length - 1] || null;
+  }
+
+  function formatDate(str) {
+    if (!str) return '—';
+    const d = new Date(str);
+    if (isNaN(d)) return str;
+    return d.toLocaleString('es-MX', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  function todayISODate() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  // ── State ────────────────────────────────────────
+  let clinic = null;
+  let refreshTimer = null;
+
+  // ── Init ─────────────────────────────────────────
+  async function init() {
+    const slug = getSlug();
+    if (!slug || slug === 'clinic') {
+      document.getElementById('clinic-display').textContent = 'URL inválida. Accede con /clinic/tu-slug';
+      return;
+    }
+
+    try {
+      const rows = await supabaseGet(
+        `clinics?slug=eq.${encodeURIComponent(slug)}&active=eq.true&limit=1`
+      );
+      if (!rows.length) {
+        document.getElementById('clinic-display').textContent = 'Clínica no encontrada.';
+        return;
+      }
+      clinic = rows[0];
+      document.getElementById('clinic-display').textContent = clinic.name;
+    } catch (err) {
+      document.getElementById('clinic-display').textContent = 'Error al cargar la clínica.';
+      console.error(err);
+    }
+  }
+
+  // ── Login ────────────────────────────────────────
+  document.getElementById('login-btn').addEventListener('click', handleLogin);
+  document.getElementById('password-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  function handleLogin() {
+    if (!clinic) return;
+    const input = document.getElementById('password-input').value;
+    const errorEl = document.getElementById('login-error');
+
+    if (input === clinic.dashboard_password) {
+      errorEl.style.display = 'none';
+      showDashboard();
+    } else {
+      errorEl.style.display = 'block';
+    }
+  }
+
+  function showDashboard() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('header-clinic-name').textContent = clinic.name;
+    loadAppointments();
+    refreshTimer = setInterval(loadAppointments, 30000);
+  }
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    clearInterval(refreshTimer);
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('password-input').value = '';
+  });
+
+  // ── Appointments ─────────────────────────────────
+  async function loadAppointments() {
+    if (!clinic?.retell_agent_id) return;
+
+    try {
+      const rows = await supabaseGet(
+        `appointments?retell_agent_id=eq.${encodeURIComponent(clinic.retell_agent_id)}&order=appointment_time.desc&limit=200`
+      );
+      renderStats(rows);
+      renderTable(rows);
+
+      const now = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('refresh-label').textContent = `Última actualización: ${now} · refresca cada 30 s`;
+    } catch (err) {
+      console.error('Error loading appointments:', err);
+      document.getElementById('refresh-label').textContent = 'Error al actualizar';
+    }
+  }
+
+  function renderStats(rows) {
+    const today = todayISODate();
+    const todayCount = rows.filter(r => r.appointment_time && r.appointment_time.startsWith(today)).length;
+    document.getElementById('stat-total').textContent = rows.length;
+    document.getElementById('stat-today').textContent = todayCount;
+  }
+
+  function renderTable(rows) {
+    const tbody = document.getElementById('appointments-body');
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">Sin citas registradas</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${escHtml(r.patient_name || '—')}</td>
+        <td>${escHtml(r.reason || '—')}</td>
+        <td>${escHtml(r.doctor || '—')}</td>
+        <td>${formatDate(r.appointment_time)}</td>
+        <td>${escHtml(r.phone_number || '—')}</td>
+        <td><span class="badge">Confirmada</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Boot ─────────────────────────────────────────
+  init();
+</script>
+</body>
+</html>
