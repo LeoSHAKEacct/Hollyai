@@ -46,23 +46,37 @@ module.exports = async function handler(req, res) {
     return;
   }
 
-  // Retell Function nodes nest call arguments under "args"; support both formats
-  const args = req.body.args || req.body;
-  const call = req.body.call || null;
+  // --- Payload normalisation ---
+  // Format A: Retell agent-level webhook (post-call)
+  //   { event, call: { agent_id, from_number, call_analysis: { custom_analysis_data: {...} } } }
+  // Format B: Direct POST (curl tests)
+  //   { patient_name, date_of_birth, reason, doctor, appointment_time, phone_number }
+  let patient_name, date_of_birth, reason, doctor, appointment_time, phone_number, retell_agent_id;
 
-  const {
-    patient_name,
-    date_of_birth,
-    reason,
-    doctor,
-    appointment_time,
-    phone_number,
-  } = args;
+  if (req.body.call) {
+    const call = req.body.call;
+    const data = call?.call_analysis?.custom_analysis_data || {};
+    patient_name    = data.patient_name    || null;
+    date_of_birth   = data.date_of_birth   || null;
+    reason          = data.reason          || null;
+    doctor          = data.doctor          || null;
+    appointment_time = data.appointment_time || null;
+    phone_number    = call.from_number     || null;
+    retell_agent_id = call.agent_id        || null;
+  } else {
+    patient_name    = req.body.patient_name    || null;
+    date_of_birth   = req.body.date_of_birth   || null;
+    reason          = req.body.reason          || null;
+    doctor          = req.body.doctor          || null;
+    appointment_time = req.body.appointment_time || null;
+    phone_number    = req.body.phone_number    || null;
+    retell_agent_id = null;
+  }
 
-  const retell_agent_id = call?.agent_id || null;
-
+  // Return 200 (not 400) on missing fields so Retell doesn't retry the webhook
   if (!patient_name || !appointment_time) {
-    res.status(400).json({ error: 'patient_name and appointment_time are required' });
+    console.warn('Missing required fields — skipping booking:', { patient_name, appointment_time });
+    res.status(200).json({ success: false, reason: 'missing_required_fields' });
     return;
   }
 
