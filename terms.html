@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — Holly.ai</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0e1a;
+    --navy: #0f1729;
+    --navy-mid: #162040;
+    --navy-light: #1e2d55;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-glow: rgba(201,168,76,0.15);
+    --teal: #2dd4bf;
+    --white: #f8f5ef;
+    --white-dim: rgba(248,245,239,0.6);
+    --white-faint: rgba(248,245,239,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--white);
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 60px;
+    background: rgba(10,14,26,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+
+  .nav-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--white-dim);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--white); }
+  .nav-back svg { width: 16px; height: 16px; }
+
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 6px;
+    padding: 4px;
+  }
+  .lang-btn {
+    background: none;
+    border: none;
+    color: var(--white-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .lang-btn.active {
+    background: var(--gold);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .lang-btn:not(.active):hover {
+    color: var(--white);
+    background: var(--white-faint);
+  }
+
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 140px 40px 100px;
+  }
+
+  .page-header {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+  }
+
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .page-header h1 span { color: var(--gold); }
+
+  .page-subtitle {
+    color: var(--white-dim);
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+
+  .last-updated {
+    display: inline-block;
+    background: var(--gold-glow);
+    border: 1px solid rgba(201,168,76,0.25);
+    color: var(--gold-light);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+
+  .policy-section { margin-bottom: 44px; }
+
+  .policy-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .policy-section h2 .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--white-dim);
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .policy-section p {
+    color: var(--white-dim);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+
+  .policy-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+  }
+
+  .policy-section ul li {
+    color: var(--white-dim);
+    font-size: 0.95rem;
+    padding: 5px 0 5px 20px;
+    position: relative;
+  }
+
+  .policy-section ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  .policy-section a {
+    color: var(--gold-light);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(201,168,76,0.3);
+    transition: border-color 0.2s;
+  }
+  .policy-section a:hover { border-color: var(--gold); }
+
+  .highlight-box {
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-top: 10px;
+  }
+  .highlight-box p { margin: 0; font-size: 0.9rem; }
+
+  /* Plan cards */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .plan-card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 20px 22px;
+  }
+  .plan-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, var(--navy-mid), #1a2a50);
+  }
+  .plan-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .plan-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .plan-price span {
+    font-size: 0.8rem;
+    color: var(--white-dim);
+  }
+  .plan-detail {
+    color: var(--white-dim);
+    font-size: 0.85rem;
+  }
+
+  .lang-divider {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 72px 0;
+  }
+  .lang-divider::before,
+  .lang-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.3), transparent);
+  }
+  .lang-divider-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .version-block { display: block; }
+  .version-block.hidden { display: none; }
+
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 60px;
+    border-top: 1px solid rgba(201,168,76,0.1);
+    background: rgba(10,14,26,0.6);
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-copy { color: var(--white-dim); font-size: 0.8rem; }
+  .footer-links { display: flex; gap: 24px; list-style: none; }
+  .footer-links a {
+    color: var(--white-dim);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--white); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    main { padding: 120px 24px 80px; }
+    footer { flex-direction: column; gap: 16px; align-items: flex-start; padding: 32px 24px; }
+    .plan-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Holly<span>.ai</span></a>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+  </div>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10 12L6 8l4-4"/>
+    </svg>
+    <span id="nav-back-label">Back to Home</span>
+  </a>
+</nav>
+
+<main>
+
+  <!-- ══ ENGLISH ══ -->
+  <div class="version-block" id="block-en">
+
+    <div class="page-header">
+      <h1>Terms of <span>Service</span></h1>
+      <p class="page-subtitle">Holly.ai — operated by SHAKEapp Inc.</p>
+      <span class="last-updated">Effective: May 2026</span>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">01</span> Acceptance of Terms</h2>
+      <p>By accessing or using Holly.ai, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any part of these terms, you may not use our service. These terms constitute a legally binding agreement between you and SHAKEapp Inc.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">02</span> Description of Service</h2>
+      <p>Holly.ai is an AI-powered voice receptionist platform designed for medical clinics, operated by:</p>
+      <div class="highlight-box">
+        <p><strong>SHAKEapp Inc.</strong><br>
+        13930 Expanding Light Dr, Nevada City, CA 95959, USA<br>
+        <a href="mailto:contact@shakeapp.today">contact@shakeapp.today</a></p>
+      </div>
+      <p style="margin-top:14px;">The service automates appointment scheduling, patient intake, and clinic communication via AI voice calls integrated with WhatsApp, SMS, and Google Calendar.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">03</span> Subscription Plans</h2>
+      <p>Holly.ai is offered under the following monthly subscription plans:</p>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">$79<span>/mo</span></div>
+          <div class="plan-detail">Up to 200 AI-handled calls per month</div>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$199<span>/mo</span></div>
+          <div class="plan-detail">Unlimited AI-handled calls per month</div>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:16px;">
+        <p><strong>7-day free trial</strong> — no credit card required. Billing begins on day 8 of use. You may cancel at any time before day 8 at no charge.</p>
+      </div>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">04</span> Acceptable Use</h2>
+      <p>Holly.ai is intended exclusively for licensed medical clinics and healthcare providers. You agree to:</p>
+      <ul>
+        <li>Use the service only for legitimate medical appointment scheduling</li>
+        <li>Not use Holly.ai as a substitute for emergency medical services (911 / emergency lines)</li>
+        <li>Not use the service for any unlawful, fraudulent, or unauthorized purpose</li>
+        <li>Comply with all applicable local, national, and international laws and regulations</li>
+        <li>Not attempt to reverse-engineer, disassemble, or interfere with the service</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">05</span> Disclaimer of Warranties</h2>
+      <p>Holly.ai is provided <strong>"as-is"</strong> and <strong>"as available"</strong> without warranties of any kind, express or implied. SHAKEapp Inc. does not warrant that the service will be uninterrupted, error-free, or meet your specific requirements.</p>
+      <ul>
+        <li>Holly.ai is <strong>not a substitute for emergency medical care</strong>. Always dial emergency services for life-threatening situations.</li>
+        <li>SHAKEapp Inc. is <strong>not liable for missed appointments</strong> caused by call failures, connectivity issues, or patient error.</li>
+        <li>SHAKEapp Inc. is <strong>not liable for call failures</strong> resulting from third-party infrastructure outages (Retell AI, Twilio, WhatsApp, etc.).</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">06</span> Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, SHAKEapp Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of Holly.ai, including but not limited to loss of revenue, data, or business opportunities.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">07</span> Termination</h2>
+      <p>Either party may terminate the service relationship with <strong>30 days written notice</strong>. SHAKEapp Inc. reserves the right to suspend or terminate accounts immediately for violation of these terms, fraudulent activity, or non-payment. Upon termination, your data will be handled per our <a href="privacy.html">Privacy Policy</a>.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">08</span> Governing Law</h2>
+      <p>These Terms of Service shall be governed by and construed in accordance with the laws of the <strong>State of California, United States of America</strong>, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts of Nevada County, California.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">09</span> Contact</h2>
+      <p>Questions about these Terms of Service may be directed to:</p>
+      <div class="highlight-box">
+        <p><strong>SHAKEapp Inc.</strong> — <a href="mailto:contact@shakeapp.today">contact@shakeapp.today</a><br>
+        13930 Expanding Light Dr, Nevada City, CA 95959, USA</p>
+      </div>
+    </div>
+
+  </div><!-- /block-en -->
+
+  <div class="lang-divider" id="divider">
+    <span class="lang-divider-label">Versión en Español / Spanish Version</span>
+  </div>
+
+  <!-- ══ SPANISH ══ -->
+  <div class="version-block" id="block-es">
+
+    <div class="page-header">
+      <h1>Términos de <span>Servicio</span></h1>
+      <p class="page-subtitle">Holly.ai — operado por SHAKEapp Inc.</p>
+      <span class="last-updated">Vigente: Mayo 2026</span>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">01</span> Aceptación de los Términos</h2>
+      <p>Al acceder o utilizar Holly.ai, usted acepta estar sujeto a estos Términos de Servicio y todas las leyes y regulaciones aplicables. Si no está de acuerdo con alguna parte de estos términos, no podrá utilizar nuestro servicio. Estos términos constituyen un acuerdo legalmente vinculante entre usted y SHAKEapp Inc.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">02</span> Descripción del Servicio</h2>
+      <p>Holly.ai es una plataforma de recepcionista de voz con inteligencia artificial diseñada para clínicas médicas, operada por:</p>
+      <div class="highlight-box">
+        <p><strong>SHAKEapp Inc.</strong><br>
+        13930 Expanding Light Dr, Nevada City, CA 95959, USA<br>
+        <a href="mailto:contact@shakeapp.today">contact@shakeapp.today</a></p>
+      </div>
+      <p style="margin-top:14px;">El servicio automatiza el agendamiento de citas, la recepción de pacientes y la comunicación de la clínica mediante llamadas de voz con IA integradas con WhatsApp, SMS y Google Calendar.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">03</span> Planes de Suscripción</h2>
+      <p>Holly.ai se ofrece bajo los siguientes planes de suscripción mensual:</p>
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">$79<span>/mes</span></div>
+          <div class="plan-detail">Hasta 200 llamadas gestionadas por IA al mes</div>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">$199<span>/mes</span></div>
+          <div class="plan-detail">Llamadas ilimitadas gestionadas por IA al mes</div>
+        </div>
+      </div>
+      <div class="highlight-box" style="margin-top:16px;">
+        <p><strong>Prueba gratuita de 7 días</strong> — sin tarjeta de crédito. La facturación comienza el día 8. Puede cancelar en cualquier momento antes del día 8 sin costo alguno.</p>
+      </div>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">04</span> Uso Aceptable</h2>
+      <p>Holly.ai está destinado exclusivamente a clínicas médicas y proveedores de salud autorizados. Usted se compromete a:</p>
+      <ul>
+        <li>Usar el servicio únicamente para el agendamiento legítimo de citas médicas</li>
+        <li>No usar Holly.ai como sustituto de los servicios de emergencias médicas (líneas de emergencia)</li>
+        <li>No usar el servicio para ningún propósito ilegal, fraudulento o no autorizado</li>
+        <li>Cumplir con todas las leyes y regulaciones locales, nacionales e internacionales aplicables</li>
+        <li>No intentar realizar ingeniería inversa, desensamblar o interferir con el servicio</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">05</span> Limitación de Garantías</h2>
+      <p>Holly.ai se proporciona <strong>"tal cual"</strong> y <strong>"según disponibilidad"</strong> sin garantías de ningún tipo, expresas o implícitas. SHAKEapp Inc. no garantiza que el servicio sea ininterrumpido, libre de errores o que satisfaga sus requisitos específicos.</p>
+      <ul>
+        <li>Holly.ai <strong>no es un sustituto de la atención médica de emergencia</strong>. Siempre llame a los servicios de emergencia ante situaciones de riesgo vital.</li>
+        <li>SHAKEapp Inc. <strong>no es responsable por citas perdidas</strong> causadas por fallas en las llamadas, problemas de conectividad o error del paciente.</li>
+        <li>SHAKEapp Inc. <strong>no es responsable por fallas en las llamadas</strong> debidas a interrupciones de infraestructura de terceros (Retell AI, Twilio, WhatsApp, etc.).</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">06</span> Limitación de Responsabilidad</h2>
+      <p>En la máxima medida permitida por la ley, SHAKEapp Inc. no será responsable por daños indirectos, incidentales, especiales, consecuentes o punitivos derivados del uso de Holly.ai, incluyendo pérdida de ingresos, datos u oportunidades de negocio.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">07</span> Terminación</h2>
+      <p>Cualquiera de las partes puede terminar la relación de servicio con <strong>30 días de aviso por escrito</strong>. SHAKEapp Inc. se reserva el derecho de suspender o cancelar cuentas de forma inmediata por violación de estos términos, actividad fraudulenta o falta de pago. Tras la terminación, sus datos serán tratados conforme a nuestra <a href="privacy.html">Política de Privacidad</a>.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">08</span> Ley Aplicable</h2>
+      <p>Estos Términos de Servicio se regirán e interpretarán de conformidad con las leyes del <strong>Estado de California, Estados Unidos de América</strong>, sin tener en cuenta sus disposiciones sobre conflicto de leyes. Cualquier disputa se resolverá en los tribunales del Condado de Nevada, California.</p>
+    </div>
+
+    <div class="policy-section">
+      <h2><span class="section-num">09</span> Contacto</h2>
+      <p>Las preguntas sobre estos Términos de Servicio pueden dirigirse a:</p>
+      <div class="highlight-box">
+        <p><strong>SHAKEapp Inc.</strong> — <a href="mailto:contact@shakeapp.today">contact@shakeapp.today</a><br>
+        13930 Expanding Light Dr, Nevada City, CA 95959, USA</p>
+      </div>
+    </div>
+
+  </div><!-- /block-es -->
+
+</main>
+
+<footer>
+  <div>
+    <div class="footer-logo">Holly<span>.ai</span></div>
+    <div class="footer-copy" style="margin-top:6px;">© 2026 Holly.ai — SHAKEapp Inc.</div>
+  </div>
+  <ul class="footer-links">
+    <li><a href="privacy.html">Privacy / Privacidad</a></li>
+    <li><a href="hipaa.html">HIPAA</a></li>
+    <li><a href="mailto:contact@shakeapp.today">Contact</a></li>
+    <li><a href="index.html">Home</a></li>
+  </ul>
+</footer>
+
+<script>
+  (function() {
+    const stored = localStorage.getItem('hollyLanguage');
+    if (stored === 'es') setLang('es', true);
+  })();
+
+  function setLang(lang, silent) {
+    const isES = lang === 'es';
+    document.getElementById('btn-en').classList.toggle('active', !isES);
+    document.getElementById('btn-es').classList.toggle('active', isES);
+    if (isES) {
+      document.getElementById('block-en').classList.add('hidden');
+      document.getElementById('block-es').classList.remove('hidden');
+      document.getElementById('divider').style.display = 'none';
+      document.getElementById('nav-back-label').textContent = 'Volver al inicio';
+      document.documentElement.lang = 'es';
+    } else {
+      document.getElementById('block-en').classList.remove('hidden');
+      document.getElementById('block-es').classList.remove('hidden');
+      document.getElementById('divider').style.display = '';
+      document.getElementById('nav-back-label').textContent = 'Back to Home';
+      document.documentElement.lang = 'en';
+    }
+    if (!silent) localStorage.setItem('hollyLanguage', lang);
+  }
+</script>
+
+</body>
+</html>
