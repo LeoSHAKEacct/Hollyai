@@ -418,9 +418,9 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 
   .plans {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    max-width: 860px;
+    max-width: 1140px;
     margin: 0 auto;
     text-align: left;
   }
@@ -445,8 +445,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy) 100%);
   }
 
-  .plan.featured::before {
-    content: 'MOST POPULAR';
+  .plan-badge {
     position: absolute;
     top: -1px; right: 24px;
     background: var(--gold);
@@ -1138,7 +1137,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     section { padding: 60px 24px; }
     .steps { grid-template-columns: 1fr 1fr; }
     .features-grid { grid-template-columns: 1fr; }
-    .plans { grid-template-columns: 1fr; }
+    .plans { grid-template-columns: 1fr; max-width: 480px; }
     .demo-layout { grid-template-columns: 1fr; }
     .phone-wrap { margin-bottom: 40px; }
     footer { padding: 40px 24px; flex-direction: column; align-items: flex-start; }
@@ -1502,7 +1501,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   <div class="reveal">
     <div class="section-tag" data-en="Pricing" data-es="Precios">Pricing</div>
     <h2 class="section-title" data-en="Simple, transparent pricing." data-es="Precios simples y transparentes.">Simple, transparent pricing.</h2>
-    <p class="section-sub" data-en="One agent, two plans. Start small and upgrade when you&#39;re ready. No long-term contracts." data-es="Un agente, dos planes. Empieza pequeño y actualiza cuando estés listo. Sin contratos a largo plazo.">One agent, two plans. Start small and upgrade when you're ready. No long-term contracts.</p>
+    <p class="section-sub" data-en="Three plans for every stage. Start free and grow at your own pace. No long-term contracts." data-es="Tres planes para cada etapa. Empieza gratis y crece a tu ritmo. Sin contratos a largo plazo.">Tres planes para cada etapa. Empieza gratis y crece a tu ritmo. Sin contratos a largo plazo.</p>
   </div>
 
   <div style="display:flex;justify-content:center;" class="reveal">
@@ -1513,44 +1512,66 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   </div>
 
   <div class="plans reveal">
-    <!-- Essential -->
+    <!-- PLAN 1 — Starter -->
     <div class="plan">
       <div class="plan-name" data-en="Starter" data-es="Starter">Starter</div>
       <div class="plan-title" data-en="Starter" data-es="Starter">Starter</div>
       <div class="plan-desc" data-en="Ideal for clinics with one doctor or specialty." data-es="Ideal para clínicas con un médico o especialidad.">Ideal para clínicas con un médico o especialidad.</div>
       <div class="plan-price">
         <span class="currency">$</span>
-        <span class="amount" id="price-essential">79</span>
+        <span class="amount" id="price-starter">79</span>
         <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
       </div>
       <ul class="plan-features">
-        <li data-en="7-day free trial to start" data-es="7 días gratis para empezar">7 días gratis para empezar</li>
+        <li data-en="7 days free to start" data-es="7 días gratis para empezar">7 días gratis para empezar</li>
         <li data-en="Up to 200 calls/month" data-es="Hasta 200 llamadas/mes">Hasta 200 llamadas/mes</li>
         <li data-en="Automatic scheduling" data-es="Agenda automática">Agenda automática</li>
         <li data-en="WhatsApp confirmations" data-es="Confirmaciones por WhatsApp">Confirmaciones por WhatsApp</li>
-        <li data-en="Basic dashboard" data-es="Panel básico">Panel básico</li>
+        <li data-en="Basic appointments dashboard" data-es="Panel básico de citas">Panel básico de citas</li>
+        <li data-en="Email support (48h)" data-es="Soporte por email (48h)">Soporte por email (48h)</li>
       </ul>
-      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
+      <a href="#" onclick="openLeadModal(event,'Starter','Starter')" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
 
-    <!-- Premium -->
+    <!-- PLAN 2 — Clínica (featured) -->
     <div class="plan featured">
-      <div class="plan-name" data-en="Pro" data-es="Pro">Pro</div>
-      <div class="plan-title" data-en="Pro" data-es="Pro">Pro</div>
-      <div class="plan-desc" data-en="For clinics with multiple doctors or high patient turnover." data-es="Para clínicas con varios médicos o alta rotación de pacientes.">Para clínicas con varios médicos o alta rotación de pacientes.</div>
+      <div class="plan-badge" data-en="MOST POPULAR" data-es="MÁS POPULAR">MÁS POPULAR</div>
+      <div class="plan-name" data-en="Clínica" data-es="Clínica">Clínica</div>
+      <div class="plan-title" data-en="Clínica" data-es="Clínica">Clínica</div>
+      <div class="plan-desc" data-en="For established clinics that want more control." data-es="Para clínicas establecidas que quieren más control.">Para clínicas establecidas que quieren más control.</div>
       <div class="plan-price">
         <span class="currency">$</span>
-        <span class="amount" id="price-premium">199</span>
+        <span class="amount" id="price-clinica">149</span>
+        <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
+      </div>
+      <ul class="plan-features">
+        <li data-en="Up to 500 calls/month" data-es="Hasta 500 llamadas/mes">Hasta 500 llamadas/mes</li>
+        <li data-en="Multiple doctors" data-es="Múltiples médicos">Múltiples médicos</li>
+        <li class="extra" data-en="Advanced reports (volume, conversion, top reasons)" data-es="Reportes avanzados (volumen, conversión, motivos frecuentes)">Reportes avanzados (volumen, conversión, motivos frecuentes)</li>
+        <li class="extra" data-en="Monthly PDF summary" data-es="Resumen mensual en PDF">Resumen mensual en PDF</li>
+        <li class="extra" data-en="WhatsApp support (24h)" data-es="Soporte por WhatsApp (24h)">Soporte por WhatsApp (24h)</li>
+      </ul>
+      <a href="#" onclick="openLeadModal(event,'Clínica','Clínica')" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
+    </div>
+
+    <!-- PLAN 3 — Pro -->
+    <div class="plan">
+      <div class="plan-name" data-en="Pro" data-es="Pro">Pro</div>
+      <div class="plan-title" data-en="Pro" data-es="Pro">Pro</div>
+      <div class="plan-desc" data-en="For high-volume clinics or multiple locations." data-es="Para clínicas de alto volumen o múltiples sedes.">Para clínicas de alto volumen o múltiples sedes.</div>
+      <div class="plan-price">
+        <span class="currency">$</span>
+        <span class="amount" id="price-pro">249</span>
         <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
       </div>
       <ul class="plan-features">
         <li data-en="Unlimited calls" data-es="Llamadas ilimitadas">Llamadas ilimitadas</li>
-        <li data-en="Multiple specialties" data-es="Múltiples especialidades">Múltiples especialidades</li>
-        <li class="extra" data-en="Automatic reminders" data-es="Recordatorios automáticos">Recordatorios automáticos</li>
-        <li class="extra" data-en="Advanced reports" data-es="Reportes avanzados">Reportes avanzados</li>
-        <li class="extra" data-en="Priority support" data-es="Soporte prioritario">Soporte prioritario</li>
+        <li data-en="Everything in Clínica" data-es="Todo lo de Clínica">Todo lo de Clínica</li>
+        <li class="extra" data-en="Automated reminders 24h before appointment" data-es="Recordatorios automáticos 24h antes">Recordatorios automáticos 24h antes</li>
+        <li class="extra" data-en="Same-day agent updates" data-es="Actualizaciones del agente el mismo día">Actualizaciones del agente el mismo día</li>
+        <li class="extra" data-en="Priority support — dedicated WhatsApp + monthly call" data-es="Soporte prioritario — WhatsApp dedicado + llamada mensual">Soporte prioritario — WhatsApp dedicado + llamada mensual</li>
       </ul>
-      <a href="#" onclick="openLeadModal(event)" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
+      <a href="#" onclick="openLeadModal(event,'Pro','Pro')" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
   </div>
 </section>
@@ -1598,7 +1619,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 
     <!-- Form -->
     <div id="modalForm">
-      <div class="modal-plan-badge" id="modal-plan-label">Holly Essential</div>
+      <div class="modal-plan-badge" id="modal-plan-label">Holly Starter</div>
       <h2 data-en="Start Your 7-Day Free Trial" data-es="Comienza tu Prueba Gratuita de 7 Días">Comienza tu Prueba Gratuita de 7 Días</h2>
       <p class="modal-sub" data-en="7 days free, no credit card required. We&#39;ll have Holly answering your calls within 24 hours." data-es="7 días gratis, sin tarjeta de crédito. Holly estará respondiendo tus llamadas en 24 horas.">7 días gratis, sin tarjeta de crédito. Holly estará respondiendo tus llamadas en 24 horas.</p>
 
@@ -1636,25 +1657,39 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 
 <script>
   // ── PRICING TOGGLE ──
-  const prices = { monthly: { essential: 79, premium: 199 }, annual: { essential: 63, premium: 159 } };
+  const prices = {
+    monthly: { starter: 79, clinica: 149, pro: 249 },
+    annual:  { starter: 63, clinica: 119, pro: 199 }
+  };
   function setFreq(freq, btn) {
     document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('price-essential').textContent = prices[freq].essential;
-    document.getElementById('price-premium').textContent = prices[freq].premium;
+    document.getElementById('price-starter').textContent = prices[freq].starter;
+    document.getElementById('price-clinica').textContent = prices[freq].clinica;
+    document.getElementById('price-pro').textContent     = prices[freq].pro;
   }
 
   // ── MODAL ──
   function openModal(plan) {
+    var badge = document.getElementById('modal-plan-label');
+    badge.setAttribute('data-en', 'Holly ' + (plan || 'Starter'));
+    badge.setAttribute('data-es', 'Holly ' + (plan || 'Starter'));
+    badge.textContent = 'Holly ' + (plan || 'Starter');
     document.getElementById('leadModal').classList.add('open');
-    document.getElementById('modal-plan-label').textContent = `Holly ${plan}`;
     document.getElementById('modalForm').style.display = 'block';
     document.getElementById('modalSuccess').style.display = 'none';
     document.body.style.overflow = 'hidden';
   }
 
-  function openLeadModal(e) {
+  function openLeadModal(e, planEn, planEs) {
     if(e) e.preventDefault();
+    var lang = document.documentElement.lang || 'es';
+    var pEn = planEn || 'Starter';
+    var pEs = planEs || 'Starter';
+    var badge = document.getElementById('modal-plan-label');
+    badge.setAttribute('data-en', 'Holly ' + pEn);
+    badge.setAttribute('data-es', 'Holly ' + pEs);
+    badge.textContent = lang === 'es' ? 'Holly ' + pEs : 'Holly ' + pEn;
     document.getElementById('modalForm').style.display = 'block';
     document.getElementById('modalSuccess').style.display = 'none';
     document.getElementById('trialName').value = '';
@@ -1699,9 +1734,9 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
           email: email,
           clinic: clinic,
           phone: phone,
-          plan: 'Trial',
+          plan: document.getElementById('modal-plan-label').textContent || 'Holly Starter',
           _replyto: email,
-          _subject: '🏥 New Holly.ai Signup — Trial — ' + (clinic || 'Clinic Not Provided')
+          _subject: '🏥 New Holly.ai Signup — ' + (document.getElementById('modal-plan-label').textContent || 'Holly Starter') + ' — ' + (clinic || 'Clinic Not Provided')
         })
       });
     } catch(e) { console.log('Form error', e); }
