@@ -972,31 +972,6 @@
     color: var(--gold);
   }
 
-  /* ── LEADS TABLE ── */
-  .leads-pt-head {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.2fr 1fr;
-    padding: 10px 20px;
-    font-size: 10px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid var(--border);
-    background: var(--midnight);
-  }
-
-  .leads-pt-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1.2fr 1fr;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    align-items: center;
-    transition: background 0.1s;
-  }
-
-  .leads-pt-row:hover { background: var(--panel2); }
-  .leads-pt-row:last-child { border-bottom: none; }
 
   #google_translate_element {
     position: fixed;
@@ -1093,7 +1068,6 @@
       <div class="tab" onclick="showTab('agents',this)">Agent Flows</div>
       <div class="tab" onclick="showTab('patients',this)">Patients</div>
       <div class="tab" onclick="showTab('analytics',this)">Analytics</div>
-      <div class="tab" onclick="showTab('leads',this)">📋 Leads</div>
     </div>
 
     <!-- DASHBOARD TAB -->
@@ -1710,72 +1684,6 @@
       </div>
     </div>
 
-    <!-- LEADS TAB -->
-    <div class="tab-page" id="tab-leads">
-
-      <!-- Stat Cards -->
-      <div class="stats-row" style="margin-bottom:20px;">
-        <div class="stat-card gold">
-          <span class="stat-icon">📋</span>
-          <div class="stat-label">Total Leads</div>
-          <div class="stat-value" id="stat-total">—</div>
-          <div class="stat-change" id="stat-total-sub" style="color:var(--text-muted);">Loading…</div>
-        </div>
-        <div class="stat-card teal">
-          <span class="stat-icon">🏷</span>
-          <div class="stat-label">Top Plan</div>
-          <div class="stat-value" id="stat-top-plan" style="font-size:20px;">—</div>
-          <div class="stat-change up" id="stat-top-plan-count">—</div>
-        </div>
-        <div class="stat-card green">
-          <span class="stat-icon">✅</span>
-          <div class="stat-label">Active / Trial</div>
-          <div class="stat-value" id="stat-active">—</div>
-          <div class="stat-change up" id="stat-active-pct">— of total</div>
-        </div>
-        <div class="stat-card rose">
-          <span class="stat-icon">📅</span>
-          <div class="stat-label">This Week</div>
-          <div class="stat-value" id="stat-week">—</div>
-          <div class="stat-change" id="stat-week-sub" style="color:var(--text-muted);">new leads</div>
-        </div>
-      </div>
-
-      <!-- Leads Table -->
-      <div class="panel" style="margin-bottom:20px;">
-        <div class="panel-header">
-          <div class="panel-title">📋 All Leads</div>
-          <div style="display:flex;gap:10px;align-items:center;">
-            <input id="leads-search" style="background:var(--panel2);border:1px solid var(--border);padding:6px 12px;border-radius:7px;font-size:12px;color:var(--text);outline:none;width:180px;font-family:var(--font-body);" placeholder="🔍 Search…" oninput="filterLeads(this.value)">
-            <div class="panel-action" onclick="exportLeads()">Export CSV</div>
-          </div>
-        </div>
-        <div id="leads-table">
-          <div class="leads-pt-head">
-            <div>Email</div>
-            <div>Plan</div>
-            <div>Date</div>
-            <div>Status</div>
-          </div>
-          <div id="leads-table-body">
-            <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">Loading leads…</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- By Plan + By Status -->
-      <div class="grid-2">
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">💼 Leads by Plan</div></div>
-          <div id="leads-by-plan" style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;"></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header"><div class="panel-title">📊 Leads by Status</div></div>
-          <div id="leads-by-status" style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;"></div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -1863,64 +1771,8 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbmZpdmV5cWxlaG54bHZzcHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTE4MTYsImV4cCI6MjA5MTA2NzgxNn0.uE3eWwbRBYR-KcImVgZL_8YFquTHYuYCx7vThL3MTVM';
   const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let allLeads = [];
-
-  // ── LEADS DATA ──
-  async function loadLeadsData() {
-    const { data: leads, error } = await _supabase
-      .from('hollyai_leads')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Leads load error:', error);
-      document.getElementById('leads-table-body').innerHTML =
-        '<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Error loading leads: ' + escHtml(error.message) + '</div></div>';
-      return;
-    }
-
-    allLeads = leads || [];
-    renderLeadsStats(allLeads);
-    renderLeadsTable(allLeads);
-    renderLeadsByPlan(allLeads);
-    renderLeadsByStatus(allLeads);
-  }
-
-  function countBy(arr, key) {
-    return arr.reduce((acc, item) => {
-      const val = ((item[key] || 'unknown') + '').toLowerCase();
-      acc[val] = (acc[val] || 0) + 1;
-      return acc;
-    }, {});
-  }
-
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function renderLeadsStats(leads) {
-    const total = leads.length;
-    document.getElementById('stat-total').innerHTML = total + '<span></span>';
-    document.getElementById('stat-total-sub').textContent = total === 1 ? '1 lead recorded' : total + ' leads recorded';
-
-    // Top plan
-    const byPlan = countBy(leads, 'plan');
-    const topPlan = Object.entries(byPlan).sort((a,b) => b[1]-a[1])[0];
-    if (topPlan) {
-      document.getElementById('stat-top-plan').textContent = capitalize(topPlan[0]);
-      document.getElementById('stat-top-plan-count').textContent = topPlan[1] + ' leads';
-    }
-
-    // Active + trial
-    const byStatus = countBy(leads, 'status');
-    const active = (byStatus['active'] || 0) + (byStatus['trial'] || 0);
-    document.getElementById('stat-active').innerHTML = active + '<span></span>';
-    document.getElementById('stat-active-pct').textContent = total ? Math.round(active / total * 100) + '% of total' : '—';
-
-    // This week
-    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const thisWeek = leads.filter(l => l.created_at && new Date(l.created_at).getTime() >= oneWeekAgo).length;
-    document.getElementById('stat-week').innerHTML = thisWeek + '<span></span>';
   }
 
   function getStatusBadge(status) {
@@ -1930,90 +1782,6 @@
     if (s === 'cancelled' || s === 'canceled') return '<span class="call-badge badge-noshow">CANCELLED</span>';
     if (s === 'pending')  return '<span class="call-badge badge-pending">PENDING</span>';
     return '<span class="call-badge" style="background:var(--panel2);color:var(--text-muted);border:1px solid var(--border);">' + escHtml(s.toUpperCase()) + '</span>';
-  }
-
-  function renderLeadsTable(leads) {
-    const body = document.getElementById('leads-table-body');
-    if (!leads.length) {
-      body.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No leads found</div></div>';
-      return;
-    }
-    body.innerHTML = leads.map(lead => {
-      const date = lead.created_at
-        ? new Date(lead.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        : '—';
-      const plan = lead.plan ? capitalize(lead.plan) : '—';
-      return `<div class="leads-pt-row">
-        <div class="pt-name" style="font-size:12px;">${escHtml(lead.email || '—')}</div>
-        <div style="color:var(--gold);font-size:11px;font-family:var(--font-mono);">${escHtml(plan)}</div>
-        <div class="pt-date">${date}</div>
-        <div>${getStatusBadge(lead.status)}</div>
-      </div>`;
-    }).join('');
-  }
-
-  function renderLeadsByPlan(leads) {
-    const counts = countBy(leads, 'plan');
-    const total = leads.length;
-    const COLORS = { starter: 'var(--teal)', premium: 'var(--gold)', enterprise: 'var(--green)', unknown: 'var(--text-muted)' };
-    const el = document.getElementById('leads-by-plan');
-    const entries = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-    if (!entries.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No data</div>'; return; }
-    el.innerHTML = entries.map(([plan, count]) => {
-      const pct = total ? Math.round(count / total * 100) : 0;
-      const color = COLORS[plan] || 'var(--text-dim)';
-      return `<div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;">
-          <span style="color:var(--text);">${escHtml(capitalize(plan))}</span>
-          <span style="color:${color};font-family:var(--font-mono);">${count} <span style="color:var(--text-muted);">(${pct}%)</span></span>
-        </div>
-        <div style="height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.5s;"></div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  function renderLeadsByStatus(leads) {
-    const counts = countBy(leads, 'status');
-    const total = leads.length;
-    const COLORS = { active: 'var(--green)', trial: 'var(--teal)', pending: 'var(--amber)', cancelled: 'var(--rose)', canceled: 'var(--rose)', unknown: 'var(--text-muted)' };
-    const el = document.getElementById('leads-by-status');
-    const entries = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-    if (!entries.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;">No data</div>'; return; }
-    el.innerHTML = entries.map(([status, count]) => {
-      const pct = total ? Math.round(count / total * 100) : 0;
-      const color = COLORS[status] || 'var(--text-dim)';
-      return `<div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px;">
-          <span style="color:var(--text);">${escHtml(capitalize(status))}</span>
-          <span style="color:${color};font-family:var(--font-mono);">${count} <span style="color:var(--text-muted);">(${pct}%)</span></span>
-        </div>
-        <div style="height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width 0.5s;"></div>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  function filterLeads(query) {
-    const q = query.toLowerCase();
-    const filtered = q ? allLeads.filter(l =>
-      (l.email || '').toLowerCase().includes(q) ||
-      (l.plan  || '').toLowerCase().includes(q) ||
-      (l.status|| '').toLowerCase().includes(q)
-    ) : allLeads;
-    renderLeadsTable(filtered);
-  }
-
-  function exportLeads() {
-    if (!allLeads.length) return;
-    const cols = ['email', 'plan', 'status', 'created_at'];
-    const rows = [cols.join(','), ...allLeads.map(l => cols.map(c => '"' + (l[c] || '') + '"').join(','))];
-    const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n'));
-    a.download = 'hollyai_leads.csv';
-    a.click();
   }
 
   function capitalize(s) {
@@ -2100,7 +1868,7 @@
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     el.classList.add('active');
     const map = { dashboard: 'dashboard', calls: 'dashboard', agents: 'agents', patients: 'patients', analytics: 'analytics', calendar: 'analytics' };
-    const tabEl = document.querySelectorAll('.tab')[['dashboard','agents','patients','analytics','leads'].indexOf(map[tab] || tab)];
+    const tabEl = document.querySelectorAll('.tab')[['dashboard','agents','patients','analytics'].indexOf(map[tab] || tab)];
     showTab(map[tab] || tab, tabEl);
   }
 
@@ -2200,7 +1968,6 @@
   })();
 
   // ── INIT ──
-  loadLeadsData();
 </script>
 <div id="google_translate_element"></div>
 </body>
