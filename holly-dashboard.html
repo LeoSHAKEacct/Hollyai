@@ -641,7 +641,7 @@
     <div class="tabs">
       <div class="tab active" id="tab-btn-dashboard" onclick="showTab('dashboard',this)">Dashboard</div>
       <div class="tab" id="tab-btn-leads" onclick="showTab('leads',this)">Leads</div>
-      <div class="tab" id="tab-btn-appointments" onclick="showTab('appointments',this)">Appointments</div>
+      <div class="tab" id="tab-btn-appointments" onclick="showTab('appointments',this)">Appointments <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#4cd9a0;box-shadow:0 0 6px #4cd9a0;vertical-align:middle;margin-left:4px;"></span></div>
       <div class="tab" id="tab-btn-clinics" onclick="showTab('clinics',this)">Clinics</div>
     </div>
 
@@ -763,7 +763,7 @@
           <div class="panel-title">📅 Appointments
             <span id="appts-count" style="font-size:11px;color:var(--text-muted);font-weight:400;font-family:var(--font-mono);margin-left:6px;"></span>
           </div>
-          <span class="refresh-badge" id="appts-refresh-badge">Auto-refresh: 30s</span>
+          <span class="refresh-badge" id="appts-refresh-badge">Auto-refresh: 10s</span>
         </div>
         <div style="overflow-x:auto;">
           <table class="data-table">
@@ -1075,9 +1075,9 @@
   async function loadAppointments() {
     apptsLoaded = true;
     await fetchAppointments();
-    // auto-refresh every 30 seconds
+    // auto-refresh every 10 seconds
     if (apptsRefreshTimer) clearInterval(apptsRefreshTimer);
-    apptsRefreshTimer = setInterval(fetchAppointments, 30000);
+    apptsRefreshTimer = setInterval(fetchAppointments, 10000);
     startRefreshCountdown();
   }
 
@@ -1112,15 +1112,15 @@
       </tr>`).join('');
   }
 
-  let countdownSecs = 30;
+  let countdownSecs = 10;
   function startRefreshCountdown() {
-    countdownSecs = 30;
+    countdownSecs = 10;
     const badge = document.getElementById('appts-refresh-badge');
     if (!badge) return;
     if (window._countdownTimer) clearInterval(window._countdownTimer);
     window._countdownTimer = setInterval(() => {
       countdownSecs--;
-      if (countdownSecs <= 0) countdownSecs = 30;
+      if (countdownSecs <= 0) countdownSecs = 10;
       badge.textContent = `Auto-refresh: ${countdownSecs}s`;
     }, 1000);
   }
