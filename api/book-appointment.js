@@ -18,58 +18,66 @@ function getOAuthClient() {
   return oauth2Client;
 }
 
-// Extract patient data from transcript_object by matching user responses
-// that follow specific agent questions.
-function extractFromTranscript(transcriptObject) {
-  if (!Array.isArray(transcriptObject)) return {};
+function extractFromTranscript(transcriptObject, fromNumber) {
+  const result = { patient_name: '', dob: '', reason: '', doctor: '',
+    appointment_time: '', phone_number: fromNumber || '' };
 
-  const result = {};
-  const DAY_WORDS = /viernes|jueves|lunes|martes|miércoles|miercoles|mañana|tarde/i;
-  const FILLER = /^(sí|si|no|ok|okay|claro|bueno|está bien|de acuerdo)$/i;
+  if (!Array.isArray(transcriptObject)) return result;
+
+  const isAudible = t =>
+    t.content && t.content.trim() !== '' && t.content !== '(inaudible speech)';
 
   for (let i = 0; i < transcriptObject.length; i++) {
-    const turn = transcriptObject[i];
-    if (turn.role !== 'agent') continue;
+    const item = transcriptObject[i];
+    if (item.role !== 'agent') continue;
+    const text = item.content.toLowerCase();
 
-    const agentText = (turn.content || '').toLowerCase();
-    const nextUser = transcriptObject[i + 1];
-    if (!nextUser || nextUser.role !== 'user') continue;
-    const userText = (nextUser.content || '').trim();
+    // First audible user response after this agent turn
+    const nextUser = transcriptObject.slice(i + 1)
+      .find(t => t.role === 'user' && isAudible(t));
+    if (!nextUser) continue;
+    const userResponse = nextUser.content.trim();
 
-    // patient_name: after agent mentions "nombre", skip single words and fillers
-    if (!result.patient_name && /nombre/.test(agentText)) {
-      if (userText.split(/\s+/).length >= 2 && !FILLER.test(userText)) {
-        result.patient_name = userText;
+    if (!result.patient_name &&
+        (text.includes('nombre completo') || text.includes('su nombre'))) {
+      // Take the last of up to 3 user responses (most-corrected version)
+      const nameResponses = transcriptObject.slice(i + 1)
+        .filter(t => t.role === 'user' && isAudible(t) &&
+          !['sí', 'si', 'no', 'ok', 'claro'].includes(t.content.trim().toLowerCase()))
+        .slice(0, 3);
+      if (nameResponses.length > 0) {
+        result.patient_name = nameResponses[nameResponses.length - 1].content.trim();
       }
     }
 
-    // dob: after agent mentions "nacimiento", join consecutive user turns
-    if (!result.dob && /nacimiento/.test(agentText)) {
-      let dob = userText;
-      let j = i + 2;
-      while (j < transcriptObject.length && transcriptObject[j].role === 'user') {
-        dob += ' ' + (transcriptObject[j].content || '').trim();
-        j++;
-      }
-      result.dob = dob.trim();
+    if (!result.dob && text.includes('nacimiento')) {
+      // Join up to 3 user responses after DOB question
+      result.dob = transcriptObject.slice(i + 1)
+        .filter(t => t.role === 'user' && isAudible(t))
+        .slice(0, 3)
+        .map(t => t.content.trim())
+        .join(' ');
     }
 
-    // reason: after agent mentions "motivo"
-    if (!result.reason && /motivo/.test(agentText)) {
-      result.reason = userText;
+    if (!result.reason &&
+        (text.includes('motivo') || text.includes('visita hoy'))) {
+      result.reason = userResponse;
     }
 
-    // doctor: after agent mentions "doctor" or "médico"
-    if (!result.doctor && /m[eé]dico|doctor/.test(agentText)) {
-      result.doctor = userText;
+    if (!result.doctor &&
+        (text.includes('médico') || text.includes('doctor') || text.includes('medico'))) {
+      result.doctor = userResponse;
     }
   }
 
-  // appointment_time: any user turn containing a day/time word
-  if (!result.appointment_time) {
-    for (const turn of transcriptObject) {
-      if (turn.role === 'user' && DAY_WORDS.test(turn.content || '')) {
-        result.appointment_time = (turn.content || '').trim();
+  // appointment_time: first user turn containing a day/time word
+  const dayWords = ['viernes', 'jueves', 'lunes', 'martes', 'miércoles',
+    'miercoles', 'sábado', 'sabado', 'domingo', 'mañana', 'tarde'];
+  for (const turn of transcriptObject) {
+    if (turn.role === 'user' && turn.content) {
+      const lower = turn.content.toLowerCase();
+      if (dayWords.some(d => lower.includes(d))) {
+        result.appointment_time = turn.content.trim();
         break;
       }
     }
@@ -96,7 +104,7 @@ module.exports = async function handler(req, res) {
   if (req.body && req.body.call) {
     const call = req.body.call;
     const custom = call?.call_analysis?.custom_analysis_data || {};
-    const parsed = extractFromTranscript(call.transcript_object);
+    const parsed = extractFromTranscript(call.transcript_object, call.from_number);
 
     patient_name     = custom.patient_name     || parsed.patient_name     || '';
     dob              = custom.date_of_birth    || parsed.dob              || '';
