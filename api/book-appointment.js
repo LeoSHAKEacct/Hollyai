@@ -1,6 +1,8 @@
 const { google } = require('googleapis');
 const { createClient } = require('@supabase/supabase-js');
 
+console.log('[DEBUG] GOOGLE_REFRESH_TOKEN (first 20):', (process.env.GOOGLE_REFRESH_TOKEN || '').slice(0, 20));
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
