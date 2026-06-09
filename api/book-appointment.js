@@ -20,35 +20,51 @@ function getOAuthClient() {
   return oauth2Client;
 }
 
-// Parse key fields from Retell call transcript as a fallback
-function parseTranscript(transcript) {
-  if (!transcript || typeof transcript !== 'string') return {};
+// Parse key fields from Retell transcript_object array as a fallback.
+// Each entry has { role: "agent"|"user", content: "..." }.
+// We extract user responses that follow specific agent questions.
+function parseTranscript(transcriptObject) {
+  if (!Array.isArray(transcriptObject) || transcriptObject.length === 0) return {};
+
   const result = {};
 
-  const nameMatch = transcript.match(
-    /(?:nombre|name)[:\s]+([A-Za-záéíóúÁÉÍÓÚñÑ\s]+?)(?:\.|,|\n|fecha|date|reason|motivo|doctor|cita|appointment|tel[eé]fono|phone|$)/i
-  );
-  if (nameMatch) result.patient_name = nameMatch[1].trim();
+  for (let i = 0; i < transcriptObject.length; i++) {
+    const turn = transcriptObject[i];
+    if (turn.role !== 'agent') continue;
 
-  const dobMatch = transcript.match(
-    /(?:fecha de nacimiento|nacimiento|date of birth|birth(?:day)?)[:\s]+([0-9\/\-\.A-Za-záéíóúÁÉÍÓÚñÑ\s]+?)(?:\.|,|\n|reason|motivo|doctor|cita|appointment|tel[eé]fono|phone|$)/i
-  );
-  if (dobMatch) result.date_of_birth = dobMatch[1].trim();
+    const agentText = (turn.content || '').toLowerCase();
+    // Collect the next user turn(s) after this agent question
+    const nextUser = transcriptObject[i + 1];
+    if (!nextUser || nextUser.role !== 'user') continue;
+    const userText = (nextUser.content || '').trim();
 
-  const reasonMatch = transcript.match(
-    /(?:motivo(?:\s+de\s+(?:la\s+)?(?:visita|consulta))?|reason(?:\s+for\s+(?:visit|appointment))?)[:\s]+([^.\n]+?)(?:\.|,|\n|doctor|m[eé]dico|cita|appointment|tel[eé]fono|phone|$)/i
-  );
-  if (reasonMatch) result.reason = reasonMatch[1].trim();
+    if (!result.patient_name && /nombre/.test(agentText)) {
+      result.patient_name = userText;
+    }
 
-  const doctorMatch = transcript.match(
-    /(?:m[eé]dico|doctor|dr\.?)[:\s]+(?:Dr\.?\s+)?([A-Za-záéíóúÁÉÍÓÚñÑ\s]+?)(?:\.|,|\n|cita|appointment|tel[eé]fono|phone|motivo|reason|fecha|date|$)/i
-  );
-  if (doctorMatch) result.doctor = doctorMatch[1].trim();
+    if (!result.date_of_birth && /nacimiento/.test(agentText)) {
+      // Combine consecutive user turns in case the date spans multiple responses
+      let dob = userText;
+      let j = i + 2;
+      while (j < transcriptObject.length && transcriptObject[j].role === 'user') {
+        dob += ' ' + (transcriptObject[j].content || '').trim();
+        j++;
+      }
+      result.date_of_birth = dob.trim();
+    }
 
-  const apptMatch = transcript.match(
-    /(?:cita|appointment|programad[ao](?:\s+para)?|scheduled(?:\s+for)?)[:\s]+([0-9A-Za-záéíóúÁÉÍÓÚñÑ\/\-:,\s\.]+?)(?:\.|,|\n|nombre|name|doctor|m[eé]dico|tel[eé]fono|phone|$)/i
-  );
-  if (apptMatch) result.appointment_time = apptMatch[1].trim();
+    if (!result.reason && /motivo/.test(agentText)) {
+      result.reason = userText;
+    }
+
+    if (!result.doctor && /m[eé]dico|doctor/.test(agentText)) {
+      result.doctor = userText;
+    }
+
+    if (!result.appointment_time && /jueves|viernes|disponib|horario|agenda/.test(agentText)) {
+      result.appointment_time = userText;
+    }
+  }
 
   return result;
 }
@@ -92,8 +108,8 @@ module.exports = async function handler(req, res) {
     const call = req.body.call;
     const data = call?.call_analysis?.custom_analysis_data || {};
 
-    // Parse transcript as fallback for any empty fields
-    const transcriptData = parseTranscript(call.transcript);
+    // Parse transcript_object as fallback for any empty fields
+    const transcriptData = parseTranscript(call.transcript_object);
     console.log('TRANSCRIPT PARSED:', transcriptData);
 
     patient_name     = data.patient_name     || transcriptData.patient_name     || null;
