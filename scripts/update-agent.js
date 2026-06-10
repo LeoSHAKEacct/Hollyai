@@ -14,11 +14,31 @@ const API_KEY  = process.env.RETELL_API_KEY || 'key_f41f86667282818d576ce8414517
 const BASE     = 'https://api.retellai.com';
 
 const POST_CALL_ANALYSIS_DATA = [
-  { name: 'patient_name',     type: 'string', description: 'Full name of the patient' },
-  { name: 'date_of_birth',    type: 'string', description: 'Patient date of birth' },
-  { name: 'reason',           type: 'string', description: 'Reason for the medical visit' },
-  { name: 'doctor',           type: 'string', description: 'Preferred doctor name' },
-  { name: 'appointment_time', type: 'string', description: 'Confirmed appointment date and time' },
+  {
+    name: 'patient_name',
+    type: 'string',
+    description: "The patient's full proper name only. Extract ONLY the name, NOT words like Mi, Me, llamo, nombre, es, soy, Si. Example: if patient says 'Mi nombre es Roberta Fuentes' extract only 'Roberta Fuentes'. Use the final corrected version if they correct it.",
+  },
+  {
+    name: 'date_of_birth',
+    type: 'string',
+    description: "Patient's date of birth. Combine multiple responses if needed. Example: if patient says 'febrero' then 'ochenta y ocho' combine as 'febrero 1988'.",
+  },
+  {
+    name: 'reason',
+    type: 'string',
+    description: 'The medical reason for the visit. Only patient answers, not questions.',
+  },
+  {
+    name: 'doctor',
+    type: 'string',
+    description: 'The preferred doctor name. Only if patient named a specific doctor, otherwise empty.',
+  },
+  {
+    name: 'appointment_time',
+    type: 'string',
+    description: 'The confirmed appointment day and time. Example: viernes a las 2 de la tarde.',
+  },
 ];
 
 async function retell(method, path, body) {
