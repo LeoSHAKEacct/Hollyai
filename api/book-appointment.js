@@ -27,59 +27,70 @@ function extractFromTranscript(transcriptObject, fromNumber) {
   const isAudible = t =>
     t.content && t.content.trim() !== '' && t.content !== '(inaudible speech)';
 
-  for (let i = 0; i < transcriptObject.length; i++) {
-    const item = transcriptObject[i];
-    if (item.role !== 'agent') continue;
-    const text = item.content.toLowerCase();
+  let phase = null;
+  const collected = { name: [], dob: [], reason: [], doctor: [], slots: [] };
 
-    // First audible user response after this agent turn
-    const nextUser = transcriptObject.slice(i + 1)
-      .find(t => t.role === 'user' && isAudible(t));
-    if (!nextUser) continue;
-    const userResponse = nextUser.content.trim();
-
-    if (!result.patient_name &&
-        (text.includes('nombre completo') || text.includes('su nombre'))) {
-      // Take the last of up to 3 user responses (most-corrected version)
-      const nameResponses = transcriptObject.slice(i + 1)
-        .filter(t => t.role === 'user' && isAudible(t) &&
-          !['sí', 'si', 'no', 'ok', 'claro'].includes(t.content.trim().toLowerCase()))
-        .slice(0, 3);
-      if (nameResponses.length > 0) {
-        result.patient_name = nameResponses[nameResponses.length - 1].content.trim();
+  for (const item of transcriptObject) {
+    if (item.role === 'agent' && item.content) {
+      const text = item.content.toLowerCase();
+      if (text.includes('nombre completo') || text.includes('su nombre')) {
+        phase = 'name';
+      } else if (text.includes('nacimiento')) {
+        phase = 'dob';
+      } else if (text.includes('motivo') || text.includes('visita hoy')) {
+        phase = 'reason';
+      } else if (text.includes('médico') || text.includes('doctor') || text.includes('medico')) {
+        phase = 'doctor';
+      } else if (text.includes('disponibilidad') || text.includes('jueves') || text.includes('viernes')) {
+        phase = 'slots';
       }
-    }
-
-    if (!result.dob && text.includes('nacimiento')) {
-      // Join up to 3 user responses after DOB question
-      result.dob = transcriptObject.slice(i + 1)
-        .filter(t => t.role === 'user' && isAudible(t))
-        .slice(0, 3)
-        .map(t => t.content.trim())
-        .join(' ');
-    }
-
-    if (!result.reason &&
-        (text.includes('motivo') || text.includes('visita hoy'))) {
-      result.reason = userResponse;
-    }
-
-    if (!result.doctor &&
-        (text.includes('médico') || text.includes('doctor') || text.includes('medico'))) {
-      result.doctor = userResponse;
+    } else if (item.role === 'user' && isAudible(item) && phase) {
+      collected[phase].push(item.content.trim());
     }
   }
 
-  // appointment_time: first user turn containing a day/time word
-  const dayWords = ['viernes', 'jueves', 'lunes', 'martes', 'miércoles',
-    'miercoles', 'sábado', 'sabado', 'domingo', 'mañana', 'tarde'];
-  for (const turn of transcriptObject) {
-    if (turn.role === 'user' && turn.content) {
-      const lower = turn.content.toLowerCase();
-      if (dayWords.some(d => lower.includes(d))) {
-        result.appointment_time = turn.content.trim();
-        break;
-      }
+  // patient_name: last value in "name" phase, skip invalid ones
+  for (let i = collected.name.length - 1; i >= 0; i--) {
+    const v = collected.name[i];
+    const lower = v.toLowerCase();
+    if (lower.includes('sé') || lower.includes('ya')) continue;
+    const words = v.trim().split(/\s+/);
+    if (words.length === 1 && words[0].length < 4) continue;
+    result.patient_name = v;
+    break;
+  }
+
+  // dob: all values joined
+  result.dob = collected.dob.join(' ').trim();
+
+  // reason: last value, skip if ends with "?"
+  for (let i = collected.reason.length - 1; i >= 0; i--) {
+    const v = collected.reason[i];
+    if (v.endsWith('?')) continue;
+    result.reason = v;
+    break;
+  }
+
+  // doctor: last value, skip if ends with "?"
+  for (let i = collected.doctor.length - 1; i >= 0; i--) {
+    const v = collected.doctor[i];
+    if (v.endsWith('?')) continue;
+    result.doctor = v;
+    break;
+  }
+
+  // appointment_time: last value in "slots" phase
+  if (collected.slots.length > 0) {
+    result.appointment_time = collected.slots[collected.slots.length - 1];
+  }
+
+  // Sanity check: if patient_name contains month words, clear it
+  const monthWords = ['febrero', 'ochenta', 'enero', 'marzo', 'abril', 'mayo',
+    'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  if (result.patient_name) {
+    const lower = result.patient_name.toLowerCase();
+    if (monthWords.some(m => lower.includes(m))) {
+      result.patient_name = '';
     }
   }
 
