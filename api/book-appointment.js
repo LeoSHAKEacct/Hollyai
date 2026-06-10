@@ -97,6 +97,78 @@ function extractFromTranscript(transcriptObject, fromNumber) {
   return result;
 }
 
+// ── RESOLVE APPOINTMENT DATE ──────────────────────────────────────────────
+// Converts Spanish relative-day expressions into a real ISO datetime.
+// callTimestamp: ms-since-epoch or ISO string for the call end/start time.
+// Returns an ISO string (UTC) or null if no day word found.
+function resolveAppointmentDate(rawText, callTimestamp) {
+  if (!rawText) return null;
+
+  // Normalise: lowercase + strip accents
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const text = norm(rawText);
+
+  const DAY_MAP = {
+    lunes: 1, martes: 2, miercoles: 3, jueves: 4,
+    viernes: 5, sabado: 6, domingo: 0,
+  };
+
+  // Get call date parts in America/Bogota (UTC-5, no DST)
+  const callDate = callTimestamp ? new Date(Number(callTimestamp) || callTimestamp) : new Date();
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Bogota',
+    year: 'numeric', month: 'numeric', day: 'numeric',
+  });
+  const p = {};
+  fmt.formatToParts(callDate).forEach(x => { p[x.type] = x.value; });
+  const callYear  = parseInt(p.year);
+  const callMonth = parseInt(p.month) - 1; // 0-indexed
+  const callDay   = parseInt(p.day);
+
+  // Build Bogota-midnight as UTC (Bogota = UTC-5, so midnight Bogota = 05:00 UTC)
+  const bogotaMidnight = new Date(Date.UTC(callYear, callMonth, callDay, 5, 0, 0));
+  const callDow = bogotaMidnight.getDay(); // 0=Sun … 6=Sat
+
+  // Detect "mañana" as tomorrow (strip "de la mañana" first to avoid false-positive)
+  const textNoManana = text.replace(/de la manana/g, '');
+  const isTomorrow = textNoManana.includes('manana');
+
+  // Find day-of-week word
+  let targetDow = null;
+  for (const [name, dow] of Object.entries(DAY_MAP)) {
+    if (text.includes(name)) { targetDow = dow; break; }
+  }
+
+  if (targetDow === null && !isTomorrow) return null;
+
+  // Calculate target day offset
+  let daysAhead;
+  if (isTomorrow) {
+    daysAhead = 1;
+  } else {
+    daysAhead = targetDow - callDow;
+    if (daysAhead < 0) daysAhead += 7;
+    // daysAhead === 0 means today — keep 0
+  }
+
+  // Start at midnight Bogota on target day
+  const targetMidnightUTC = new Date(bogotaMidnight.getTime() + daysAhead * 86400000);
+
+  // Parse time — look for "a las X" optionally "y media"
+  let hour = 9, minute = 0;
+  const timeMatch = text.match(/a las\s+(\d{1,2})(?:\s+y\s+(media|\d{2}))?/);
+  if (timeMatch) {
+    hour = parseInt(timeMatch[1]);
+    if (timeMatch[2] === 'media') minute = 30;
+    else if (timeMatch[2])        minute = parseInt(timeMatch[2]);
+    if ((text.includes('de la tarde') || text.includes('de la noche')) && hour < 12) hour += 12;
+    // "de la mañana" → keep AM (no change needed)
+  }
+
+  // Add hours/minutes (these are Bogota local hours; targetMidnightUTC is already Bogota midnight in UTC)
+  return new Date(targetMidnightUTC.getTime() + (hour * 60 + minute) * 60000).toISOString();
+}
+
 module.exports = async function handler(req, res) {
   console.log('REQUEST BODY:', JSON.stringify(req.body, null, 2));
 
@@ -110,7 +182,7 @@ module.exports = async function handler(req, res) {
   Object.entries(CORS_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
 
   // --- Extract fields ---
-  let patient_name, dob, reason, doctor, appointment_time, phone_number, retell_agent_id;
+  let patient_name, dob, reason, doctor, appointment_time, phone_number, retell_agent_id, callTimestamp;
 
   if (req.body && req.body.call) {
     const call = req.body.call;
@@ -124,6 +196,7 @@ module.exports = async function handler(req, res) {
     appointment_time = custom.appointment_time || parsed.appointment_time || '';
     phone_number     = call.from_number        || custom.phone_number     || '';
     retell_agent_id  = call.agent_id           || '';
+    callTimestamp    = call.end_timestamp      || call.start_timestamp    || null;
   } else {
     patient_name     = req.body?.patient_name     || '';
     dob              = req.body?.date_of_birth    || '';
@@ -132,42 +205,52 @@ module.exports = async function handler(req, res) {
     appointment_time = req.body?.appointment_time || '';
     phone_number     = req.body?.phone_number     || '';
     retell_agent_id  = '';
+    callTimestamp    = null;
   }
 
-  const record = { patient_name, dob, reason, doctor, appointment_time, phone_number, retell_agent_id };
+  // If appointment_time is already an ISO date string, use it directly
+  let appointment_date = null;
+  if (appointment_time && /^20\d{2}-/.test(appointment_time)) {
+    const d = new Date(appointment_time);
+    appointment_date = isNaN(d.getTime()) ? null : d.toISOString();
+    console.log('DATE RESOLUTION: ISO direct →', appointment_date);
+  } else {
+    appointment_date = resolveAppointmentDate(appointment_time, callTimestamp);
+    console.log('DATE RESOLUTION:', { raw: appointment_time, resolved: appointment_date });
+  }
+
+  const record = { patient_name, dob, reason, doctor, appointment_time, appointment_date, phone_number, retell_agent_id };
   console.log('SAVING TO SUPABASE:', record);
 
   // --- Google Calendar (best-effort) ---
   let event_id = null;
-  if (appointment_time && patient_name) {
+  if (appointment_date && patient_name) {
     try {
-      const startTime = new Date(appointment_time);
-      if (!isNaN(startTime.getTime())) {
-        const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
-        const calendarId = process.env.GOOGLE_CALENDAR_ID || 'leoneltelesmeneses@gmail.com';
-        const event = {
-          summary: `Cita - ${patient_name}`,
-          description: [
-            `Paciente: ${patient_name}`,
-            `Fecha de nacimiento: ${dob}`,
-            `Motivo: ${reason}`,
-            `Doctor: ${doctor}`,
-            `Teléfono: ${phone_number}`,
-          ].join('\n'),
-          start: { dateTime: startTime.toISOString() },
-          end:   { dateTime: endTime.toISOString() },
-        };
-        const auth = getOAuthClient();
-        const calendar = google.calendar({ version: 'v3', auth });
-        const calRes = await calendar.events.insert({ calendarId, resource: event });
-        event_id = calRes.data.id;
-        console.log('Google Calendar event created:', event_id);
-      } else {
-        console.warn('appointment_time is not a parseable ISO date — skipping calendar');
-      }
+      const startTime = new Date(appointment_date);
+      const endTime   = new Date(startTime.getTime() + 30 * 60 * 1000);
+      const calendarId = process.env.GOOGLE_CALENDAR_ID || 'leoneltelesmeneses@gmail.com';
+      const event = {
+        summary: `Cita - ${patient_name}`,
+        description: [
+          `Paciente: ${patient_name}`,
+          `Fecha de nacimiento: ${dob}`,
+          `Motivo: ${reason}`,
+          `Doctor: ${doctor}`,
+          `Teléfono: ${phone_number}`,
+        ].join('\n'),
+        start: { dateTime: startTime.toISOString(), timeZone: 'America/Bogota' },
+        end:   { dateTime: endTime.toISOString(),   timeZone: 'America/Bogota' },
+      };
+      const auth = getOAuthClient();
+      const calendar = google.calendar({ version: 'v3', auth });
+      const calRes = await calendar.events.insert({ calendarId, resource: event });
+      event_id = calRes.data.id;
+      console.log('Google Calendar event created:', event_id);
     } catch (calErr) {
       console.warn('Google Calendar error (non-fatal):', calErr.message);
     }
+  } else if (!appointment_date) {
+    console.warn('appointment_date is null — skipping Google Calendar');
   }
 
   // --- Supabase (always runs) ---
@@ -184,6 +267,7 @@ module.exports = async function handler(req, res) {
       reason,
       doctor,
       appointment_time,
+      appointment_date,
       phone_number,
       retell_agent_id,
     });

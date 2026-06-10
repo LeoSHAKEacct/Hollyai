@@ -1002,6 +1002,16 @@
     return d.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
   }
 
+  // Format a real Date as "vie 12 jun, 2:00 PM" for the Lista view
+  function fmtApptDate(d) {
+    if (!d || isNaN(d)) return '—';
+    const dow   = d.toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'America/Bogota' });
+    const day   = d.toLocaleDateString('es-ES', { day: 'numeric', timeZone: 'America/Bogota' });
+    const month = d.toLocaleDateString('es-ES', { month: 'short', timeZone: 'America/Bogota' });
+    const time  = d.toLocaleTimeString('es-ES', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Bogota' });
+    return `${esc(dow)} ${esc(day)} ${esc(month)}, ${esc(time)}`;
+  }
+
   function statusBadge(status) {
     const s = (status || '').toLowerCase().trim();
     const map = {
@@ -1252,7 +1262,7 @@
     const tbody = document.getElementById('appts-body');
 
     const { data, error } = await db.from('appointments')
-      .select('id, patient_name, reason, doctor, appointment_time, phone_number, created_at')
+      .select('id, patient_name, reason, doctor, appointment_time, appointment_date, phone_number, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -1266,15 +1276,24 @@
     if (allApptsData.length === 0) {
       tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Sin citas aún</td></tr>';
     } else {
-      tbody.innerHTML = allApptsData.map(r => `
-        <tr>
+      tbody.innerHTML = allApptsData.map(r => {
+        // Show formatted appointment_date when available; otherwise raw text
+        let horaCell;
+        if (r.appointment_date) {
+          const d = new Date(r.appointment_date);
+          horaCell = `<span title="${esc(r.appointment_time || '')}">${fmtApptDate(d)}</span>`;
+        } else {
+          horaCell = `<span style="color:var(--text-muted);font-style:italic;">${esc(r.appointment_time || '—')}</span>`;
+        }
+        return `<tr>
           <td class="td-primary">${esc(r.patient_name || '—')}</td>
           <td>${esc(r.reason || '—')}</td>
           <td class="td-mono">${esc(r.doctor || '—')}</td>
-          <td class="td-muted">${fmtDate(r.appointment_time)}</td>
+          <td class="td-muted">${horaCell}</td>
           <td class="td-mono">${esc(r.phone_number || '—')}</td>
           <td class="td-muted">${fmtDate(r.created_at)}</td>
-        </tr>`).join('');
+        </tr>`;
+      }).join('');
     }
 
     // Refresh calendar if in agenda view
@@ -1300,8 +1319,9 @@
   const DIAS_SEMANA = ['L','M','X','J','V','S','D'];
 
   function getCalDate(appt) {
-    if (appt.appointment_time) {
-      const d = new Date(appt.appointment_time);
+    // Prefer real appointment_date; fall back to created_at only when null
+    if (appt.appointment_date) {
+      const d = new Date(appt.appointment_date);
       if (!isNaN(d.getTime())) return d;
     }
     return new Date(appt.created_at);
@@ -1394,12 +1414,14 @@
     }
 
     const items = appts.map(appt => {
-      // Show raw appointment_time text if it's not a valid date
-      const apptTimeRaw = appt.appointment_time || '—';
-      const apptTimeParsed = new Date(apptTimeRaw);
-      const horaDisplay = !isNaN(apptTimeParsed.getTime())
-        ? apptTimeParsed.toLocaleTimeString('es-ES', { hour:'numeric', minute:'2-digit', hour12:true })
-        : esc(apptTimeRaw);
+      // Use appointment_date when available; otherwise show raw appointment_time text
+      let horaDisplay;
+      if (appt.appointment_date) {
+        const d = new Date(appt.appointment_date);
+        horaDisplay = d.toLocaleTimeString('es-ES', { hour:'numeric', minute:'2-digit', hour12:true, timeZone:'America/Bogota' });
+      } else {
+        horaDisplay = esc(appt.appointment_time || '—');
+      }
 
       return `<div class="cal-appt-item">
         <div class="cal-appt-name">${esc(appt.patient_name || '—')}</div>
