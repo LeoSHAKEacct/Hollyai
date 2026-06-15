@@ -308,6 +308,8 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     font-size: 1.05rem;
     color: var(--white-dim);
     max-width: 540px;
+    margin: 0 auto;
+    text-align: center;
     line-height: 1.7;
     font-weight: 300;
   }
@@ -1622,19 +1624,20 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     <div class="plan">
       <div class="plan-name" data-en="Starter" data-es="Starter">Starter</div>
       <div class="plan-title" data-en="Starter" data-es="Starter">Starter</div>
-      <div class="plan-desc" data-en="Ideal for clinics with one doctor or specialty." data-es="Ideal para clínicas con un médico o especialidad.">Ideal para clínicas con un médico o especialidad.</div>
+      <div class="plan-desc" data-en="For an independent orthodontist." data-es="Para un ortodoncista independiente.">Para un ortodoncista independiente.</div>
       <div class="plan-price">
         <span class="currency">$</span>
         <span class="amount" id="price-starter">79</span>
         <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
       </div>
       <ul class="plan-features">
-        <li data-en="7 days free to start" data-es="7 días gratis para empezar">7 días gratis para empezar</li>
         <li data-en="Up to 200 calls/month" data-es="Hasta 200 llamadas/mes">Hasta 200 llamadas/mes</li>
-        <li data-en="Automatic scheduling" data-es="Agenda automática">Agenda automática</li>
-        <li data-en="SMS confirmations" data-es="Confirmaciones por SMS">Confirmaciones por SMS</li>
+        <li data-en="24/7 inbound call answering" data-es="Atención de llamadas entrantes 24/7">Atención de llamadas entrantes 24/7</li>
+        <li data-en="Books assessments and follow-ups directly to your calendar" data-es="Agendamiento de valoraciones y controles en el calendario">Agendamiento de valoraciones y controles en el calendario</li>
+        <li data-en="Basic outbound calls: automatic confirmations and reminders 24h before each appointment and monthly check-up" data-es="Llamadas salientes básicas: confirmaciones y recordatorios automáticos 24h antes de cada cita y control mensual">Llamadas salientes básicas: confirmaciones y recordatorios automáticos 24h antes de cada cita y control mensual</li>
+        <li data-en="Changes and rescheduling reflected in your calendar system" data-es="Cambios y reagendamiento reflejados en su sistema de agenda">Cambios y reagendamiento reflejados en su sistema de agenda</li>
         <li data-en="Basic appointments dashboard" data-es="Panel básico de citas">Panel básico de citas</li>
-        <li data-en="Email support (48h)" data-es="Soporte por email (48h)">Soporte por email (48h)</li>
+        <li data-en="WhatsApp support (24h)" data-es="Soporte por WhatsApp (24h)">Soporte por WhatsApp (24h)</li>
       </ul>
       <a href="#" onclick="openLeadModal(event,'Starter','Starter')" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
@@ -1644,7 +1647,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
       <div class="plan-badge" data-en="MOST POPULAR" data-es="MÁS POPULAR">MÁS POPULAR</div>
       <div class="plan-name" data-en="Clínica" data-es="Clínica">Clínica</div>
       <div class="plan-title" data-en="Clínica" data-es="Clínica">Clínica</div>
-      <div class="plan-desc" data-en="For established clinics that want more control." data-es="Para clínicas establecidas que quieren más control.">Para clínicas establecidas que quieren más control.</div>
+      <div class="plan-desc" data-en="For practices that want to complete treatments." data-es="Para consultorios que quieren completar tratamientos.">Para consultorios que quieren completar tratamientos.</div>
       <div class="plan-price">
         <span class="currency">$</span>
         <span class="amount" id="price-clinica">149</span>
@@ -1652,11 +1655,12 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
       </div>
       <ul class="plan-features">
         <li data-en="Up to 500 calls/month" data-es="Hasta 500 llamadas/mes">Hasta 500 llamadas/mes</li>
-        <li data-en="Multiple doctors" data-es="Múltiples médicos">Múltiples médicos</li>
-        <li data-en="WhatsApp confirmations to patients" data-es="Confirmaciones por WhatsApp al paciente">Confirmaciones por WhatsApp al paciente</li>
-        <li class="extra" data-en="Advanced reports (volume, conversion, top reasons)" data-es="Reportes avanzados (volumen, conversión, motivos frecuentes)">Reportes avanzados (volumen, conversión, motivos frecuentes)</li>
+        <li data-en="Everything in Starter" data-es="Todo lo del plan Starter">Todo lo del plan Starter</li>
+        <li class="extra" data-en="Full outbound campaigns: no-show recovery, lead reactivation, and win-back for lapsed patients" data-es="Campañas salientes completas: recuperación de inasistencias, reactivación de interesados y rescate de pacientes que dejaron de venir">Campañas salientes completas: recuperación de inasistencias, reactivación de interesados y rescate de pacientes que dejaron de venir</li>
+        <li class="extra" data-en="Proactive monthly check-up scheduling" data-es="Agendamiento proactivo del control mensual">Agendamiento proactivo del control mensual</li>
+        <li class="extra" data-en="Advanced reports: volume, conversion, and call reasons" data-es="Reportes avanzados: volumen, conversión y motivos de llamada">Reportes avanzados: volumen, conversión y motivos de llamada</li>
         <li class="extra" data-en="Monthly PDF summary" data-es="Resumen mensual en PDF">Resumen mensual en PDF</li>
-        <li class="extra" data-en="WhatsApp support (24h)" data-es="Soporte por WhatsApp (24h)">Soporte por WhatsApp (24h)</li>
+        <li data-en="WhatsApp support (24h)" data-es="Soporte por WhatsApp (24h)">Soporte por WhatsApp (24h)</li>
       </ul>
       <a href="#" onclick="openLeadModal(event,'Clínica','Clínica')" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
@@ -1665,18 +1669,18 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     <div class="plan">
       <div class="plan-name" data-en="Pro" data-es="Pro">Pro</div>
       <div class="plan-title" data-en="Pro" data-es="Pro">Pro</div>
-      <div class="plan-desc" data-en="For high-volume clinics or multiple locations." data-es="Para clínicas de alto volumen o múltiples sedes.">Para clínicas de alto volumen o múltiples sedes.</div>
+      <div class="plan-desc" data-en="For clinics with multiple providers or locations." data-es="Para clínicas con varios profesionales o sedes.">Para clínicas con varios profesionales o sedes.</div>
       <div class="plan-price">
         <span class="currency">$</span>
         <span class="amount" id="price-pro">249</span>
         <span class="period" data-en="&amp;nbsp;USD / month" data-es="&amp;nbsp;USD / mes">&nbsp;USD / mes</span>
       </div>
       <ul class="plan-features">
-        <li data-en="Unlimited calls" data-es="Llamadas ilimitadas">Llamadas ilimitadas</li>
-        <li data-en="Everything in Clínica" data-es="Todo lo de Clínica">Todo lo de Clínica</li>
-        <li class="extra" data-en="Automated reminders 24h before appointment" data-es="Recordatorios automáticos 24h antes">Recordatorios automáticos 24h antes</li>
-        <li class="extra" data-en="Same-day agent updates" data-es="Actualizaciones del agente el mismo día">Actualizaciones del agente el mismo día</li>
-        <li class="extra" data-en="Priority support — dedicated WhatsApp + monthly call" data-es="Soporte prioritario — WhatsApp dedicado + llamada mensual">Soporte prioritario — WhatsApp dedicado + llamada mensual</li>
+        <li data-en="Unlimited calls (absorbs spikes from social media campaigns)" data-es="Llamadas ilimitadas (absorbe picos de campañas en redes)">Llamadas ilimitadas (absorbe picos de campañas en redes)</li>
+        <li data-en="Everything in Clínica" data-es="Todo lo del plan Clínica">Todo lo del plan Clínica</li>
+        <li class="extra" data-en="Payment and installment reminders to reduce overdue balances" data-es="Recordatorio de pagos y cuotas para reducir cartera vencida">Recordatorio de pagos y cuotas para reducir cartera vencida</li>
+        <li class="extra" data-en="Routing by provider or by location" data-es="Enrutamiento por profesional o por sede">Enrutamiento por profesional o por sede</li>
+        <li data-en="WhatsApp support (24h)" data-es="Soporte por WhatsApp (24h)">Soporte por WhatsApp (24h)</li>
       </ul>
       <a href="#" onclick="openLeadModal(event,'Pro','Pro')" class="btn-plan" data-en="Get Started →" data-es="Empezar gratis →">Empezar gratis →</a>
     </div>
