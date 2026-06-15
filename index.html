@@ -897,6 +897,68 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     line-height: 1.65;
   }
 
+  /* ── TESTIMONIALS ── */
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+  }
+
+  .testimonial-card {
+    padding: 40px 36px;
+    background: var(--white-faint);
+    border: 1px solid rgba(248,245,239,0.05);
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .testimonial-card:hover {
+    background: rgba(201,168,76,0.04);
+    border-color: rgba(201,168,76,0.15);
+  }
+
+  .testimonial-quote-mark {
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    line-height: 0.6;
+    margin-bottom: 24px;
+    display: block;
+    opacity: 0.8;
+  }
+
+  .testimonial-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.75;
+    color: var(--white);
+    flex: 1;
+    margin-bottom: 28px;
+  }
+
+  .testimonial-divider {
+    width: 32px;
+    height: 1px;
+    background: rgba(201,168,76,0.4);
+    margin-bottom: 20px;
+  }
+
+  .testimonial-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+
+  .testimonial-role {
+    font-size: 0.8rem;
+    color: var(--white-dim);
+    letter-spacing: 0.02em;
+  }
+
   /* ── SIGNUP MODAL ── */
   .modal-overlay {
     position: fixed;
@@ -1137,6 +1199,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     section { padding: 60px 24px; }
     .steps { grid-template-columns: 1fr 1fr; }
     .features-grid { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; }
     .plans { grid-template-columns: 1fr; max-width: 480px; }
     .demo-layout { grid-template-columns: 1fr; }
     .phone-wrap { margin-bottom: 40px; }
@@ -1492,6 +1555,49 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
       <span class="feature-icon">🌐</span>
       <h3 data-en="Multilingual Support" data-es="Soporte multilingüe">Multilingual Support</h3>
       <p data-en="Serve your full community. Holly speaks English, Spanish, Portuguese, and more — switching languages naturally mid-call." data-es="Sirve a toda tu comunidad. Holly habla inglés, español, portugués y más — cambiando idiomas de forma natural durante la llamada.">Serve your full community. Holly speaks English, Spanish, Portuguese, and more — switching languages naturally mid-call.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="reveal">
+    <div class="section-tag" data-en="Social proof" data-es="Casos reales">Casos reales</div>
+    <h2 class="section-title" data-en="What our clinics say" data-es="Lo que dicen nuestras clínicas">Lo que dicen nuestras clínicas</h2>
+  </div>
+  <div class="testimonials-grid reveal">
+    <!-- Card 1 -->
+    <div class="testimonial-card">
+      <span class="testimonial-quote-mark">"</span>
+      <p class="testimonial-text"
+        data-en="Holly's voice is incredibly natural — several patients didn't even realize they were talking to AI. It books appointments without errors and we no longer miss after-hours calls."
+        data-es="La voz de Holly es increíblemente natural — varios pacientes ni se dieron cuenta de que hablaban con una IA. Agenda las citas sin errores y ya no perdemos llamadas fuera de horario."
+      >La voz de Holly es increíblemente natural — varios pacientes ni se dieron cuenta de que hablaban con una IA. Agenda las citas sin errores y ya no perdemos llamadas fuera de horario.</p>
+      <div class="testimonial-divider"></div>
+      <div class="testimonial-name">Dra. Marta Félix</div>
+      <div class="testimonial-role" data-en="Clínica Dra. Marta Félix, Medellín" data-es="Clínica Dra. Marta Félix, Medellín">Clínica Dra. Marta Félix, Medellín</div>
+    </div>
+    <!-- Card 2 -->
+    <div class="testimonial-card">
+      <span class="testimonial-quote-mark">"</span>
+      <p class="testimonial-text"
+        data-en="We used to spend hours returning missed calls. Now Holly handles everything and we just check the dashboard each morning."
+        data-es="Antes pasábamos horas devolviendo llamadas perdidas. Ahora Holly contesta todo y nosotros solo revisamos el panel cada mañana."
+      >Antes pasábamos horas devolviendo llamadas perdidas. Ahora Holly contesta todo y nosotros solo revisamos el panel cada mañana.</p>
+      <div class="testimonial-divider"></div>
+      <div class="testimonial-name" data-en="Front Desk" data-es="Recepción">Recepción</div>
+      <div class="testimonial-role" data-en="Dental Clinic, Medellín" data-es="Clínica Dental, Medellín">Clínica Dental, Medellín</div>
+    </div>
+    <!-- Card 3 -->
+    <div class="testimonial-card">
+      <span class="testimonial-quote-mark">"</span>
+      <p class="testimonial-text"
+        data-en="Holly sounds so natural that patients forget they're talking to AI. It booked three appointments overnight that we would've missed completely."
+        data-es="Holly suena tan natural que los pacientes olvidan que hablan con una IA. Reservó tres citas durante la noche que hubiéramos perdido por completo."
+      >Holly suena tan natural que los pacientes olvidan que hablan con una IA. Reservó tres citas durante la noche que hubiéramos perdido por completo.</p>
+      <div class="testimonial-divider"></div>
+      <div class="testimonial-name">Practice Manager</div>
+      <div class="testimonial-role" data-en="LA Clinic - Panama" data-es="Clínica en LA - Panamá">Clínica en LA - Panamá</div>
     </div>
   </div>
 </section>
