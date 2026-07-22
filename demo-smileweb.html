@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Holly.ai × SmileWeb — Demostración de integración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1A2E; --ink-2:#1B2C47; --paper:#F6F7F9; --card:#FFFFFF;
+  --line:#E2E6EC; --slate:#5D6879; --slate-2:#8A94A3;
+  --gold:#B8924A; --wa:#1FA855; --wa-bg:#E7F6EC; --smile:#2D6FE0; --smile-bg:#E9F0FD;
+  --amber:#B7791F; --amber-bg:#FDF3E0;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --disp:"Space Grotesk", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:var(--body); background:var(--paper); color:var(--ink);
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  padding:34px 26px 60px;
+}
+.wrap{max-width:1240px;margin:0 auto}
+
+/* ---------- header ---------- */
+.masthead{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:6px}
+.logo{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.4px}
+.logo .g{color:var(--gold)}
+.x{color:var(--slate-2);font-family:var(--disp);font-size:19px}
+.logo.sw{color:var(--smile)}
+.badge{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--amber);background:var(--amber-bg);
+  border:1px solid #EBD5A8;border-radius:999px;padding:5px 12px;white-space:nowrap}
+h1{font-family:var(--disp);font-size:31px;letter-spacing:-.9px;line-height:1.12;margin:20px 0 8px;max-width:22ch}
+.lede{color:var(--slate);max-width:60ch;font-size:14.5px}
+
+/* ---------- controls ---------- */
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin:26px 0 22px;padding:14px 16px;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r)}
+button{font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;
+  border:1px solid transparent;border-radius:9px;padding:10px 16px;transition:.15s}
+button:focus-visible{outline:2px solid var(--smile);outline-offset:2px}
+.btn-go{background:var(--ink);color:#fff}
+.btn-go:hover{background:var(--ink-2)}
+.btn-go[disabled]{opacity:.35;cursor:default}
+.btn-ghost{background:transparent;color:var(--slate);border-color:var(--line)}
+.btn-ghost:hover{background:var(--paper);color:var(--ink)}
+.track{display:flex;align-items:center;gap:7px;margin-left:auto;flex-wrap:wrap}
+.pip{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--slate-2);
+  font-family:var(--mono);letter-spacing:.2px}
+.pip i{width:7px;height:7px;border-radius:50%;background:var(--line);display:block;transition:.3s}
+.pip.on{color:var(--ink)} .pip.on i{background:var(--gold);box-shadow:0 0 0 3px rgba(184,146,74,.16)}
+.pip.done i{background:var(--wa)}
+.pip span.sep{color:var(--line)}
+
+/* ---------- columns ---------- */
+.cols{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:18px;align-items:start}
+.col{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  display:flex;flex-direction:column;min-height:430px}
+.col-head{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.col-head h2{font-family:var(--disp);font-size:14px;font-weight:700;letter-spacing:-.2px}
+.col-head .who{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--slate-2)}
+.col.wa .dot{background:var(--wa)} .col.holly .dot{background:var(--gold)} .col.sw .dot{background:var(--smile)}
+.col-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:11px}
+
+/* ---------- chat ---------- */
+.chat{display:flex;flex-direction:column;gap:9px}
+.msg{max-width:88%;padding:9px 12px;border-radius:13px;font-size:13.2px;line-height:1.45;
+  animation:pop .28s ease both}
+.msg.in{background:#F1F3F5;border-bottom-left-radius:4px;align-self:flex-start}
+.msg.out{background:var(--wa-bg);border-bottom-right-radius:4px;align-self:flex-end}
+.msg .t{display:block;font-family:var(--mono);font-size:9.5px;color:var(--slate-2);margin-top:5px;text-align:right}
+@keyframes pop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.typing{display:inline-flex;gap:3px;padding:2px 0}
+.typing i{width:5px;height:5px;border-radius:50%;background:var(--slate-2);animation:bl 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.15s} .typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,60%,100%{opacity:.28}30%{opacity:1}}
+
+/* ---------- api console ---------- */
+.req{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#F8FAFC;
+  border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--mono);font-size:12px}
+.verb{font-weight:700;font-size:10.5px;letter-spacing:.6px;color:#fff;padding:3px 8px;border-radius:5px}
+.verb.get{background:var(--wa)} .verb.patch{background:var(--gold)}
+.path{color:var(--ink);word-break:break-all}
+.auth{font-family:var(--mono);font-size:10.5px;color:var(--slate-2);padding:0 2px}
+pre{background:#0D1626;color:#CBD9EC;border-radius:11px;padding:13px 14px;font-family:var(--mono);
+  font-size:11.4px;line-height:1.62;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  min-height:56px;tab-size:2}
+pre .k{color:#7FD7B6} pre .s{color:#E8C583} pre .n{color:#8FB8F0} pre .c{color:#6C7E96}
+.cursor{display:inline-block;width:7px;height:13px;background:#7FD7B6;vertical-align:-2px;animation:bl2 .9s steps(2) infinite}
+@keyframes bl2{50%{opacity:0}}
+.hint{font-size:12.4px;color:var(--slate);display:flex;gap:8px;align-items:flex-start}
+.hint b{color:var(--ink);font-weight:600}
+
+/* ---------- agenda card ---------- */
+.slotcard{border:1px solid var(--line);border-radius:11px;padding:13px;animation:pop .3s ease both}
+.slotcard .when{font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:-.2px}
+.slotcard .who2{font-size:13px;color:var(--slate);margin-top:2px}
+.slotcard .meta{font-family:var(--mono);font-size:10.5px;color:var(--slate-2);margin-top:8px;
+  padding-top:8px;border-top:1px dashed var(--line);word-break:break-all}
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.7px;text-transform:uppercase;padding:3px 9px;border-radius:999px;font-weight:700}
+.pill.pending{background:var(--amber-bg);color:var(--amber)}
+.pill.confirmed{background:var(--wa-bg);color:var(--wa)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.empty{color:var(--slate-2);font-size:13px;text-align:center;padding:30px 8px;
+  border:1px dashed var(--line);border-radius:11px}
+
+/* ---------- footer ---------- */
+.foot{margin-top:24px;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r);padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.foot h3{font-family:var(--disp);font-size:13px;margin-bottom:7px}
+.foot p{font-size:12.8px;color:var(--slate)}
+.foot code{font-family:var(--mono);font-size:11.6px;background:var(--paper);
+  border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.rule{height:1px;background:var(--line);margin:22px 0 0}
+
+@media (max-width:980px){
+  .cols{grid-template-columns:1fr}
+  .col{min-height:0}
+  .foot{grid-template-columns:1fr}
+  h1{font-size:25px}
+  body{padding:22px 16px 44px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="logo">Holly<span class="g">.ai</span></span>
+    <span class="x">×</span>
+    <span class="logo sw">SmileWeb</span>
+    <span class="badge">Demostración · datos simulados</span>
+  </div>
+
+  <h1>Una cita nace en WhatsApp y llega a la agenda de SmileWeb.</h1>
+  <p class="lede">Así funciona la integración, paso a paso. Holly expone una API; SmileWeb la consume cuando quiere. En ningún momento hay acceso a la base de datos ni al código de SmileWeb.</p>
+
+  <div class="bar">
+    <button class="btn-go" id="go">Iniciar demostración</button>
+    <button class="btn-ghost" id="reset">Reiniciar</button>
+    <div class="track" id="track">
+      <span class="pip" data-s="1"><i></i>1 · Paciente</span><span class="sep">›</span>
+      <span class="pip" data-s="2"><i></i>2 · Consulta API</span><span class="sep">›</span>
+      <span class="pip" data-s="3"><i></i>3 · Confirma agenda</span><span class="sep">›</span>
+      <span class="pip" data-s="4"><i></i>4 · Aviso al paciente</span>
+    </div>
+  </div>
+
+  <div class="cols">
+
+    <!-- 1 · patient -->
+    <section class="col wa">
+      <div class="col-head"><span class="dot"></span><h2>Paciente</h2><span class="who">WhatsApp</span></div>
+      <div class="col-body"><div class="chat" id="chat">
+        <div class="empty">La conversación aparecerá aquí.</div>
+      </div></div>
+    </section>
+
+    <!-- 2 · holly api -->
+    <section class="col holly">
+      <div class="col-head"><span class="dot"></span><h2>API de Holly.ai</h2><span class="who">REST · HTTPS</span></div>
+      <div class="col-body">
+        <div class="req">
+          <span class="verb get">GET</span>
+          <span class="path">/v1/appointments?since=…</span>
+        </div>
+        <div class="auth">Authorization: Bearer sk_sandbox_smileweb_••••••</div>
+        <pre id="out"><span class="c">// Esperando la primera consulta de SmileWeb…</span></pre>
+        <div class="hint" id="hint"><span>›</span><span>Inicia la demostración para ver el flujo completo.</span></div>
+      </div>
+    </section>
+
+    <!-- 3 · smileweb -->
+    <section class="col sw">
+      <div class="col-head"><span class="dot"></span><h2>SmileWeb</h2><span class="who">Agenda clínica</span></div>
+      <div class="col-body"><div id="agenda">
+        <div class="empty">Sin citas nuevas por revisar.</div>
+      </div></div>
+    </section>
+
+  </div>
+
+  <div class="foot">
+    <div>
+      <h3>Qué es real y qué está simulado</h3>
+      <p>Los endpoints, el modelo de datos y el esquema de autenticación mostrados corresponden a la especificación entregada en el paquete técnico. Los pacientes, horarios e identificadores de esta demostración son ficticios. Al confirmar la integración, entregamos credenciales de un entorno de pruebas con datos igualmente ficticios.</p>
+    </div>
+    <div>
+      <h3>Los dos llamados que necesita SmileWeb</h3>
+      <p><code>GET /v1/appointments</code> — lee las citas nuevas o actualizadas, de forma incremental con <code>since</code> o <code>cursor</code>.<br>
+      <code>PATCH /v1/appointments/{id}</code> — confirma, reprograma o rechaza una cita desde la agenda de SmileWeb.</p>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var chat = document.getElementById('chat');
+  var out = document.getElementById('out');
+  var hint = document.getElementById('hint');
+  var agenda = document.getElementById('agenda');
+  var go = document.getElementById('go');
+  var resetBtn = document.getElementById('reset');
+  var timers = [];
+  var APPT_ID = "b7f2a41c-9d3e-4f88-b0a7-51c6d3ee91a0";
+
+  function wait(ms){ return new Promise(function(r){ timers.push(setTimeout(r, reduce ? 10 : ms)); }); }
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  function step(n, state){
+    document.querySelectorAll('.pip').forEach(function(p){
+      var s = Number(p.dataset.s);
+      p.classList.toggle('on', s === n && state !== 'done');
+      p.classList.toggle('done', s < n || (s === n && state === 'done'));
+    });
+  }
+
+  function say(kind, html, time){
+    var d = document.createElement('div');
+    d.className = 'msg ' + kind;
+    d.innerHTML = html + '<span class="t">' + time + '</span>';
+    chat.appendChild(d);
+    chat.scrollTop = chat.scrollHeight;
+    return d;
+  }
+  function typingBubble(){
+    var d = document.createElement('div');
+    d.className = 'msg in';
+    d.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+    chat.appendChild(d);
+    return d;
+  }
+
+  function setHint(html){ hint.innerHTML = '<span>›</span><span>' + html + '</span>'; }
+
+  // syntax-highlight a JSON string
+  function hl(json){
+    return esc(json)
+      .replace(/"([^"]+)":/g, '<span class="k">"$1"</span>:')
+      .replace(/: "([^"]*)"/g, ': <span class="s">"$1"</span>')
+      .replace(/: (\d+)/g, ': <span class="n">$1</span>');
+  }
+
+  function typeJSON(text){
+    return new Promise(function(resolve){
+      if (reduce){ out.innerHTML = hl(text); return resolve(); }
+      var i = 0, chunk = 3;
+      (function tick(){
+        i += chunk;
+        out.innerHTML = hl(text.slice(0, i)) + '<span class="cursor"></span>';
+        out.scrollTop = out.scrollHeight;
+        if (i < text.length){ timers.push(setTimeout(tick, 12)); }
+        else { out.innerHTML = hl(text); resolve(); }
+      })();
+    });
+  }
+
+  var RESPONSE =
+'{\n' +
+'  "data": [\n' +
+'    {\n' +
+'      "id": "' + APPT_ID + '",\n' +
+'      "status": "pending",\n' +
+'      "patient": {\n' +
+'        "full_name": "María Gómez Restrepo",\n' +
+'        "document_id": "1017234891",\n' +
+'        "phone": "+573001234567",\n' +
+'        "email": "maria.gomez@ejemplo.com"\n' +
+'      },\n' +
+'      "service": "Valoración de ortodoncia",\n' +
+'      "starts_at": "2026-07-24T15:30:00-05:00",\n' +
+'      "source": "whatsapp",\n' +
+'      "created_at": "2026-07-22T09:14:22-05:00"\n' +
+'    }\n' +
+'  ],\n' +
+'  "next_cursor": null\n' +
+'}';
+
+  var PATCH_RESPONSE =
+'{\n' +
+'  "id": "' + APPT_ID + '",\n' +
+'  "status": "confirmed",\n' +
+'  "service": "Valoración de ortodoncia",\n' +
+'  "starts_at": "2026-07-24T15:30:00-05:00",\n' +
+'  "updated_at": "2026-07-22T09:15:07-05:00"\n' +
+'}';
+
+  function reset(){
+    clearTimers();
+    chat.innerHTML = '<div class="empty">La conversación aparecerá aquí.</div>';
+    agenda.innerHTML = '<div class="empty">Sin citas nuevas por revisar.</div>';
+    out.innerHTML = '<span class="c">// Esperando la primera consulta de SmileWeb…</span>';
+    setHint('Inicia la demostración para ver el flujo completo.');
+    document.querySelectorAll('.pip').forEach(function(p){ p.classList.remove('on','done'); });
+    go.disabled = false;
+    go.textContent = 'Iniciar demostración';
+  }
+
+  // ---------- stage 3: SmileWeb confirms ----------
+  function renderAgendaCard(status){
+    var confirmed = status === 'confirmed';
+    agenda.innerHTML =
+      '<div class="slotcard">' +
+        '<div class="row">' +
+          '<span class="pill ' + (confirmed ? 'confirmed' : 'pending') + '">' +
+            (confirmed ? 'Confirmada' : 'Por confirmar') + '</span>' +
+          '<span style="font-family:var(--mono);font-size:10.5px;color:var(--slate-2)">vie 24 jul</span>' +
+        '</div>' +
+        '<div class="when">3:30 p. m. · Valoración de ortodoncia</div>' +
+        '<div class="who2">María Gómez Restrepo · CC 1017234891</div>' +
+        '<div class="meta">holly_id: ' + APPT_ID.slice(0, 13) + '…</div>' +
+      '</div>' +
+      (confirmed
+        ? '<div class="hint" style="margin-top:12px"><span>✓</span><span>Cita ubicada en la agenda de SmileWeb. El estado se devolvió a Holly.ai por la API.</span></div>'
+        : '<div style="margin-top:12px"><button class="btn-go" id="confirm">Confirmar en la agenda</button></div>');
+
+    if (!confirmed){
+      document.getElementById('confirm').addEventListener('click', doConfirm);
+    }
+  }
+
+  async function doConfirm(){
+    step(3);
+    var req = document.querySelector('.req');
+    req.innerHTML = '<span class="verb patch">PATCH</span><span class="path">/v1/appointments/' + APPT_ID.slice(0,8) + '…</span>';
+    out.innerHTML = '<span class="c">// Enviando { "status": "confirmed" } …</span>';
+    setHint('SmileWeb devuelve el estado a Holly.ai.');
+    await wait(700);
+    await typeJSON(PATCH_RESPONSE);
+    renderAgendaCard('confirmed');
+    setHint('<b>Listo.</b> La cita quedó confirmada en ambos sistemas.');
+
+    // stage 4
+    step(4);
+    await wait(600);
+    var t = typingBubble();
+    await wait(900);
+    t.remove();
+    say('in', '¡Confirmada! ✅ Te esperamos el <b>viernes 24 de julio a las 3:30 p. m.</b> para tu valoración de ortodoncia. Te enviaré un recordatorio un día antes.', '9:15');
+    await wait(400);
+    step(4, 'done');
+    go.textContent = 'Demostración completada';
+  }
+
+  // ---------- stage 2: SmileWeb pulls ----------
+  async function stageFetch(){
+    step(2);
+    setHint('SmileWeb consulta las citas nuevas cuando lo desee — cada pocos minutos o por webhook.');
+    out.innerHTML = '<span class="c">// Consultando…</span>';
+    await wait(800);
+    await typeJSON(RESPONSE);
+    setHint('<b>Una cita pendiente.</b> Ahora SmileWeb decide dónde ubicarla en su agenda.');
+    await wait(500);
+    renderAgendaCard('pending');
+    step(2, 'done');
+  }
+
+  // ---------- stage 1: the patient books ----------
+  async function run(){
+    reset();
+    go.disabled = true;
+    go.textContent = 'Ejecutando…';
+    chat.innerHTML = '';
+    step(1);
+
+    say('out', 'Hola, quiero una cita para ortodoncia 🦷', '9:12');
+    await wait(900);
+    var t = typingBubble(); await wait(1100); t.remove();
+    say('in', '¡Hola! Con gusto. ¿Prefieres esta semana o la próxima?', '9:12');
+    await wait(1000);
+    say('out', 'Esta semana si se puede, en la tarde', '9:13');
+    await wait(900);
+    t = typingBubble(); await wait(1200); t.remove();
+    say('in', 'Tengo el <b>jueves 4:00 p. m.</b> o el <b>viernes 3:30 p. m.</b> ¿Cuál te sirve?', '9:13');
+    await wait(1000);
+    say('out', 'Viernes 3:30 👍', '9:14');
+    await wait(800);
+    t = typingBubble(); await wait(1000); t.remove();
+    say('in', 'Perfecto. Para dejarla registrada, ¿me confirmas tu nombre completo y número de documento?', '9:14');
+    await wait(900);
+    say('out', 'María Gómez Restrepo, CC 1017234891', '9:14');
+    await wait(900);
+    t = typingBubble(); await wait(900); t.remove();
+    say('in', 'Gracias, María. Tu solicitud quedó registrada para el <b>viernes 24 a las 3:30 p. m.</b> La clínica la confirma y te aviso enseguida.', '9:14');
+    step(1, 'done');
+
+    await wait(700);
+    stageFetch();
+  }
+
+  go.addEventListener('click', run);
+  resetBtn.addEventListener('click', reset);
+})();
+</script>
+</body>
+</html>
