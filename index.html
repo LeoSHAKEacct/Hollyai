@@ -604,12 +604,87 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     margin-top: 60px;
   }
 
+  .demo-mockups {
+    display: flex;
+    gap: 56px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
   /* ── PHONE MOCKUP ── */
   .phone-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
+  }
+
+  /* ── WHATSAPP MOCKUP ── */
+  .wa-phone {
+    border-color: rgba(37,211,102,0.35);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 60px rgba(37,211,102,0.08);
+  }
+
+  .wa-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(248,245,239,0.08);
+  }
+
+  .wa-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .wa-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+
+  .wa-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.66rem;
+    color: #25D366;
+    letter-spacing: 0.04em;
+  }
+
+  .wa-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .wa-bubble {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .wa-bubble.in {
+    align-self: flex-start;
+    background: rgba(248,245,239,0.08);
+    color: var(--white);
+    border-bottom-left-radius: 4px;
+  }
+
+  .wa-bubble.out {
+    align-self: flex-end;
+    background: rgba(37,211,102,0.16);
+    border: 1px solid rgba(37,211,102,0.3);
+    color: var(--white);
+    border-bottom-right-radius: 4px;
   }
 
   .phone {
@@ -1403,24 +1478,10 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   <p class="hero-sub" data-en="Holly answers every conversation — by phone or WhatsApp — books every appointment, and keeps the relationship going long after the visit, so your clinic grows even while you sleep." data-es="Holly responde cada conversación — por llamada o WhatsApp — reserva cada cita y mantiene la relación con el paciente mucho después de la visita, para que tu clínica crezca incluso mientras duermes.">Holly answers every conversation — by phone or WhatsApp — books every appointment, and keeps the relationship going long after the visit, so your clinic grows even while you sleep.</p>
   <div class="hero-actions">
     <a href="#" onclick="openLeadModal(event)" class="btn-primary" data-en="Start Free Trial" data-es="Empezar prueba gratis">Empezar prueba gratis</a>
-    <a href="holly-dashboard.html" class="btn-ghost" data-en="▶ Try Holly Now" data-es="▶ Probar Holly">▶ Try Holly Now</a>
+    <a href="#agent" class="btn-ghost" data-en="▶ Try Holly Now" data-es="▶ Probar Holly">▶ Try Holly Now</a>
   </div>
 
-  <!-- LIVE DEMO BAR -->
-  <div id="demo" style="margin-top:48px;width:100%;max-width:860px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:32px 40px;display:flex;align-items:center;gap:48px;flex-wrap:wrap;justify-content:center;">
-    <div style="text-align:center;">
-      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);font-family:'DM Mono',monospace;margin-bottom:10px;" data-en="🔴 LIVE — Call Holly Now" data-es="🔴 EN VIVO — Llama a Holly">🔴 LIVE — Call Holly Now</div>
-      <a href="tel:+15186282549" style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--white);text-decoration:none;letter-spacing:-0.02em;">+1 (518) 628-2549</a>
-      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;" data-en="Real AI · Real booking · Answers in 2s" data-es="IA real · Reservas reales · Responde en 2s">Real AI · Real booking · Answers in 2s</div>
-    </div>
-    <div style="width:1px;height:60px;background:rgba(248,245,239,0.1);"></div>
-    <div style="text-align:center;">
-      <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:10px;" data-en="💬 No Phone? Chat Demo" data-es="💬 ¿Sin teléfono? Demo de chat">💬 No Phone? Chat Demo</div>
-      <button onclick="openChatDemo()" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;background:none;border:none;color:var(--white);cursor:pointer;letter-spacing:-0.01em;" data-en="Try Holly in Browser →" data-es="Prueba Holly en el navegador →">Try Holly in Browser →</button>
-      <div style="font-size:0.8rem;color:var(--white-dim);margin-top:6px;" data-en="No download · No signup needed" data-es="Sin descarga · Sin registro">No download · No signup needed</div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;justify-content:center;gap:7px;color:rgba(248,245,239,0.45);font-size:0.78rem;letter-spacing:0.04em;margin-top:20px;position:relative;">
+  <div style="display:flex;align-items:center;justify-content:center;gap:7px;color:rgba(248,245,239,0.45);font-size:0.78rem;letter-spacing:0.04em;margin-top:48px;position:relative;">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
     <span data-en="Works on WhatsApp too" data-es="También disponible en WhatsApp">Works on WhatsApp too</span>
   </div>
@@ -1558,42 +1619,67 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     <div class="reveal">
       <div class="section-tag" data-en="Live agent demo" data-es="Demo en vivo">Live agent demo</div>
       <h2 class="section-title" data-en="Meet Holly — your&lt;br&gt;&lt;em&gt;AI front desk.&lt;/em&gt;" data-es="Conoce a Holly — tu&lt;br&gt;&lt;em&gt;recepción con IA.&lt;/em&gt;">Meet Holly — your<br><em>AI front desk.</em></h2>
-      <p class="section-sub" data-en="This is what your patients experience every time they call. Natural, warm, and efficient." data-es="Esto es lo que viven tus pacientes cada vez que llaman. Natural, cálida y eficiente.">This is what your patients experience every time they call. Natural, warm, and efficient.</p>
+      <p class="section-sub" data-en="This is what your patients experience every time they reach out — by call or by WhatsApp. Natural, warm, and efficient." data-es="Esto es lo que viven tus pacientes cada vez que contactan — por llamada o por WhatsApp. Natural, cálida y eficiente.">This is what your patients experience every time they reach out — by call or by WhatsApp. Natural, warm, and efficient.</p>
     </div>
 
     <div class="demo-layout reveal" style="display:flex;flex-direction:column;align-items:center;gap:2rem;">
-      <!-- Phone -->
-      <div class="phone-wrap">
-        <div class="phone">
-          <div class="phone-notch"></div>
-          <div class="call-ui">
-            <div class="call-avatar">🏥</div>
-            <div class="call-name">Holly.ai</div>
-            <div class="call-status" id="call-phone-status">● Ready</div>
-            <div class="call-timer" id="timer">00:00</div>
-            <div class="call-wave">
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
-              <div class="wave-bar"></div>
+      <div class="demo-mockups">
+        <!-- Phone call mockup -->
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="call-ui">
+              <div class="call-avatar">🏥</div>
+              <div class="call-name">Holly.ai</div>
+              <div class="call-status" id="call-phone-status">● Ready</div>
+              <div class="call-timer" id="timer">00:00</div>
+              <div class="call-wave">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+              </div>
             </div>
           </div>
+          <p class="retell-prompt" style="text-align:center;max-width:280px;margin:0;"
+            data-en="🎙️ Listen to a real Holly call — patient intake handled start to finish, naturally and efficiently."
+            data-es="🎙️ Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.">
+            🎙️ Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.
+          </p>
+          <button class="retell-cta" id="start-call-btn" onclick="toggleDemoAudio()">
+            <span id="demo-btn-play" data-en="▶ Hear Holly Live" data-es="▶ Hablar con Holly">▶ Hablar con Holly</span>
+            <span id="demo-btn-stop" data-en="⏹ Stop" data-es="⏹ Detener" style="display:none">⏹ Detener</span>
+          </button>
+        </div>
+
+        <!-- WhatsApp conversation mockup -->
+        <div class="phone-wrap">
+          <div class="phone wa-phone">
+            <div class="phone-notch"></div>
+            <div class="wa-header">
+              <img src="https://res.cloudinary.com/dyhwxcr9h/image/upload/v1770652289/logo-hollyaid_ksrmwr.png" alt="Holly.ai" class="wa-avatar">
+              <div>
+                <div class="wa-name">Holly.ai</div>
+                <div class="wa-status" data-en="online" data-es="en línea">online</div>
+              </div>
+            </div>
+            <div class="wa-messages">
+              <div class="wa-bubble in" data-en="Hi Maria! This is Holly from Sunrise Dental 🦷 It's been 6 months since your last cleaning — want me to book you back in?" data-es="¡Hola Maria! Soy Holly de Sunrise Dental 🦷 Ya pasaron 6 meses desde tu última limpieza — ¿quieres que te agende de nuevo?">Hi Maria! This is Holly from Sunrise Dental 🦷 It's been 6 months since your last cleaning — want me to book you back in?</div>
+              <div class="wa-bubble out" data-en="Yes please! Same time as before?" data-es="¡Sí, por favor! ¿A la misma hora de antes?">Yes please! Same time as before?</div>
+              <div class="wa-bubble in" data-en="Perfect — Tuesday 10:00 AM with Dr. Félix. Sending your confirmation now ✅" data-es="Perfecto — martes 10:00 AM con la Dra. Félix. Te envío la confirmación ahora ✅">Perfect — Tuesday 10:00 AM with Dr. Félix. Sending your confirmation now ✅</div>
+              <div class="wa-bubble out" data-en="Sounds great, thank you!" data-es="¡Perfecto, gracias!">Sounds great, thank you!</div>
+            </div>
+          </div>
+          <p class="retell-prompt" style="text-align:center;max-width:280px;margin:0;"
+            data-en="💬 The same visit, continued on WhatsApp — confirmations, reminders, and recall messages patients actually read."
+            data-es="💬 La misma cita, en WhatsApp — confirmaciones, recordatorios y mensajes de recuperación que los pacientes sí leen.">
+            💬 The same visit, continued on WhatsApp — confirmations, reminders, and recall messages patients actually read.
+          </p>
         </div>
       </div>
-
-      <!-- Caption + CTA -->
-      <p class="retell-prompt" style="text-align:center;max-width:520px;margin:0;"
-        data-en="🎙️ Listen to a real Holly call — patient intake handled start to finish, naturally and efficiently."
-        data-es="🎙️ Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.">
-        🎙️ Escucha una llamada real de Holly — admisión de paciente de principio a fin, de forma natural y eficiente.
-      </p>
-      <button class="retell-cta" id="start-call-btn" onclick="toggleDemoAudio()">
-        <span id="demo-btn-play" data-en="▶ Hear Holly Live" data-es="▶ Hablar con Holly">▶ Hablar con Holly</span>
-        <span id="demo-btn-stop" data-en="⏹ Stop" data-es="⏹ Detener" style="display:none">⏹ Detener</span>
-      </button>
     </div>
   </div>
 </div>
