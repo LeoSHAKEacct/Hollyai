@@ -70,9 +70,18 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     color: var(--white);
     letter-spacing: -0.02em;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .nav-logo span { color: var(--gold); }
+
+  .nav-logo-icon {
+    height: 30px;
+    width: auto;
+    display: block;
+  }
 
   .nav-links {
     display: flex;
@@ -1153,9 +1162,18 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
     font-family: 'Playfair Display', serif;
     font-size: 1.3rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .footer-logo span { color: var(--gold); }
+
+  .footer-logo-icon {
+    height: 24px;
+    width: auto;
+    display: block;
+  }
 
   .footer-copy {
     font-size: 0.8rem;
@@ -1355,11 +1373,12 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">Holly<span>.ai</span></a>
+  <a href="#" class="nav-logo"><img src="https://res.cloudinary.com/dyhwxcr9h/image/upload/v1770652289/logo-hollyaid_ksrmwr.png" alt="Holly.ai heart logo" class="nav-logo-icon">Holly<span>.ai</span></a>
   <div class="nav-right">
     <ul class="nav-links">
       <li><a href="#how" data-en="How it works" data-es="Cómo funciona">How it works</a></li>
       <li><a href="#agent" data-en="Live Demo" data-es="Demo en vivo">Live Demo</a></li>
+      <li><a href="#recall" data-en="Automation" data-es="Automatización">Automation</a></li>
       <li><a href="#pricing" data-en="Pricing" data-es="Precios">Pricing</a></li>
       <li><a href="holly-dashboard.html" data-en="Log In" data-es="Iniciar sesión">Log In</a></li>
       <li><a href="#" onclick="openLeadModal(event)" class="nav-cta" data-en="Start Free Trial" data-es="Empezar gratis">Empezar gratis</a></li>
@@ -1620,6 +1639,41 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
   >WhatsApp is where the work happens — your dashboard is the record behind it.</p>
 </section>
 
+<!-- LONG-TERM CARE AUTOMATION -->
+<section id="recall">
+  <div class="reveal">
+    <div class="section-tag" data-en="Beyond booking" data-es="Más allá de agendar">Beyond booking</div>
+    <h2 class="section-title" data-en="Not just booking —&lt;br&gt;&lt;em&gt;staying in touch.&lt;/em&gt;" data-es="No solo agenda —&lt;br&gt;&lt;em&gt;mantiene el contacto.&lt;/em&gt;">Not just booking — <em>staying in touch.</em></h2>
+    <p class="section-sub" data-en="Holly also runs the long-term follow-up your front desk never has time for — the right message, to the right patient, at the right moment, so they come back before a small issue becomes a big one." data-es="Holly también se encarga del seguimiento a largo plazo para el que tu recepción nunca tiene tiempo — el mensaje correcto, al paciente correcto, en el momento justo, para que vuelva antes de que un problema pequeño se vuelva grande.">Holly also runs the long-term follow-up your front desk never has time for — the right message, to the right patient, at the right moment, so they come back before a small issue becomes a big one.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feature">
+      <span class="feature-icon">🩺</span>
+      <h3 data-en="Preventive check-up reminders" data-es="Recordatorios de control preventivo">Preventive check-up reminders</h3>
+      <p data-en="When it's time for a patient's next check-up, Holly reaches out automatically — helping catch problems early and keeping their health on track." data-es="Cuando llega el momento del próximo control de un paciente, Holly lo contacta automáticamente — ayudando a detectar problemas a tiempo y a mantener su salud al día.">When it's time for a patient's next check-up, Holly reaches out automatically — helping catch problems early and keeping their health on track.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🩹</span>
+      <h3 data-en="Post-surgery follow-up" data-es="Seguimiento post-cirugía">Post-surgery follow-up</h3>
+      <p data-en="After a procedure, Holly sends recovery check-ins and reminders for next steps — automatically, without your staff lifting a finger." data-es="Después de una cirugía, Holly envía seguimientos de recuperación y recordatorios del siguiente paso — automáticamente, sin que tu equipo mueva un dedo.">After a procedure, Holly sends recovery check-ins and reminders for next steps — automatically, without your staff lifting a finger.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🦷</span>
+      <h3 data-en="6-month recall (dental &amp; more)" data-es="Recordatorio semestral (odontología y más)">6-month recall (dental &amp; more)</h3>
+      <p data-en="Six months after a cleaning or treatment, Holly reminds the patient it's time to come back. The same recall logic works for annual physicals, eye exams, and other routine care." data-es="Seis meses después de una limpieza o tratamiento, Holly recuerda al paciente que es momento de volver. La misma lógica de recordatorio funciona para chequeos anuales, exámenes de la vista y otros controles de rutina.">Six months after a cleaning or treatment, Holly reminds the patient it's time to come back. The same recall logic works for annual physicals, eye exams, and other routine care.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🥗</span>
+      <h3 data-en="Nutritionist check-ins" data-es="Seguimiento con nutricionistas">Nutritionist check-ins</h3>
+      <p data-en="For patients on a nutrition plan, Holly suggests a follow-up consult after a few months to track progress and adjust the plan — keeping them engaged between visits." data-es="Para pacientes con un plan nutricional, Holly sugiere una consulta de seguimiento después de unos meses para revisar el progreso y ajustar el plan — manteniéndolos comprometidos entre visitas.">For patients on a nutrition plan, Holly suggests a follow-up consult after a few months to track progress and adjust the plan — keeping them engaged between visits.</p>
+    </div>
+  </div>
+  <p class="section-sub reveal" style="margin-top:48px;"
+    data-en="Every recall rule is custom to your practice — set the timing once, and Holly handles the outreach for every specialty, every patient, every time."
+    data-es="Cada regla de recordatorio se adapta a tu consultorio — define el tiempo una vez, y Holly se encarga del contacto para cada especialidad, cada paciente, siempre."
+  >Every recall rule is custom to your practice — set the timing once, and Holly handles the outreach for every specialty, every patient, every time.</p>
+</section>
+
 <!-- TESTIMONIALS -->
 <section id="testimonials">
   <div class="reveal">
@@ -1771,7 +1825,7 @@ document.documentElement.lang = localStorage.getItem('hollyLanguage') || 'es';
 <!-- FOOTER -->
 <footer>
   <div>
-    <div class="footer-logo">Holly<span>.ai</span></div>
+    <div class="footer-logo"><img src="https://res.cloudinary.com/dyhwxcr9h/image/upload/v1770652289/logo-hollyaid_ksrmwr.png" alt="Holly.ai heart logo" class="footer-logo-icon">Holly<span>.ai</span></div>
     <div class="footer-copy" style="margin-top:8px;" data-en="© 2026 Holly.ai — All rights reserved." data-es="© 2026 Holly.ai — Todos los derechos reservados.">© 2026 Holly.ai — All rights reserved.</div>
   </div>
   <ul class="footer-links">
