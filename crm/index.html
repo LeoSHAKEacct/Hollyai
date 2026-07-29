@@ -102,6 +102,18 @@
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: var(--panel2); cursor: pointer; }
   .empty-state { padding: 40px; text-align: center; color: var(--text-muted); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .stat-value { font-family: var(--font-display); font-size: 30px; color: var(--gold-light); }
+  .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+  .channels-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .channel-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .channel-name { font-size: 14px; margin-bottom: 6px; }
+  .channel-status { font-size: 12px; font-family: var(--font-mono); }
+  .channel-card.connected .channel-status { color: var(--green); }
+  .channel-card.pending .channel-status { color: var(--text-muted); }
   .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono); }
   .badge.not_configured { background: var(--panel2); color: var(--text-muted); }
   .badge.call { background: var(--teal-dim); color: var(--teal); }
@@ -159,7 +171,8 @@
       <select id="clinic-switcher" class="clinic-select" style="display:none;"></select>
     </div>
     <div class="nav">
-      <div class="nav-item active" data-tab="patients" onclick="setTab('patients')">Pacientes</div>
+      <div class="nav-item active" data-tab="overview" onclick="setTab('overview')">Resumen</div>
+      <div class="nav-item" data-tab="patients" onclick="setTab('patients')">Pacientes</div>
       <div class="nav-item" data-tab="appointments" onclick="setTab('appointments')">Citas</div>
       <div class="nav-item" data-tab="invoices" onclick="setTab('invoices')">Facturas</div>
       <div class="nav-item" data-tab="import" onclick="setTab('import')">Importar</div>
@@ -171,7 +184,37 @@
   </div>
 
   <div class="main">
-    <div id="tab-patients" class="tab-page active">
+    <div id="tab-overview" class="tab-page active">
+      <div class="page-title">Resumen</div>
+      <div class="page-sub">Vista general de la clínica.</div>
+      <div id="stats-row" class="stats-row">
+        <div class="stat-card"><div class="stat-value" id="stat-patients">—</div><div class="stat-label">Pacientes</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-appointments">—</div><div class="stat-label">Citas totales</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-week">—</div><div class="stat-label">Citas esta semana</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-calls">—</div><div class="stat-label">Llamadas registradas</div></div>
+      </div>
+      <div class="section-label">Canales conectados</div>
+      <div class="channels-row">
+        <div class="channel-card connected">
+          <div class="channel-name">📞 Llamadas</div>
+          <div class="channel-status">Conectado — Retell</div>
+        </div>
+        <div class="channel-card pending">
+          <div class="channel-name">💬 WhatsApp</div>
+          <div class="channel-status">Próximamente</div>
+        </div>
+        <div class="channel-card connected">
+          <div class="channel-name">📅 Reservas</div>
+          <div class="channel-status">Conectado</div>
+        </div>
+        <div class="channel-card pending">
+          <div class="channel-name">🧾 Facturación DIAN</div>
+          <div class="channel-status">En el roadmap</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-patients" class="tab-page">
       <div class="page-title">Pacientes</div>
       <div class="page-sub">Todos los pacientes de la clínica, incluyendo los que llaman o reservan por Holly.</div>
       <div id="patients-table-wrap"><div class="empty-state">Cargando…</div></div>
@@ -351,7 +394,21 @@
 
   // ── DATA ──────────────────────────────────────────
   async function loadAll() {
-    await Promise.all([loadPatients(), loadAppointments(), loadInvoices()]);
+    await Promise.all([loadPatients(), loadAppointments(), loadInvoices(), loadOverview()]);
+  }
+
+  async function loadOverview() {
+    const [patientsCount, apptsCount, weekCount, callsCount] = await Promise.all([
+      db.from('patients').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
+      db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
+      db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId)
+        .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+      db.from('interactions').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId).eq('channel', 'call'),
+    ]);
+    document.getElementById('stat-patients').textContent = patientsCount.count ?? '—';
+    document.getElementById('stat-appointments').textContent = apptsCount.count ?? '—';
+    document.getElementById('stat-week').textContent = weekCount.count ?? '—';
+    document.getElementById('stat-calls').textContent = callsCount.count ?? '—';
   }
 
   async function loadPatients() {
