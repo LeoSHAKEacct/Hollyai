@@ -144,6 +144,10 @@
       <div id="login-error"></div>
       <button type="submit" class="btn-primary" id="login-btn">Ingresar</button>
     </form>
+    <div id="reset-msg" style="display:none; font-size:12px; color:var(--green); margin-top:14px;"></div>
+    <div style="text-align:center; margin-top:14px;">
+      <a id="forgot-link" style="font-size:12px; color:var(--text-dim); cursor:pointer; text-decoration:underline;">¿Olvidaste tu contraseña?</a>
+    </div>
   </div>
 </div>
 
@@ -297,6 +301,38 @@
     memberships = [];
     activeClinicId = null;
   }
+
+  // ── PASSWORD RECOVERY ────────────────────────────
+  document.getElementById('forgot-link').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const resetMsg = document.getElementById('reset-msg');
+    if (!email) {
+      resetMsg.style.color = 'var(--rose)';
+      resetMsg.textContent = 'Escribe tu email arriba primero.';
+      resetMsg.style.display = 'block';
+      return;
+    }
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/crm',
+    });
+    resetMsg.style.color = error ? 'var(--rose)' : 'var(--green)';
+    resetMsg.textContent = error
+      ? error.message
+      : 'Si ese email tiene una cuenta, te llegará un enlace para restablecer la contraseña.';
+    resetMsg.style.display = 'block';
+  });
+
+  // Supabase redirects here with a recovery token after the reset-password
+  // email link is clicked; PASSWORD_RECOVERY fires once the session from
+  // that token is established.
+  db.auth.onAuthStateChange(async (event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      const newPassword = prompt('Escribe tu nueva contraseña:');
+      if (!newPassword) return;
+      const { error } = await db.auth.updateUser({ password: newPassword });
+      toast(error ? `Error: ${error.message}` : 'Contraseña actualizada. Ya puedes usarla para ingresar.');
+    }
+  });
 
   // ── NAV ───────────────────────────────────────────
   function setTab(tab) {
