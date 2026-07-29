@@ -146,9 +146,7 @@ module.exports = async function handler(req, res) {
   try {
     const supabase = createClient(
       process.env.SUPABASE_URL || 'https://lgnfiveyqlehnxlvspqb.supabase.co',
-      process.env.SUPABASE_SERVICE_KEY ||
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbmZpdmV5cWxlaG54bHZzcHFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTQ5MTgxNiwiZXhwIjoyMDkxMDY3ODE2fQ.lHDXNcg6Q9Ds9G4NKUR2l3duVnri26dGOiVaGMc_cSc'
+      process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
     );
     const { data, error } = await supabase
       .from('appointments')

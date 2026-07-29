@@ -256,10 +256,37 @@ module.exports = async function handler(req, res) {
   // --- Supabase (always runs) ---
   try {
     const supabaseUrl = process.env.SUPABASE_URL || 'https://lgnfiveyqlehnxlvspqb.supabase.co';
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY
-      || process.env.SUPABASE_SERVICE_ROLE_KEY
-      || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbmZpdmV5cWxlaG54bHZzcHFiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTQ5MTgxNiwiZXhwIjoyMDkxMDY3ODE2fQ.lHDXNcg6Q9Ds9G4NKUR2l3duVnri26dGOiVaGMc_cSc';
+    const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Resolve which clinic this call belongs to, so the appointment (and
+    // the patient/interaction records below) land in the right CRM tenant.
+    let clinic_id = null;
+    if (retell_agent_id) {
+      const { data: clinic, error: clinicErr } = await supabase
+        .from('clinics')
+        .select('id')
+        .eq('retell_agent_id', retell_agent_id)
+        .maybeSingle();
+      if (clinicErr) console.warn('Clinic lookup error (non-fatal):', clinicErr.message);
+      clinic_id = clinic?.id || null;
+    }
+
+    // Upsert the patient (by clinic + phone) so repeat callers accumulate
+    // one CRM record instead of duplicating.
+    let patient_id = null;
+    if (clinic_id && phone_number) {
+      const { data: patient, error: patientErr } = await supabase
+        .from('patients')
+        .upsert(
+          { clinic_id, phone_number, name: patient_name || undefined, dob: dob || undefined },
+          { onConflict: 'clinic_id,phone_number' }
+        )
+        .select('id')
+        .single();
+      if (patientErr) console.warn('Patient upsert error (non-fatal):', patientErr.message);
+      patient_id = patient?.id || null;
+    }
 
     const { error: dbError } = await supabase.from('appointments').insert({
       patient_name,
@@ -270,12 +297,27 @@ module.exports = async function handler(req, res) {
       appointment_date,
       phone_number,
       retell_agent_id,
+      clinic_id,
+      patient_id,
     });
 
     if (dbError) {
       console.error('Supabase insert error:', JSON.stringify(dbError));
     } else {
       console.log('Supabase insert successful');
+    }
+
+    // Log this call on the patient's CRM timeline.
+    if (clinic_id) {
+      const { error: interactionErr } = await supabase.from('interactions').insert({
+        clinic_id,
+        patient_id,
+        channel: 'call',
+        direction: 'inbound',
+        summary: reason || appointment_time ? `${reason || 'Llamada'}${doctor ? ` — ${doctor}` : ''}${appointment_time ? ` (${appointment_time})` : ''}` : 'Llamada recibida',
+        raw: { patient_name, dob, reason, doctor, appointment_time, appointment_date, phone_number, retell_agent_id },
+      });
+      if (interactionErr) console.warn('Interaction insert error (non-fatal):', interactionErr.message);
     }
   } catch (dbErr) {
     console.error('Supabase unexpected error:', dbErr.message);

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holly.ai — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --midnight: #0a0e1a;
+    --navy: #0f1629;
+    --panel: #141b2d;
+    --panel2: #1a2240;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #e4c97a;
+    --gold-glow: rgba(201,168,76,0.15);
+    --teal: #3ecfcf;
+    --teal-dim: rgba(62,207,207,0.12);
+    --rose: #f0637a;
+    --rose-dim: rgba(240,99,122,0.12);
+    --green: #4cd9a0;
+    --green-dim: rgba(76,217,160,0.12);
+    --amber: #f5a623;
+    --text: #e8eaf0;
+    --text-dim: #7b85a0;
+    --text-muted: #4a5268;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--midnight);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-card {
+    width: 360px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 32px;
+  }
+  .login-logo { font-family: var(--font-display); font-size: 26px; color: var(--gold-light); margin-bottom: 4px; }
+  .login-logo span { color: var(--teal); }
+  .login-badge { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px; background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--gold); }
+  #login-error { display: none; color: var(--rose); font-size: 12px; margin-bottom: 12px; }
+  .btn-primary {
+    width: 100%; padding: 11px; background: var(--gold); border: none; border-radius: 8px;
+    color: var(--midnight); font-weight: 600; font-size: 14px; cursor: pointer; font-family: var(--font-body);
+  }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+  /* ── APP SHELL ── */
+  #app { display: none; min-height: 100vh; }
+  .sidebar {
+    width: 220px; min-height: 100vh; background: var(--navy); border-right: 1px solid var(--border);
+    position: fixed; top: 0; left: 0; display: flex; flex-direction: column;
+  }
+  .sidebar-logo { padding: 24px; border-bottom: 1px solid var(--border); font-family: var(--font-display); font-size: 20px; color: var(--gold-light); }
+  .sidebar-logo span { color: var(--teal); }
+  .clinic-badge { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .clinic-name { font-size: 13px; font-weight: 600; }
+  .clinic-select { margin-top: 8px; width: 100%; font-size: 12px; padding: 6px 8px; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+  .nav { flex: 1; padding: 12px; }
+  .nav-item { padding: 10px 12px; border-radius: 8px; color: var(--text-dim); cursor: pointer; font-size: 13px; margin-bottom: 2px; }
+  .nav-item:hover { background: var(--panel2); color: var(--text); }
+  .nav-item.active { background: var(--gold-glow); color: var(--gold-light); }
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+  .sidebar-footer a { color: var(--text-dim); cursor: pointer; text-decoration: underline; }
+
+  .main { margin-left: 220px; padding: 32px 40px; }
+  .page-title { font-family: var(--font-display); font-size: 24px; margin-bottom: 4px; }
+  .page-sub { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  thead th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--panel2); cursor: pointer; }
+  .empty-state { padding: 40px; text-align: center; color: var(--text-muted); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono); }
+  .badge.not_configured { background: var(--panel2); color: var(--text-muted); }
+  .badge.call { background: var(--teal-dim); color: var(--teal); }
+  .badge.whatsapp { background: var(--green-dim); color: var(--green); }
+  .badge.booking { background: var(--gold-glow); color: var(--gold-light); }
+  .badge.note { background: var(--panel2); color: var(--text-dim); }
+
+  /* patient drawer */
+  #drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; }
+  #drawer { position: fixed; top: 0; right: 0; width: 420px; max-width: 90vw; height: 100vh; background: var(--panel); border-left: 1px solid var(--border); padding: 28px; overflow-y: auto; z-index: 201; }
+  #drawer h2 { font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; }
+  #drawer .close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--text-dim); font-size: 20px; }
+  .timeline-item { border-left: 2px solid var(--border); padding: 10px 0 10px 16px; margin-left: 4px; position: relative; }
+  .timeline-item::before { content: ''; position: absolute; left: -5px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+  .timeline-summary { font-size: 13px; margin-bottom: 2px; }
+  .timeline-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+
+  .import-drop { border: 2px dashed var(--border); border-radius: 10px; padding: 40px; text-align: center; color: var(--text-dim); cursor: pointer; }
+  .import-drop:hover { border-color: var(--gold); }
+  #import-result { margin-top: 16px; padding: 14px; border-radius: 8px; background: var(--panel2); font-size: 13px; display: none; }
+
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel2); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; font-size: 13px; display: none; z-index: 300; }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Holly<span>.ai</span></div>
+    <div class="login-badge">Panel CRM</div>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="login-password">Contraseña</label>
+        <input type="password" id="login-password" autocomplete="current-password" required />
+      </div>
+      <div id="login-error"></div>
+      <button type="submit" class="btn-primary" id="login-btn">Ingresar</button>
+    </form>
+  </div>
+</div>
+
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">Holly<span>.ai</span></div>
+    <div class="clinic-badge">
+      <div class="clinic-name" id="clinic-name-display">—</div>
+      <select id="clinic-switcher" class="clinic-select" style="display:none;"></select>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" data-tab="patients" onclick="setTab('patients')">Pacientes</div>
+      <div class="nav-item" data-tab="appointments" onclick="setTab('appointments')">Citas</div>
+      <div class="nav-item" data-tab="invoices" onclick="setTab('invoices')">Facturas</div>
+      <div class="nav-item" data-tab="import" onclick="setTab('import')">Importar</div>
+    </div>
+    <div class="sidebar-footer">
+      <div id="user-email-display" style="margin-bottom:6px;"></div>
+      <a onclick="handleSignOut()">Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="tab-patients" class="tab-page active">
+      <div class="page-title">Pacientes</div>
+      <div class="page-sub">Todos los pacientes de la clínica, incluyendo los que llaman o reservan por Holly.</div>
+      <div id="patients-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-appointments" class="tab-page">
+      <div class="page-title">Citas</div>
+      <div class="page-sub">Citas agendadas por Holly.</div>
+      <div id="appointments-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-invoices" class="tab-page">
+      <div class="page-title">Facturas</div>
+      <div class="page-sub">Facturación electrónica (DIAN) aún no está conectada para esta clínica.</div>
+      <div id="invoices-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-import" class="tab-page">
+      <div class="page-title">Importar pacientes</div>
+      <div class="page-sub">Sube un CSV con tus pacientes actuales (Excel exportado a CSV funciona). Columnas reconocidas: name/nombre, phone_number/telefono (requerido), dob/fecha_nacimiento, doc_id/cedula, insurance/seguro, notes/notas.</div>
+      <div class="import-drop" id="import-drop">
+        <div id="import-drop-label">Haz clic para elegir un archivo CSV, o arrástralo aquí</div>
+        <input type="file" id="import-file" accept=".csv" style="display:none;" />
+      </div>
+      <div id="import-result"></div>
+    </div>
+  </div>
+</div>
+
+<div id="drawer-backdrop" onclick="closeDrawer()"></div>
+<div id="drawer" style="display:none;">
+  <span class="close-btn" onclick="closeDrawer()">&times;</span>
+  <h2 id="drawer-name">—</h2>
+  <div class="timeline-meta" id="drawer-phone" style="margin-bottom:20px;"></div>
+  <div id="drawer-timeline"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const SUPABASE_URL      = 'https://lgnfiveyqlehnxlvspqb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbmZpdmV5cWxlaG54bHZzcHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTE4MTYsImV4cCI6MjA5MTA2NzgxNn0.uE3eWwbRBYR-KcImVgZL_8YFquTHYuYCx7vThL3MTVM';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let memberships = [];   // [{clinic_id, role, clinics:{id,name,slug}}]
+  let activeClinicId = null;
+  let patients = [];
+
+  // ── AUTH ──────────────────────────────────────────
+  async function initAuth() {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) await onLoggedIn(session);
+    else showLogin();
+
+    db.auth.onAuthStateChange((_event, session) => {
+      if (session) onLoggedIn(session);
+      else showLogin();
+    });
+  }
+
+  function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+
+  async function onLoggedIn(session) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('user-email-display').textContent = session.user.email || '';
+
+    const { data, error } = await db
+      .from('clinic_members')
+      .select('clinic_id, role, clinics(id, name, slug)')
+      .eq('user_id', session.user.id);
+
+    if (error || !data || data.length === 0) {
+      toast('No tienes una clínica asignada. Contacta al administrador.');
+      return;
+    }
+
+    memberships = data;
+    const isSuperAdmin = memberships.some(m => m.role === 'super_admin');
+
+    if (isSuperAdmin) {
+      // super_admin: load every clinic into the switcher, not just memberships
+      const { data: allClinics } = await db.from('clinics').select('id, name, slug').order('name');
+      const switcher = document.getElementById('clinic-switcher');
+      switcher.style.display = 'block';
+      switcher.innerHTML = (allClinics || []).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+      switcher.onchange = () => { activeClinicId = switcher.value; loadClinicName(allClinics); loadAll(); };
+      activeClinicId = allClinics?.[0]?.id || null;
+      loadClinicName(allClinics);
+    } else {
+      activeClinicId = memberships[0].clinic_id;
+      document.getElementById('clinic-name-display').textContent = memberships[0].clinics?.name || '—';
+    }
+
+    loadAll();
+  }
+
+  function loadClinicName(allClinics) {
+    const c = (allClinics || []).find(c => c.id === activeClinicId);
+    document.getElementById('clinic-name-display').textContent = c?.name || '—';
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Ingresando…';
+
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) {
+      errEl.textContent = error.message || 'Credenciales inválidas.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Ingresar';
+    }
+  });
+
+  async function handleSignOut() {
+    await db.auth.signOut();
+    memberships = [];
+    activeClinicId = null;
+  }
+
+  // ── NAV ───────────────────────────────────────────
+  function setTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+    document.querySelectorAll('.tab-page').forEach(el => el.classList.toggle('active', el.id === `tab-${tab}`));
+  }
+
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3500);
+  }
+
+  // ── DATA ──────────────────────────────────────────
+  async function loadAll() {
+    await Promise.all([loadPatients(), loadAppointments(), loadInvoices()]);
+  }
+
+  async function loadPatients() {
+    const wrap = document.getElementById('patients-table-wrap');
+    const { data, error } = await db
+      .from('patients')
+      .select('*')
+      .eq('clinic_id', activeClinicId)
+      .order('created_at', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando pacientes: ${esc(error.message)}</div>`; return; }
+    patients = data || [];
+    if (patients.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin pacientes todavía. Importa un CSV o espera la primera llamada.</div>'; return; }
+
+    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Fecha nac.</th><th>Notas</th></tr></thead><tbody>
+      ${patients.map(p => `<tr onclick="openPatient('${p.id}')">
+        <td>${esc(p.name) || '<span style=\"color:var(--text-muted)\">Sin nombre</span>'}</td>
+        <td>${esc(p.phone_number)}</td>
+        <td>${esc(p.dob) || '—'}</td>
+        <td>${esc(p.notes) || '—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  async function loadAppointments() {
+    const wrap = document.getElementById('appointments-table-wrap');
+    const { data, error } = await db
+      .from('appointments')
+      .select('*')
+      .eq('clinic_id', activeClinicId)
+      .order('created_at', { ascending: false })
+      .limit(200);
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando citas: ${esc(error.message)}</div>`; return; }
+    if (!data || data.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin citas todavía.</div>'; return; }
+
+    wrap.innerHTML = `<table><thead><tr><th>Paciente</th><th>Motivo</th><th>Doctor</th><th>Cuándo</th><th>Teléfono</th></tr></thead><tbody>
+      ${data.map(a => `<tr>
+        <td>${esc(a.patient_name) || '—'}</td>
+        <td>${esc(a.reason) || '—'}</td>
+        <td>${esc(a.doctor) || '—'}</td>
+        <td>${esc(a.appointment_time) || '—'}</td>
+        <td>${esc(a.phone_number) || '—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  async function loadInvoices() {
+    const wrap = document.getElementById('invoices-table-wrap');
+    const { data, error } = await db
+      .from('invoices')
+      .select('*')
+      .eq('clinic_id', activeClinicId)
+      .order('created_at', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando facturas: ${esc(error.message)}</div>`; return; }
+    if (!data || data.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Aún no hay facturación conectada. La integración con la DIAN (vía un Proveedor Tecnológico) llega en una fase posterior.</div>';
+      return;
+    }
+    wrap.innerHTML = `<table><thead><tr><th>Monto</th><th>Estado</th><th>Proveedor</th><th>Referencia</th></tr></thead><tbody>
+      ${data.map(i => `<tr>
+        <td>${i.amount ?? '—'}</td>
+        <td><span class="badge ${esc(i.status)}">${esc(i.status)}</span></td>
+        <td>${esc(i.provider) || '—'}</td>
+        <td>${esc(i.provider_ref) || '—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  // ── PATIENT DRAWER ────────────────────────────────
+  async function openPatient(id) {
+    const p = patients.find(p => p.id === id);
+    if (!p) return;
+    document.getElementById('drawer-name').textContent = p.name || 'Sin nombre';
+    document.getElementById('drawer-phone').textContent = p.phone_number;
+    document.getElementById('drawer-timeline').innerHTML = '<div class="empty-state">Cargando…</div>';
+    document.getElementById('drawer').style.display = 'block';
+    document.getElementById('drawer-backdrop').style.display = 'block';
+
+    const { data, error } = await db
+      .from('interactions')
+      .select('*')
+      .eq('patient_id', id)
+      .order('occurred_at', { ascending: false });
+
+    const tl = document.getElementById('drawer-timeline');
+    if (error) { tl.innerHTML = `<div class="empty-state">${esc(error.message)}</div>`; return; }
+    if (!data || data.length === 0) { tl.innerHTML = '<div class="empty-state">Sin interacciones registradas.</div>'; return; }
+
+    tl.innerHTML = data.map(i => `<div class="timeline-item">
+      <span class="badge ${esc(i.channel)}">${esc(i.channel)}</span>
+      <div class="timeline-summary">${esc(i.summary) || '—'}</div>
+      <div class="timeline-meta">${new Date(i.occurred_at).toLocaleString('es-CO')}</div>
+    </div>`).join('');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer').style.display = 'none';
+    document.getElementById('drawer-backdrop').style.display = 'none';
+  }
+
+  // ── CSV IMPORT ────────────────────────────────────
+  const dropEl = document.getElementById('import-drop');
+  const fileInput = document.getElementById('import-file');
+  dropEl.addEventListener('click', () => fileInput.click());
+  dropEl.addEventListener('dragover', (e) => { e.preventDefault(); dropEl.style.borderColor = 'var(--gold)'; });
+  dropEl.addEventListener('dragleave', () => { dropEl.style.borderColor = ''; });
+  dropEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropEl.style.borderColor = '';
+    if (e.dataTransfer.files[0]) handleCsvFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleCsvFile(fileInput.files[0]); });
+
+  function handleCsvFile(file) {
+    document.getElementById('import-drop-label').textContent = `Procesando ${file.name}…`;
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        document.getElementById('import-drop-label').textContent = 'Haz clic para elegir un archivo CSV, o arrástralo aquí';
+        await submitImport(results.data);
+      },
+      error: (err) => toast('Error leyendo el CSV: ' + err.message),
+    });
+  }
+
+  async function submitImport(rows) {
+    const resultEl = document.getElementById('import-result');
+    resultEl.style.display = 'block';
+    resultEl.textContent = `Importando ${rows.length} filas…`;
+
+    const { data: { session } } = await db.auth.getSession();
+    try {
+      const res = await fetch('/api/import-patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ clinic_id: activeClinicId, rows }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Error desconocido');
+      resultEl.textContent = `Importados: ${body.imported}. Omitidos (sin teléfono): ${body.skipped}.`;
+      await loadPatients();
+    } catch (err) {
+      resultEl.textContent = `Error: ${err.message}`;
+    }
+  }
+
+  initAuth();
+</script>
+</body>
+</html>
