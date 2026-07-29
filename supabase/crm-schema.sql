@@ -165,12 +165,13 @@ CREATE POLICY "members write invoices" ON invoices FOR INSERT WITH CHECK (is_cli
 -- admin.html already authenticates via Supabase Auth signInWithPassword.
 -- This grants that same account super_admin so /crm is testable immediately,
 -- without waiting on Dr. Felix's email for a per-clinic login.
--- Replace the email below with the one used to log into admin.html, then
--- run just this block (safe to re-run — ON CONFLICT DO NOTHING).
---
--- INSERT INTO clinic_members (user_id, clinic_id, role)
--- SELECT u.id, c.id, 'super_admin'
--- FROM auth.users u, clinics c
--- WHERE u.email = 'REPLACE_WITH_LEONEL_ADMIN_EMAIL'
--- LIMIT 1
--- ON CONFLICT (user_id, clinic_id) DO UPDATE SET role = 'super_admin';
+-- Safe to re-run (ON CONFLICT DO UPDATE). If no auth.users row matches this
+-- email yet (i.e. you've never signed in with it via Supabase Auth), this
+-- is a harmless no-op — sign in once via admin.html or the Supabase Auth
+-- dashboard first, then re-run just this block.
+INSERT INTO clinic_members (user_id, clinic_id, role)
+SELECT u.id, c.id, 'super_admin'
+FROM auth.users u, clinics c
+WHERE u.email = 'leoneltelesmeneses@gmail.com'
+LIMIT 1
+ON CONFLICT (user_id, clinic_id) DO UPDATE SET role = 'super_admin';
