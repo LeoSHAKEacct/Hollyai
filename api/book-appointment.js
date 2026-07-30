@@ -299,6 +299,11 @@ module.exports = async function handler(req, res) {
       retell_agent_id,
       clinic_id,
       patient_id,
+      source: 'call',
+      // Left 'pending' on purpose: the SmileWeb integration confirms bookings
+      // from the clinic's own agenda via PATCH /v1/appointments/{id}.
+      status: 'pending',
+      duration_min: 30,
     });
 
     if (dbError) {

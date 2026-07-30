@@ -136,6 +136,65 @@
   #import-result { margin-top: 16px; padding: 14px; border-radius: 8px; background: var(--panel2); font-size: 13px; display: none; }
 
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel2); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; font-size: 13px; display: none; z-index: 300; }
+
+  /* ── AGENDA ── */
+  .agenda-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .agenda-actions { display: flex; gap: 8px; }
+  .btn-ghost { background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--font-body); }
+  .btn-ghost:hover { background: var(--panel2); color: var(--text); }
+  .btn-danger { background: var(--rose-dim); border: 1px solid var(--rose); color: var(--rose); padding: 9px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+  .btn-danger:hover { background: var(--rose); color: var(--midnight); }
+
+  .legend { display: flex; gap: 16px; margin: 14px 0 12px; font-size: 11px; color: var(--text-dim); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .sw.pending { background: var(--amber); }
+  .sw.confirmed { background: var(--green); }
+  .sw.cancelled { background: var(--text-muted); }
+  .sw.blocked { background: repeating-linear-gradient(45deg, var(--text-muted) 0 3px, transparent 3px 6px); }
+
+  .reschedule-banner { display: none; background: var(--gold-glow); border: 1px solid var(--gold); color: var(--gold-light); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 14px; }
+  .reschedule-banner a { color: var(--gold-light); text-decoration: underline; cursor: pointer; margin-left: 8px; }
+
+  .agenda-grid { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; table-layout: fixed; }
+  .agenda-grid th { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); padding: 10px 6px; border-bottom: 1px solid var(--border); font-weight: 500; }
+  .agenda-grid th.today { color: var(--gold-light); }
+  .agenda-grid td { border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); height: 30px; padding: 0; }
+  .agenda-grid td.timecol, .agenda-grid th.timecol { width: 62px; border-left: none; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-align: right; padding-right: 8px; vertical-align: top; }
+  .agenda-grid td.closed { background: rgba(0,0,0,0.25); }
+  .agenda-grid td.free { cursor: pointer; }
+  .agenda-grid td.free:hover { background: var(--gold-glow); }
+  .ev { height: 100%; border-radius: 4px; padding: 2px 6px; font-size: 11px; line-height: 1.25; overflow: hidden; cursor: pointer; }
+  .ev b { font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev small { color: inherit; opacity: .75; }
+  .ev.pending { background: rgba(245,166,35,0.18); border-left: 3px solid var(--amber); color: var(--amber); }
+  .ev.confirmed { background: var(--green-dim); border-left: 3px solid var(--green); color: var(--green); }
+  .ev.cancelled, .ev.rejected { background: var(--panel2); border-left: 3px solid var(--text-muted); color: var(--text-muted); text-decoration: line-through; }
+  .ev.completed { background: var(--teal-dim); border-left: 3px solid var(--teal); color: var(--teal); }
+  .ev.block { background: repeating-linear-gradient(45deg, rgba(122,133,160,.22) 0 5px, transparent 5px 10px); border-left: 3px solid var(--text-muted); color: var(--text-dim); }
+
+  /* ── MODAL ── */
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; }
+  .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 420px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 28px; z-index: 201; }
+  .modal h2 { font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; }
+  .modal .close-btn { position: absolute; top: 18px; right: 20px; cursor: pointer; color: var(--text-dim); font-size: 20px; }
+  .seg { display: flex; background: var(--panel2); border-radius: 8px; padding: 3px; margin-bottom: 16px; }
+  .seg-item { flex: 1; text-align: center; padding: 7px; border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text-dim); }
+  .seg-item.active { background: var(--gold); color: var(--midnight); font-weight: 600; }
+  .detail-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .detail-row span { color: var(--text-dim); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .modal-actions .btn-primary { width: auto; flex: 1; padding: 9px 14px; }
+
+  /* ── INTEGRATIONS ── */
+  .new-key-box { display: none; background: var(--green-dim); border: 1px solid var(--green); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .new-key-box code { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--text); background: var(--midnight); padding: 10px; border-radius: 6px; margin: 8px 0; word-break: break-all; }
+  .endpoint-doc { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; font-size: 13px; }
+  .endpoint-doc code { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+  .endpoint-note { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .verb { display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-right: 8px; }
+  .verb.get { background: var(--teal-dim); color: var(--teal); }
+  .verb.patch { background: var(--gold-glow); color: var(--gold-light); }
 </style>
 </head>
 <body>
@@ -171,11 +230,13 @@
       <select id="clinic-switcher" class="clinic-select" style="display:none;"></select>
     </div>
     <div class="nav">
-      <div class="nav-item active" data-tab="overview" onclick="setTab('overview')">Resumen</div>
+      <div class="nav-item active" data-tab="agenda" onclick="setTab('agenda')">Agenda</div>
+      <div class="nav-item" data-tab="overview" onclick="setTab('overview')">Resumen</div>
       <div class="nav-item" data-tab="patients" onclick="setTab('patients')">Pacientes</div>
       <div class="nav-item" data-tab="appointments" onclick="setTab('appointments')">Citas</div>
       <div class="nav-item" data-tab="invoices" onclick="setTab('invoices')">Facturas</div>
       <div class="nav-item" data-tab="import" onclick="setTab('import')">Importar</div>
+      <div class="nav-item" data-tab="integrations" onclick="setTab('integrations')">Integraciones</div>
     </div>
     <div class="sidebar-footer">
       <div id="user-email-display" style="margin-bottom:6px;"></div>
@@ -184,7 +245,31 @@
   </div>
 
   <div class="main">
-    <div id="tab-overview" class="tab-page active">
+    <div id="tab-agenda" class="tab-page active">
+      <div class="agenda-head">
+        <div>
+          <div class="page-title">Agenda</div>
+          <div class="page-sub" id="agenda-range">—</div>
+        </div>
+        <div class="agenda-actions">
+          <button class="btn-ghost" onclick="shiftWeek(-1)">‹ Semana anterior</button>
+          <button class="btn-ghost" onclick="goToday()">Hoy</button>
+          <button class="btn-ghost" onclick="shiftWeek(1)">Semana siguiente ›</button>
+        </div>
+      </div>
+      <div id="reschedule-banner" class="reschedule-banner">
+        Selecciona el nuevo horario para la cita. <a onclick="cancelReschedule()">Cancelar</a>
+      </div>
+      <div class="legend">
+        <span><i class="sw pending"></i>Pendiente</span>
+        <span><i class="sw confirmed"></i>Confirmada</span>
+        <span><i class="sw cancelled"></i>Cancelada</span>
+        <span><i class="sw blocked"></i>Bloqueado</span>
+      </div>
+      <div id="agenda-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-overview" class="tab-page">
       <div class="page-title">Resumen</div>
       <div class="page-sub">Vista general de la clínica.</div>
       <div id="stats-row" class="stats-row">
@@ -241,6 +326,79 @@
       </div>
       <div id="import-result"></div>
     </div>
+
+    <div id="tab-integrations" class="tab-page">
+      <div class="page-title">Integraciones</div>
+      <div class="page-sub">Claves de API para que sistemas externos (SmileWeb) lean y actualicen la agenda de esta clínica.</div>
+
+      <div class="section-label">Claves de API</div>
+      <div style="margin-bottom:14px;">
+        <button class="btn-primary" style="width:auto;padding:9px 16px;" onclick="createApiKey()">Generar clave</button>
+      </div>
+      <div id="new-key-box" class="new-key-box"></div>
+      <div id="api-keys-wrap"><div class="empty-state">Cargando…</div></div>
+
+      <div class="section-label" style="margin-top:32px;">Endpoints disponibles</div>
+      <div class="endpoint-doc">
+        <div><span class="verb get">GET</span><code>/v1/appointments?since=&amp;status=&amp;limit=</code></div>
+        <div class="endpoint-note">Lee las citas nuevas o actualizadas, de forma incremental.</div>
+        <div style="margin-top:12px;"><span class="verb patch">PATCH</span><code>/v1/appointments/{id}</code></div>
+        <div class="endpoint-note">Confirma, reprograma o rechaza una cita. Cuerpo: <code>{"status":"confirmed"}</code> o <code>{"starts_at":"…"}</code>.</div>
+        <div class="endpoint-note" style="margin-top:12px;">Autenticación: <code>Authorization: Bearer sk_…</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Agenda slot modal -->
+<div id="slot-backdrop" class="modal-backdrop" onclick="closeSlotModal()"></div>
+<div id="slot-modal" class="modal">
+  <span class="close-btn" onclick="closeSlotModal()">&times;</span>
+  <h2 id="slot-modal-title">Nuevo</h2>
+  <div class="timeline-meta" id="slot-modal-when" style="margin-bottom:18px;"></div>
+
+  <div id="slot-modal-new">
+    <div class="seg">
+      <div class="seg-item active" id="seg-appt" onclick="setSlotMode('appt')">Cita</div>
+      <div class="seg-item" id="seg-block" onclick="setSlotMode('block')">Bloqueo</div>
+    </div>
+
+    <div id="slot-form-appt">
+      <div class="field"><label>Paciente</label><input type="text" id="slot-name" placeholder="Nombre completo" /></div>
+      <div class="field"><label>Teléfono</label><input type="text" id="slot-phone" placeholder="+57…" /></div>
+      <div class="field"><label>Servicio</label><input type="text" id="slot-service" placeholder="Valoración, control…" /></div>
+    </div>
+
+    <div id="slot-form-block" style="display:none;">
+      <div class="field"><label>Motivo</label><input type="text" id="slot-block-reason" placeholder="Almuerzo, vacaciones…" /></div>
+    </div>
+
+    <div class="field">
+      <label>Duración</label>
+      <select id="slot-duration">
+        <option value="30">30 minutos</option>
+        <option value="60">1 hora</option>
+        <option value="90">1 hora 30</option>
+        <option value="120">2 horas</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="slot-save" onclick="saveSlot()">Guardar</button>
+  </div>
+
+  <div id="slot-modal-existing" style="display:none;">
+    <div class="detail-row"><span>Paciente</span><b id="ex-name">—</b></div>
+    <div class="detail-row"><span>Teléfono</span><b id="ex-phone">—</b></div>
+    <div class="detail-row"><span>Servicio</span><b id="ex-service">—</b></div>
+    <div class="detail-row"><span>Estado</span><b id="ex-status">—</b></div>
+    <div class="detail-row"><span>Origen</span><b id="ex-source">—</b></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="ex-confirm" onclick="setApptStatus('confirmed')">Confirmar</button>
+      <button class="btn-ghost" onclick="startReschedule()">Reprogramar</button>
+      <button class="btn-danger" onclick="setApptStatus('cancelled')">Cancelar cita</button>
+    </div>
+    <div id="ex-block-actions" style="display:none;">
+      <button class="btn-danger" onclick="deleteBlock()">Eliminar bloqueo</button>
+    </div>
   </div>
 </div>
 
@@ -261,6 +419,7 @@
 
   let memberships = [];   // [{clinic_id, role, clinics:{id,name,slug}}]
   let activeClinicId = null;
+  let activeClinic = null;   // full clinic row — the agenda needs operating_hours
   let patients = [];
 
   // ── AUTH ──────────────────────────────────────────
@@ -394,7 +553,20 @@
 
   // ── DATA ──────────────────────────────────────────
   async function loadAll() {
-    await Promise.all([loadPatients(), loadAppointments(), loadInvoices(), loadOverview()]);
+    // The agenda grid is built from operating_hours, so the clinic row has to
+    // land before anything renders.
+    const { data: clinic, error } = await db
+      .from('clinics')
+      .select('id, name, operating_hours, calendar_provider')
+      .eq('id', activeClinicId)
+      .maybeSingle();
+    if (error) console.warn('clinic load:', error.message);
+    activeClinic = clinic || null;
+
+    await Promise.all([
+      loadAgenda(), loadPatients(), loadAppointments(),
+      loadInvoices(), loadOverview(), loadApiKeys(),
+    ]);
   }
 
   async function loadOverview() {
@@ -556,6 +728,380 @@
     } catch (err) {
       resultEl.textContent = `Error: ${err.message}`;
     }
+  }
+
+  // ══════════════════════════════════════════════════
+  //  AGENDA
+  // ══════════════════════════════════════════════════
+  const DAY_KEYS = ['sun','mon','tue','wed','thu','fri','sat'];
+  const DAY_LABEL = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const DEFAULT_HOURS = { mon:['08:00','17:00'], tue:['08:00','17:00'], wed:['08:00','17:00'],
+                          thu:['08:00','17:00'], fri:['08:00','17:00'], sat:null, sun:null };
+
+  let weekStart = null;        // 'YYYY-MM-DD' (Monday, Bogota)
+  let agendaAppts = [];
+  let agendaBlocks = [];
+  let slotCtx = null;          // { day, min } for a new entry
+  let openEvent = null;        // { kind:'appt'|'block', row }
+  let rescheduleId = null;
+
+  // Bogota is UTC-5 year-round, so a fixed offset is safe.
+  const bogotaDayStr = d => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(d);
+  const atBogota = (day, min) =>
+    new Date(`${day}T${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}:00-05:00`);
+  const dowOf = day => new Date(`${day}T12:00:00-05:00`).getUTCDay();
+
+  function dayAdd(day, n) {
+    const d = new Date(`${day}T12:00:00-05:00`);
+    d.setUTCDate(d.getUTCDate() + n);
+    return bogotaDayStr(d);
+  }
+  function mondayOf(day) {
+    const dow = dowOf(day);
+    return dayAdd(day, dow === 0 ? -6 : 1 - dow);
+  }
+  function bogotaParts(iso) {
+    const d = new Date(iso);
+    const hm = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(d);
+    const [h, m] = hm.split(':').map(Number);
+    return { day: bogotaDayStr(d), min: h * 60 + m };
+  }
+  const hhmm = min => `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`;
+  const parseHHMM = s => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '').trim());
+    return m ? +m[1] * 60 + +m[2] : null;
+  };
+  const clinicHours = () => (activeClinic && activeClinic.operating_hours) || DEFAULT_HOURS;
+  const windowFor = day => {
+    const w = clinicHours()[DAY_KEYS[dowOf(day)]];
+    return Array.isArray(w) && w.length >= 2 ? [parseHHMM(w[0]), parseHHMM(w[1])] : null;
+  };
+
+  function shiftWeek(n) { weekStart = dayAdd(weekStart, n * 7); loadAgenda(); }
+  function goToday()    { weekStart = mondayOf(bogotaDayStr(new Date())); loadAgenda(); }
+
+  async function loadAgenda() {
+    if (!activeClinicId) return;
+    if (!weekStart) weekStart = mondayOf(bogotaDayStr(new Date()));
+
+    const wrap = document.getElementById('agenda-wrap');
+    const fromIso = atBogota(weekStart, 0).toISOString();
+    const toIso   = atBogota(dayAdd(weekStart, 7), 0).toISOString();
+
+    const [apptRes, blockRes] = await Promise.all([
+      db.from('appointments')
+        .select('id, patient_name, phone_number, reason, status, source, appointment_date, duration_min')
+        .eq('clinic_id', activeClinicId)
+        .not('appointment_date', 'is', null)
+        .gte('appointment_date', fromIso).lt('appointment_date', toIso),
+      db.from('schedule_blocks')
+        .select('id, starts_at, ends_at, reason')
+        .eq('clinic_id', activeClinicId)
+        .lt('starts_at', toIso).gt('ends_at', fromIso),
+    ]);
+
+    if (apptRes.error) { wrap.innerHTML = `<div class="empty-state">Error cargando la agenda: ${esc(apptRes.error.message)}</div>`; return; }
+    agendaAppts = apptRes.data || [];
+    agendaBlocks = blockRes.error ? [] : (blockRes.data || []);
+    if (blockRes.error) console.warn('schedule_blocks:', blockRes.error.message);
+
+    renderAgenda();
+  }
+
+  function renderAgenda() {
+    const wrap = document.getElementById('agenda-wrap');
+
+    // Only show days the clinic actually opens, so a closed Sunday doesn't
+    // waste a whole column.
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const day = dayAdd(weekStart, i);
+      if (windowFor(day)) days.push(day);
+    }
+    if (!days.length) {
+      wrap.innerHTML = '<div class="empty-state">Esta clínica no tiene horario de atención configurado.</div>';
+      return;
+    }
+
+    document.getElementById('agenda-range').textContent =
+      `${fmtDay(days[0])} — ${fmtDay(days[days.length - 1])}`;
+
+    const opens = days.map(d => windowFor(d)[0]);
+    const closes = days.map(d => windowFor(d)[1]);
+    const minOpen = Math.min(...opens), maxClose = Math.max(...closes);
+
+    const rows = [];
+    for (let t = minOpen; t + 30 <= maxClose; t += 30) rows.push(t);
+
+    // Lay events onto each column, tracking multi-row spans.
+    const cells = {};
+    days.forEach(day => {
+      const arr = new Array(rows.length).fill(null);
+      eventsFor(day).forEach(ev => {
+        let idx = rows.indexOf(ev.min);
+        if (idx < 0) idx = rows.findIndex(r => r >= ev.min);
+        if (idx < 0) return;
+        const span = Math.min(Math.max(1, Math.round(ev.dur / 30)), rows.length - idx);
+        arr[idx] = { kind: 'start', ev, span };
+        for (let k = 1; k < span; k++) arr[idx + k] = { kind: 'covered' };
+      });
+      cells[day] = arr;
+    });
+
+    const today = bogotaDayStr(new Date());
+    let html = '<table class="agenda-grid"><thead><tr><th class="timecol"></th>' +
+      days.map(d => `<th class="${d === today ? 'today' : ''}">${DAY_LABEL[dowOf(d)]} ${d.slice(8)}</th>`).join('') +
+      '</tr></thead><tbody>';
+
+    rows.forEach((t, r) => {
+      html += `<tr><td class="timecol">${t % 60 === 0 ? hhmm(t) : ''}</td>`;
+      days.forEach(day => {
+        const cell = cells[day][r];
+        if (cell && cell.kind === 'covered') return;      // spanned by the row above
+        const win = windowFor(day);
+        const inHours = t >= win[0] && t + 30 <= win[1];
+
+        if (cell && cell.kind === 'start') {
+          const ev = cell.ev;
+          const cls = ev.kind === 'block' ? 'block' : ev.status;
+          html += `<td rowspan="${cell.span}"><div class="ev ${cls}" onclick="openEventModal('${ev.kind}','${ev.id}')">` +
+            `<b>${esc(ev.title)}</b><small>${esc(ev.subtitle || '')}</small></div></td>`;
+        } else if (inHours) {
+          html += `<td class="free" onclick="openSlotModal('${day}',${t})"></td>`;
+        } else {
+          html += '<td class="closed"></td>';
+        }
+      });
+      html += '</tr>';
+    });
+
+    wrap.innerHTML = html + '</tbody></table>';
+  }
+
+  function eventsFor(day) {
+    const out = [];
+    agendaAppts.forEach(a => {
+      const p = bogotaParts(a.appointment_date);
+      if (p.day !== day) return;
+      out.push({
+        kind: 'appt', id: a.id, min: p.min, dur: a.duration_min || 30,
+        status: a.status || 'pending',
+        title: a.patient_name || 'Sin nombre',
+        subtitle: a.reason || '',
+      });
+    });
+    agendaBlocks.forEach(b => {
+      const p = bogotaParts(b.starts_at);
+      if (p.day !== day) return;
+      const dur = Math.max(30, Math.round((new Date(b.ends_at) - new Date(b.starts_at)) / 60000));
+      out.push({ kind: 'block', id: b.id, min: p.min, dur, status: 'block',
+                 title: b.reason || 'Bloqueado', subtitle: '' });
+    });
+    return out;
+  }
+
+  function fmtDay(day) {
+    const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const d = new Date(`${day}T12:00:00-05:00`);
+    return `${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]}`;
+  }
+
+  // ── slot / event modal ────────────────────────────
+  function openSlotModal(day, min) {
+    if (rescheduleId) { doReschedule(day, min); return; }
+    slotCtx = { day, min };
+    openEvent = null;
+    document.getElementById('slot-modal-title').textContent = 'Nuevo';
+    document.getElementById('slot-modal-when').textContent = `${fmtDay(day)} · ${hhmm(min)}`;
+    document.getElementById('slot-modal-new').style.display = 'block';
+    document.getElementById('slot-modal-existing').style.display = 'none';
+    ['slot-name','slot-phone','slot-service','slot-block-reason'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('slot-duration').value = '30';
+    setSlotMode('appt');
+    showModal();
+  }
+
+  function openEventModal(kind, id) {
+    slotCtx = null;
+    const row = kind === 'appt'
+      ? agendaAppts.find(a => a.id === id)
+      : agendaBlocks.find(b => b.id === id);
+    if (!row) return;
+    openEvent = { kind, row };
+
+    const when = kind === 'appt' ? row.appointment_date : row.starts_at;
+    const p = bogotaParts(when);
+    document.getElementById('slot-modal-title').textContent = kind === 'appt' ? 'Cita' : 'Bloqueo';
+    document.getElementById('slot-modal-when').textContent = `${fmtDay(p.day)} · ${hhmm(p.min)}`;
+    document.getElementById('slot-modal-new').style.display = 'none';
+    document.getElementById('slot-modal-existing').style.display = 'block';
+
+    const isAppt = kind === 'appt';
+    document.getElementById('ex-name').textContent    = isAppt ? (row.patient_name || '—') : (row.reason || 'Bloqueado');
+    document.getElementById('ex-phone').textContent   = isAppt ? (row.phone_number || '—') : '—';
+    document.getElementById('ex-service').textContent = isAppt ? (row.reason || '—') : '—';
+    document.getElementById('ex-status').textContent  = isAppt ? (row.status || '—') : 'bloqueado';
+    document.getElementById('ex-source').textContent  = isAppt ? (row.source || '—') : '—';
+    document.querySelector('#slot-modal-existing .modal-actions').style.display = isAppt ? 'flex' : 'none';
+    document.getElementById('ex-block-actions').style.display = isAppt ? 'none' : 'block';
+    showModal();
+  }
+
+  function showModal() {
+    document.getElementById('slot-modal').style.display = 'block';
+    document.getElementById('slot-backdrop').style.display = 'block';
+  }
+  function closeSlotModal() {
+    document.getElementById('slot-modal').style.display = 'none';
+    document.getElementById('slot-backdrop').style.display = 'none';
+  }
+  function setSlotMode(mode) {
+    document.getElementById('seg-appt').classList.toggle('active', mode === 'appt');
+    document.getElementById('seg-block').classList.toggle('active', mode === 'block');
+    document.getElementById('slot-form-appt').style.display  = mode === 'appt' ? 'block' : 'none';
+    document.getElementById('slot-form-block').style.display = mode === 'block' ? 'block' : 'none';
+  }
+
+  async function saveSlot() {
+    if (!slotCtx) return;
+    const isBlock = document.getElementById('seg-block').classList.contains('active');
+    const duration = Number(document.getElementById('slot-duration').value) || 30;
+    const startsAt = atBogota(slotCtx.day, slotCtx.min).toISOString();
+    const btn = document.getElementById('slot-save');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
+    try {
+      if (isBlock) {
+        const endsAt = new Date(atBogota(slotCtx.day, slotCtx.min).getTime() + duration * 60000).toISOString();
+        const { error } = await db.from('schedule_blocks').insert({
+          clinic_id: activeClinicId, starts_at: startsAt, ends_at: endsAt,
+          reason: document.getElementById('slot-block-reason').value.trim() || null,
+        });
+        if (error) throw new Error(error.message);
+        toast('Horario bloqueado.');
+      } else {
+        const name = document.getElementById('slot-name').value.trim();
+        if (!name) { toast('Escribe el nombre del paciente.'); return; }
+        const { data: { session } } = await db.auth.getSession();
+        const res = await fetch('/api/book-manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            clinic_id: activeClinicId, starts_at: startsAt, duration_min: duration,
+            patient_name: name,
+            phone_number: document.getElementById('slot-phone').value.trim(),
+            service: document.getElementById('slot-service').value.trim(),
+          }),
+        });
+        const out = await res.json();
+        if (!res.ok) throw new Error(out.error === 'slot_taken' ? 'Ese horario ya fue tomado.' : (out.error || 'Error'));
+        toast('Cita agendada.');
+      }
+      closeSlotModal();
+      await loadAgenda();
+    } catch (err) {
+      toast(`Error: ${err.message}`);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar';
+    }
+  }
+
+  async function setApptStatus(status) {
+    if (!openEvent || openEvent.kind !== 'appt') return;
+    const { error } = await db.from('appointments').update({ status }).eq('id', openEvent.row.id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast(status === 'confirmed' ? 'Cita confirmada.' : 'Cita cancelada.');
+    closeSlotModal();
+    await loadAgenda();
+  }
+
+  async function deleteBlock() {
+    if (!openEvent || openEvent.kind !== 'block') return;
+    const { error } = await db.from('schedule_blocks').delete().eq('id', openEvent.row.id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast('Bloqueo eliminado.');
+    closeSlotModal();
+    await loadAgenda();
+  }
+
+  function startReschedule() {
+    if (!openEvent || openEvent.kind !== 'appt') return;
+    rescheduleId = openEvent.row.id;
+    document.getElementById('reschedule-banner').style.display = 'block';
+    closeSlotModal();
+  }
+  function cancelReschedule() {
+    rescheduleId = null;
+    document.getElementById('reschedule-banner').style.display = 'none';
+  }
+  async function doReschedule(day, min) {
+    const id = rescheduleId;
+    cancelReschedule();
+    const { error } = await db.from('appointments')
+      .update({ appointment_date: atBogota(day, min).toISOString(), appointment_time: `${fmtDay(day)} ${hhmm(min)}` })
+      .eq('id', id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast('Cita reprogramada.');
+    await loadAgenda();
+  }
+
+  // ══════════════════════════════════════════════════
+  //  INTEGRATIONS
+  // ══════════════════════════════════════════════════
+  async function loadApiKeys() {
+    const wrap = document.getElementById('api-keys-wrap');
+    const { data, error } = await db.from('api_keys')
+      .select('id, name, key_prefix, created_at, last_used_at, revoked_at')
+      .eq('clinic_id', activeClinicId)
+      .order('created_at', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error: ${esc(error.message)}</div>`; return; }
+    if (!data || !data.length) { wrap.innerHTML = '<div class="empty-state">Sin claves todavía. Genera una para conectar SmileWeb.</div>'; return; }
+
+    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Clave</th><th>Último uso</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${data.map(k => `<tr>
+        <td>${esc(k.name)}</td>
+        <td style="font-family:var(--font-mono);font-size:11px;">${esc(k.key_prefix)}</td>
+        <td>${k.last_used_at ? new Date(k.last_used_at).toLocaleString('es-CO') : 'Nunca'}</td>
+        <td>${k.revoked_at ? '<span style="color:var(--text-muted)">Revocada</span>' : '<span style="color:var(--green)">Activa</span>'}</td>
+        <td>${k.revoked_at ? '' : `<a style="color:var(--rose);cursor:pointer;font-size:12px;" onclick="revokeApiKey('${k.id}')">Revocar</a>`}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  async function createApiKey() {
+    const name = prompt('Nombre de la clave (ej. "SmileWeb sandbox"):');
+    if (!name) return;
+    const env = confirm('¿Clave de producción?\n\nAceptar = producción (sk_live_…)\nCancelar = pruebas (sk_sandbox_…)') ? 'live' : 'sandbox';
+
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      const res = await fetch('/api/create-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ clinic_id: activeClinicId, name, env }),
+      });
+      const out = await res.json();
+      if (!res.ok) throw new Error(out.error || 'Error');
+
+      const box = document.getElementById('new-key-box');
+      box.style.display = 'block';
+      box.innerHTML = `<b>Copia esta clave ahora — no volverá a mostrarse.</b><code>${esc(out.api_key)}</code>
+        <button class="btn-ghost" onclick="navigator.clipboard.writeText('${esc(out.api_key)}').then(()=>toast('Clave copiada.'))">Copiar</button>`;
+      await loadApiKeys();
+    } catch (err) {
+      toast(`Error: ${err.message}`);
+    }
+  }
+
+  async function revokeApiKey(id) {
+    if (!confirm('¿Revocar esta clave? Los sistemas que la usen dejarán de tener acceso.')) return;
+    const { error } = await db.from('api_keys').update({ revoked_at: new Date().toISOString() }).eq('id', id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast('Clave revocada.');
+    await loadApiKeys();
   }
 
   initAuth();
