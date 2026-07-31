@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holly.ai — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --midnight: #0a0e1a;
+    --navy: #0f1629;
+    --panel: #141b2d;
+    --panel2: #1a2240;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #e4c97a;
+    --gold-glow: rgba(201,168,76,0.15);
+    --teal: #3ecfcf;
+    --teal-dim: rgba(62,207,207,0.12);
+    --rose: #f0637a;
+    --rose-dim: rgba(240,99,122,0.12);
+    --green: #4cd9a0;
+    --green-dim: rgba(76,217,160,0.12);
+    --amber: #f5a623;
+    --text: #e8eaf0;
+    --text-dim: #7b85a0;
+    --text-muted: #4a5268;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--midnight);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-card {
+    width: 360px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px 32px;
+  }
+  .login-logo { font-family: var(--font-display); font-size: 26px; color: var(--gold-light); margin-bottom: 4px; }
+  .login-logo span { color: var(--teal); }
+  .login-badge { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 24px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px; background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--gold); }
+  #login-error { display: none; color: var(--rose); font-size: 12px; margin-bottom: 12px; }
+  .btn-primary {
+    width: 100%; padding: 11px; background: var(--gold); border: none; border-radius: 8px;
+    color: var(--midnight); font-weight: 600; font-size: 14px; cursor: pointer; font-family: var(--font-body);
+  }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+  /* ── APP SHELL ── */
+  #app { display: none; min-height: 100vh; }
+  .sidebar {
+    width: 220px; min-height: 100vh; background: var(--navy); border-right: 1px solid var(--border);
+    position: fixed; top: 0; left: 0; display: flex; flex-direction: column;
+  }
+  .sidebar-logo { padding: 24px; border-bottom: 1px solid var(--border); font-family: var(--font-display); font-size: 20px; color: var(--gold-light); }
+  .sidebar-logo span { color: var(--teal); }
+  .clinic-badge { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .clinic-name { font-size: 13px; font-weight: 600; }
+  .clinic-select { margin-top: 8px; width: 100%; font-size: 12px; padding: 6px 8px; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+  .nav { flex: 1; padding: 12px; }
+  .nav-item { padding: 10px 12px; border-radius: 8px; color: var(--text-dim); cursor: pointer; font-size: 13px; margin-bottom: 2px; }
+  .nav-item:hover { background: var(--panel2); color: var(--text); }
+  .nav-item.active { background: var(--gold-glow); color: var(--gold-light); }
+  .sidebar-footer { padding: 16px 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+  .sidebar-footer a { color: var(--text-dim); cursor: pointer; text-decoration: underline; }
+
+  .main { margin-left: 220px; padding: 32px 40px; }
+  .page-title { font-family: var(--font-display); font-size: 24px; margin-bottom: 4px; }
+  .page-sub { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  thead th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--panel2); cursor: pointer; }
+  .empty-state { padding: 40px; text-align: center; color: var(--text-muted); background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 32px; }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .stat-value { font-family: var(--font-display); font-size: 30px; color: var(--gold-light); }
+  .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 12px; }
+  .channels-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .channel-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .channel-name { font-size: 14px; margin-bottom: 6px; }
+  .channel-status { font-size: 12px; font-family: var(--font-mono); }
+  .channel-card.connected .channel-status { color: var(--green); }
+  .channel-card.pending .channel-status { color: var(--text-muted); }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono); }
+  .badge.not_configured { background: var(--panel2); color: var(--text-muted); }
+  .badge.call { background: var(--teal-dim); color: var(--teal); }
+  .badge.whatsapp { background: var(--green-dim); color: var(--green); }
+  .badge.booking { background: var(--gold-glow); color: var(--gold-light); }
+  .badge.note { background: var(--panel2); color: var(--text-dim); }
+
+  /* patient drawer */
+  #drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; }
+  #drawer { position: fixed; top: 0; right: 0; width: 420px; max-width: 90vw; height: 100vh; background: var(--panel); border-left: 1px solid var(--border); padding: 28px; overflow-y: auto; z-index: 201; }
+  #drawer h2 { font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; }
+  #drawer .close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--text-dim); font-size: 20px; }
+  .timeline-item { border-left: 2px solid var(--border); padding: 10px 0 10px 16px; margin-left: 4px; position: relative; }
+  .timeline-item::before { content: ''; position: absolute; left: -5px; top: 16px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+  .timeline-summary { font-size: 13px; margin-bottom: 2px; }
+  .timeline-meta { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+
+  .import-drop { border: 2px dashed var(--border); border-radius: 10px; padding: 40px; text-align: center; color: var(--text-dim); cursor: pointer; }
+  .import-drop:hover { border-color: var(--gold); }
+  #import-result { margin-top: 16px; padding: 14px; border-radius: 8px; background: var(--panel2); font-size: 13px; display: none; }
+
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel2); border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; font-size: 13px; display: none; z-index: 300; }
+
+  /* ── AGENDA ── */
+  .agenda-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .agenda-actions { display: flex; gap: 8px; }
+  .btn-ghost { background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--font-body); }
+  .btn-ghost:hover { background: var(--panel2); color: var(--text); }
+  .btn-danger { background: var(--rose-dim); border: 1px solid var(--rose); color: var(--rose); padding: 9px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+  .btn-danger:hover { background: var(--rose); color: var(--midnight); }
+
+  .legend { display: flex; gap: 16px; margin: 14px 0 12px; font-size: 11px; color: var(--text-dim); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend i.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .sw.pending { background: var(--amber); }
+  .sw.confirmed { background: var(--green); }
+  .sw.cancelled { background: var(--text-muted); }
+  .sw.blocked { background: repeating-linear-gradient(45deg, var(--text-muted) 0 3px, transparent 3px 6px); }
+
+  .reschedule-banner { display: none; background: var(--gold-glow); border: 1px solid var(--gold); color: var(--gold-light); padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 14px; }
+  .reschedule-banner a { color: var(--gold-light); text-decoration: underline; cursor: pointer; margin-left: 8px; }
+
+  .agenda-grid { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; table-layout: fixed; }
+  .agenda-grid th { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); padding: 10px 6px; border-bottom: 1px solid var(--border); font-weight: 500; }
+  .agenda-grid th.today { color: var(--gold-light); }
+  .agenda-grid td { border-bottom: 1px solid var(--border); border-left: 1px solid var(--border); height: 30px; padding: 0; }
+  .agenda-grid td.timecol, .agenda-grid th.timecol { width: 62px; border-left: none; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-align: right; padding-right: 8px; vertical-align: top; }
+  .agenda-grid td.closed { background: rgba(0,0,0,0.25); }
+  .agenda-grid td.free { cursor: pointer; }
+  .agenda-grid td.free:hover { background: var(--gold-glow); }
+  .ev { height: 100%; border-radius: 4px; padding: 2px 6px; font-size: 11px; line-height: 1.25; overflow: hidden; cursor: pointer; }
+  .ev b { font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev small { color: inherit; opacity: .75; }
+  .ev.pending { background: rgba(245,166,35,0.18); border-left: 3px solid var(--amber); color: var(--amber); }
+  .ev.confirmed { background: var(--green-dim); border-left: 3px solid var(--green); color: var(--green); }
+  .ev.cancelled, .ev.rejected { background: var(--panel2); border-left: 3px solid var(--text-muted); color: var(--text-muted); text-decoration: line-through; }
+  .ev.completed { background: var(--teal-dim); border-left: 3px solid var(--teal); color: var(--teal); }
+  .ev.block { background: repeating-linear-gradient(45deg, rgba(122,133,160,.22) 0 5px, transparent 5px 10px); border-left: 3px solid var(--text-muted); color: var(--text-dim); }
+
+  /* ── MODAL ── */
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; }
+  .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 420px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 28px; z-index: 201; }
+  .modal h2 { font-family: var(--font-display); font-size: 20px; margin-bottom: 4px; }
+  .modal .close-btn { position: absolute; top: 18px; right: 20px; cursor: pointer; color: var(--text-dim); font-size: 20px; }
+  .seg { display: flex; background: var(--panel2); border-radius: 8px; padding: 3px; margin-bottom: 16px; }
+  .seg-item { flex: 1; text-align: center; padding: 7px; border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text-dim); }
+  .seg-item.active { background: var(--gold); color: var(--midnight); font-weight: 600; }
+  .detail-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .detail-row span { color: var(--text-dim); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+  .modal-actions .btn-primary { width: auto; flex: 1; padding: 9px 14px; }
+
+  /* ── INTEGRATIONS ── */
+  .new-key-box { display: none; background: var(--green-dim); border: 1px solid var(--green); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .new-key-box code { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--text); background: var(--midnight); padding: 10px; border-radius: 6px; margin: 8px 0; word-break: break-all; }
+  .endpoint-doc { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; font-size: 13px; }
+  .endpoint-doc code { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+  .endpoint-note { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .verb { display: inline-block; font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-right: 8px; }
+  .verb.get { background: var(--teal-dim); color: var(--teal); }
+  .verb.patch { background: var(--gold-glow); color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">Holly<span>.ai</span></div>
+    <div class="login-badge">Panel CRM</div>
+    <form id="login-form">
+      <div class="field">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="login-password">Contraseña</label>
+        <input type="password" id="login-password" autocomplete="current-password" required />
+      </div>
+      <div id="login-error"></div>
+      <button type="submit" class="btn-primary" id="login-btn">Ingresar</button>
+    </form>
+    <div id="reset-msg" style="display:none; font-size:12px; color:var(--green); margin-top:14px;"></div>
+    <div style="text-align:center; margin-top:14px;">
+      <a id="forgot-link" style="font-size:12px; color:var(--text-dim); cursor:pointer; text-decoration:underline;">¿Olvidaste tu contraseña?</a>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">Holly<span>.ai</span></div>
+    <div class="clinic-badge">
+      <div class="clinic-name" id="clinic-name-display">—</div>
+      <select id="clinic-switcher" class="clinic-select" style="display:none;"></select>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" data-tab="agenda" onclick="setTab('agenda')">Agenda</div>
+      <div class="nav-item" data-tab="overview" onclick="setTab('overview')">Resumen</div>
+      <div class="nav-item" data-tab="patients" onclick="setTab('patients')">Pacientes</div>
+      <div class="nav-item" data-tab="appointments" onclick="setTab('appointments')">Citas</div>
+      <div class="nav-item" data-tab="invoices" onclick="setTab('invoices')">Facturas</div>
+      <div class="nav-item" data-tab="import" onclick="setTab('import')">Importar</div>
+      <div class="nav-item" data-tab="integrations" onclick="setTab('integrations')">Integraciones</div>
+    </div>
+    <div class="sidebar-footer">
+      <div id="user-email-display" style="margin-bottom:6px;"></div>
+      <a onclick="handleSignOut()">Cerrar sesión</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div id="tab-agenda" class="tab-page active">
+      <div class="agenda-head">
+        <div>
+          <div class="page-title">Agenda</div>
+          <div class="page-sub" id="agenda-range">—</div>
+        </div>
+        <div class="agenda-actions">
+          <button class="btn-ghost" onclick="shiftWeek(-1)">‹ Semana anterior</button>
+          <button class="btn-ghost" onclick="goToday()">Hoy</button>
+          <button class="btn-ghost" onclick="shiftWeek(1)">Semana siguiente ›</button>
+        </div>
+      </div>
+      <div id="reschedule-banner" class="reschedule-banner">
+        Selecciona el nuevo horario para la cita. <a onclick="cancelReschedule()">Cancelar</a>
+      </div>
+      <div class="legend">
+        <span><i class="sw pending"></i>Pendiente</span>
+        <span><i class="sw confirmed"></i>Confirmada</span>
+        <span><i class="sw cancelled"></i>Cancelada</span>
+        <span><i class="sw blocked"></i>Bloqueado</span>
+      </div>
+      <div id="agenda-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-overview" class="tab-page">
+      <div class="page-title">Resumen</div>
+      <div class="page-sub">Vista general de la clínica.</div>
+      <div id="stats-row" class="stats-row">
+        <div class="stat-card"><div class="stat-value" id="stat-patients">—</div><div class="stat-label">Pacientes</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-appointments">—</div><div class="stat-label">Citas totales</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-week">—</div><div class="stat-label">Citas esta semana</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-calls">—</div><div class="stat-label">Llamadas registradas</div></div>
+      </div>
+      <div class="section-label">Canales conectados</div>
+      <div class="channels-row">
+        <div class="channel-card connected">
+          <div class="channel-name">📞 Llamadas</div>
+          <div class="channel-status">Conectado — Retell</div>
+        </div>
+        <div class="channel-card pending">
+          <div class="channel-name">💬 WhatsApp</div>
+          <div class="channel-status">Próximamente</div>
+        </div>
+        <div class="channel-card connected">
+          <div class="channel-name">📅 Reservas</div>
+          <div class="channel-status">Conectado</div>
+        </div>
+        <div class="channel-card pending">
+          <div class="channel-name">🧾 Facturación DIAN</div>
+          <div class="channel-status">En el roadmap</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-patients" class="tab-page">
+      <div class="page-title">Pacientes</div>
+      <div class="page-sub">Todos los pacientes de la clínica, incluyendo los que llaman o reservan por Holly.</div>
+      <div id="patients-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-appointments" class="tab-page">
+      <div class="page-title">Citas</div>
+      <div class="page-sub">Citas agendadas por Holly.</div>
+      <div id="appointments-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-invoices" class="tab-page">
+      <div class="page-title">Facturas</div>
+      <div class="page-sub">Facturación electrónica (DIAN) aún no está conectada para esta clínica.</div>
+      <div id="invoices-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </div>
+
+    <div id="tab-import" class="tab-page">
+      <div class="page-title">Importar pacientes</div>
+      <div class="page-sub">Sube un CSV con tus pacientes actuales (Excel exportado a CSV funciona). Columnas reconocidas: name/nombre, phone_number/telefono (requerido), dob/fecha_nacimiento, doc_id/cedula, insurance/seguro, notes/notas.</div>
+      <div class="import-drop" id="import-drop">
+        <div id="import-drop-label">Haz clic para elegir un archivo CSV, o arrástralo aquí</div>
+        <input type="file" id="import-file" accept=".csv" style="display:none;" />
+      </div>
+      <div id="import-result"></div>
+    </div>
+
+    <div id="tab-integrations" class="tab-page">
+      <div class="page-title">Integraciones</div>
+      <div class="page-sub">Claves de API para que sistemas externos (SmileWeb) lean y actualicen la agenda de esta clínica.</div>
+
+      <div class="section-label">Claves de API</div>
+      <div style="margin-bottom:14px;">
+        <button class="btn-primary" style="width:auto;padding:9px 16px;" onclick="createApiKey()">Generar clave</button>
+      </div>
+      <div id="new-key-box" class="new-key-box"></div>
+      <div id="api-keys-wrap"><div class="empty-state">Cargando…</div></div>
+
+      <div class="section-label" style="margin-top:32px;">Endpoints disponibles</div>
+      <div class="endpoint-doc">
+        <div><span class="verb get">GET</span><code>/v1/appointments?since=&amp;status=&amp;limit=</code></div>
+        <div class="endpoint-note">Lee las citas nuevas o actualizadas, de forma incremental.</div>
+        <div style="margin-top:12px;"><span class="verb patch">PATCH</span><code>/v1/appointments/{id}</code></div>
+        <div class="endpoint-note">Confirma, reprograma o rechaza una cita. Cuerpo: <code>{"status":"confirmed"}</code> o <code>{"starts_at":"…"}</code>.</div>
+        <div class="endpoint-note" style="margin-top:12px;">Autenticación: <code>Authorization: Bearer sk_…</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Agenda slot modal -->
+<div id="slot-backdrop" class="modal-backdrop" onclick="closeSlotModal()"></div>
+<div id="slot-modal" class="modal">
+  <span class="close-btn" onclick="closeSlotModal()">&times;</span>
+  <h2 id="slot-modal-title">Nuevo</h2>
+  <div class="timeline-meta" id="slot-modal-when" style="margin-bottom:18px;"></div>
+
+  <div id="slot-modal-new">
+    <div class="seg">
+      <div class="seg-item active" id="seg-appt" onclick="setSlotMode('appt')">Cita</div>
+      <div class="seg-item" id="seg-block" onclick="setSlotMode('block')">Bloqueo</div>
+    </div>
+
+    <div id="slot-form-appt">
+      <div class="field"><label>Paciente</label><input type="text" id="slot-name" placeholder="Nombre completo" /></div>
+      <div class="field"><label>Teléfono</label><input type="text" id="slot-phone" placeholder="+57…" /></div>
+      <div class="field"><label>Servicio</label><input type="text" id="slot-service" placeholder="Valoración, control…" /></div>
+    </div>
+
+    <div id="slot-form-block" style="display:none;">
+      <div class="field"><label>Motivo</label><input type="text" id="slot-block-reason" placeholder="Almuerzo, vacaciones…" /></div>
+    </div>
+
+    <div class="field">
+      <label>Duración</label>
+      <select id="slot-duration">
+        <option value="30">30 minutos</option>
+        <option value="60">1 hora</option>
+        <option value="90">1 hora 30</option>
+        <option value="120">2 horas</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="slot-save" onclick="saveSlot()">Guardar</button>
+  </div>
+
+  <div id="slot-modal-existing" style="display:none;">
+    <div class="detail-row"><span>Paciente</span><b id="ex-name">—</b></div>
+    <div class="detail-row"><span>Teléfono</span><b id="ex-phone">—</b></div>
+    <div class="detail-row"><span>Servicio</span><b id="ex-service">—</b></div>
+    <div class="detail-row"><span>Estado</span><b id="ex-status">—</b></div>
+    <div class="detail-row"><span>Origen</span><b id="ex-source">—</b></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="ex-confirm" onclick="setApptStatus('confirmed')">Confirmar</button>
+      <button class="btn-ghost" onclick="startReschedule()">Reprogramar</button>
+      <button class="btn-danger" onclick="setApptStatus('cancelled')">Cancelar cita</button>
+    </div>
+    <div id="ex-block-actions" style="display:none;">
+      <button class="btn-danger" onclick="deleteBlock()">Eliminar bloqueo</button>
+    </div>
+  </div>
+</div>
+
+<div id="drawer-backdrop" onclick="closeDrawer()"></div>
+<div id="drawer" style="display:none;">
+  <span class="close-btn" onclick="closeDrawer()">&times;</span>
+  <h2 id="drawer-name">—</h2>
+  <div class="timeline-meta" id="drawer-phone" style="margin-bottom:20px;"></div>
+  <div id="drawer-timeline"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const SUPABASE_URL      = 'https://lgnfiveyqlehnxlvspqb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnbmZpdmV5cWxlaG54bHZzcHFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTE4MTYsImV4cCI6MjA5MTA2NzgxNn0.uE3eWwbRBYR-KcImVgZL_8YFquTHYuYCx7vThL3MTVM';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let memberships = [];   // [{clinic_id, role, clinics:{id,name,slug}}]
+  let activeClinicId = null;
+  let activeClinic = null;   // full clinic row — the agenda needs operating_hours
+  let patients = [];
+
+  // ── DEMO MODE ─────────────────────────────────────
+  // /crm?demo=1 runs the real interface against fictional data with no login
+  // and no database access. Used for client walkthroughs so nobody has to be
+  // given credentials to a live clinic containing real patient records.
+  const DEMO = new URLSearchParams(location.search).has('demo');
+  let DEMO_DATA = null;
+
+  function buildDemoData() {
+    const today = bogotaDayStr(new Date());
+    const wk = mondayOf(today);
+    const d = n => dayAdd(wk, n);
+    const at = (n, h, m) => atBogota(d(n), h * 60 + (m || 0)).toISOString();
+
+    const patients = [
+      { id:'p1', name:'María Gómez Restrepo', phone_number:'+573001234567', dob:'1991-04-12', doc_id:'1017234891', email:'maria.gomez@ejemplo.com', notes:'Ortodoncia — control mensual' },
+      { id:'p2', name:'Carlos Andrés Vélez',  phone_number:'+573109876543', dob:'1985-11-03', doc_id:'71234567',   email:null, notes:null },
+      { id:'p3', name:'Laura Restrepo Díaz',  phone_number:'+573225558899', dob:'1996-07-21', doc_id:'1094556677', email:'laura.rd@ejemplo.com', notes:'Alergia a la penicilina' },
+      { id:'p4', name:'Juan Pablo Ossa',      phone_number:'+573014447788', dob:'1978-02-28', doc_id:'98765432',   email:null, notes:null },
+      { id:'p5', name:'Valentina Cardona',    phone_number:'+573182223344', dob:'2001-09-09', doc_id:'1152233445', email:null, notes:'Primera visita' },
+    ];
+
+    const appts = [
+      { id:'d1', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', status:'confirmed', source:'whatsapp', appointment_date: at(0, 9),      duration_min:30 },
+      { id:'d2', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Valoración inicial',    status:'confirmed', source:'call',     appointment_date: at(0, 11),     duration_min:60 },
+      { id:'d3', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Limpieza dental',       status:'pending',   source:'whatsapp', appointment_date: at(1, 10, 30), duration_min:30 },
+      { id:'d4', patient_id:'p4', patient_name:'Juan Pablo Ossa',      phone_number:'+573014447788', reason:'Resina',                status:'confirmed', source:'manual',   appointment_date: at(2, 14),     duration_min:60 },
+      { id:'d5', patient_id:'p5', patient_name:'Valentina Cardona',    phone_number:'+573182223344', reason:'Primera consulta',      status:'pending',   source:'whatsapp', appointment_date: at(3, 15, 30), duration_min:30 },
+      { id:'d6', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', status:'confirmed', source:'whatsapp', appointment_date: at(4, 9, 30),  duration_min:30 },
+      { id:'d7', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Control',               status:'cancelled', source:'call',     appointment_date: at(4, 16),     duration_min:30 },
+      { id:'d8', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Blanqueamiento',        status:'pending',   source:'whatsapp', appointment_date: at(5, 10),     duration_min:60 },
+    ];
+
+    const blocks = [
+      { id:'b1', starts_at: at(0, 13), ends_at: at(0, 14), reason:'Almuerzo' },
+      { id:'b2', starts_at: at(2, 13), ends_at: at(2, 14), reason:'Almuerzo' },
+      { id:'b3', starts_at: at(3, 8),  ends_at: at(3, 10), reason:'Reunión de equipo' },
+    ];
+
+    const interactions = {
+      p1: [
+        { id:'i1', channel:'whatsapp', direction:'inbound',  summary:'Hola, quiero mover mi control de ortodoncia',       occurred_at: at(0, 8, 12) },
+        { id:'i2', channel:'whatsapp', direction:'outbound', summary:'Claro. Tengo lunes 9:00 o viernes 9:30. ¿Cuál te sirve?', occurred_at: at(0, 8, 12) },
+        { id:'i3', channel:'booking',  direction:'inbound',  summary:'Cita agendada — lunes 9:00',                        occurred_at: at(0, 8, 14) },
+      ],
+      p2: [
+        { id:'i4', channel:'call',     direction:'inbound',  summary:'Llamada — valoración inicial, agendada',            occurred_at: at(0, 10, 2) },
+      ],
+      p3: [
+        { id:'i5', channel:'whatsapp', direction:'inbound',  summary:'Buenas, ¿tienen cita para limpieza esta semana?',    occurred_at: at(1, 9, 40) },
+        { id:'i6', channel:'whatsapp', direction:'outbound', summary:'Sí — martes 10:30 está libre.',                      occurred_at: at(1, 9, 41) },
+        { id:'i7', channel:'booking',  direction:'inbound',  summary:'Cita agendada — martes 10:30',                       occurred_at: at(1, 9, 42) },
+      ],
+      p4: [{ id:'i8', channel:'note', direction:null, summary:'Paciente prefiere horarios de tarde', occurred_at: at(2, 13, 30) }],
+      p5: [{ id:'i9', channel:'whatsapp', direction:'inbound', summary:'Hola! Quisiera una primera consulta', occurred_at: at(3, 15, 0) }],
+    };
+
+    const apiKeys = [
+      { id:'k1', name:'SmileWeb sandbox', key_prefix:'sk_sandbox_a4f9c2…', created_at: at(0, 9), last_used_at: at(4, 11, 20), revoked_at:null },
+    ];
+
+    const invoices = [
+      { id:'v1', amount:180000, status:'issued',  provider:'Factus', provider_ref:'FE-1042' },
+      { id:'v2', amount:95000,  status:'pending', provider:'Factus', provider_ref:null },
+    ];
+
+    return { patients, appts, blocks, interactions, apiKeys, invoices };
+  }
+
+  function startDemo() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('user-email-display').textContent = 'demostración';
+    document.getElementById('clinic-name-display').textContent = 'Clínica Sonrisa · Medellín';
+
+    activeClinicId = 'demo-clinic';
+    activeClinic = {
+      id: 'demo-clinic', name: 'Clínica Sonrisa · Medellín', calendar_provider: 'internal',
+      operating_hours: { mon:['08:00','18:00'], tue:['08:00','18:00'], wed:['08:00','18:00'],
+                         thu:['08:00','18:00'], fri:['08:00','18:00'], sat:['09:00','13:00'], sun:null },
+    };
+
+    weekStart = mondayOf(bogotaDayStr(new Date()));
+    DEMO_DATA = buildDemoData();
+    agendaAppts = DEMO_DATA.appts;
+    agendaBlocks = DEMO_DATA.blocks;
+    patients = DEMO_DATA.patients;
+
+    // Make it unmistakable that nothing here is a real patient record.
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:220px;right:0;z-index:150;background:var(--gold);color:var(--midnight);' +
+      'font-size:12px;font-weight:600;text-align:center;padding:6px;';
+    banner.textContent = 'Modo demostración · datos ficticios · ningún dato real de pacientes';
+    document.body.appendChild(banner);
+    document.querySelector('.main').style.paddingTop = '52px';
+
+    renderAgenda();
+    loadPatients(); loadAppointments(); loadInvoices(); loadOverview(); loadApiKeys();
+  }
+
+  // ── AUTH ──────────────────────────────────────────
+  async function initAuth() {
+    if (DEMO) { startDemo(); return; }
+
+    const { data: { session } } = await db.auth.getSession();
+    if (session) await onLoggedIn(session);
+    else showLogin();
+
+    db.auth.onAuthStateChange((_event, session) => {
+      if (session) onLoggedIn(session);
+      else showLogin();
+    });
+  }
+
+  function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+
+  async function onLoggedIn(session) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('user-email-display').textContent = session.user.email || '';
+
+    const { data, error } = await db
+      .from('clinic_members')
+      .select('clinic_id, role, clinics(id, name, slug)')
+      .eq('user_id', session.user.id);
+
+    if (error || !data || data.length === 0) {
+      toast('No tienes una clínica asignada. Contacta al administrador.');
+      return;
+    }
+
+    memberships = data;
+    const isSuperAdmin = memberships.some(m => m.role === 'super_admin');
+
+    if (isSuperAdmin) {
+      // super_admin: load every clinic into the switcher, not just memberships
+      const { data: allClinics } = await db.from('clinics').select('id, name, slug').order('name');
+      const switcher = document.getElementById('clinic-switcher');
+      switcher.style.display = 'block';
+      switcher.innerHTML = (allClinics || []).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+      switcher.onchange = () => { activeClinicId = switcher.value; loadClinicName(allClinics); loadAll(); };
+      activeClinicId = allClinics?.[0]?.id || null;
+      loadClinicName(allClinics);
+    } else {
+      activeClinicId = memberships[0].clinic_id;
+      document.getElementById('clinic-name-display').textContent = memberships[0].clinics?.name || '—';
+    }
+
+    loadAll();
+  }
+
+  function loadClinicName(allClinics) {
+    const c = (allClinics || []).find(c => c.id === activeClinicId);
+    document.getElementById('clinic-name-display').textContent = c?.name || '—';
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Ingresando…';
+
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) {
+      errEl.textContent = error.message || 'Credenciales inválidas.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Ingresar';
+    }
+  });
+
+  async function handleSignOut() {
+    await db.auth.signOut();
+    memberships = [];
+    activeClinicId = null;
+  }
+
+  // ── PASSWORD RECOVERY ────────────────────────────
+  document.getElementById('forgot-link').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const resetMsg = document.getElementById('reset-msg');
+    if (!email) {
+      resetMsg.style.color = 'var(--rose)';
+      resetMsg.textContent = 'Escribe tu email arriba primero.';
+      resetMsg.style.display = 'block';
+      return;
+    }
+    const { error } = await db.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/crm',
+    });
+    resetMsg.style.color = error ? 'var(--rose)' : 'var(--green)';
+    resetMsg.textContent = error
+      ? error.message
+      : 'Si ese email tiene una cuenta, te llegará un enlace para restablecer la contraseña.';
+    resetMsg.style.display = 'block';
+  });
+
+  // Supabase redirects here with a recovery token after the reset-password
+  // email link is clicked; PASSWORD_RECOVERY fires once the session from
+  // that token is established.
+  db.auth.onAuthStateChange(async (event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      const newPassword = prompt('Escribe tu nueva contraseña:');
+      if (!newPassword) return;
+      const { error } = await db.auth.updateUser({ password: newPassword });
+      toast(error ? `Error: ${error.message}` : 'Contraseña actualizada. Ya puedes usarla para ingresar.');
+    }
+  });
+
+  // ── NAV ───────────────────────────────────────────
+  function setTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+    document.querySelectorAll('.tab-page').forEach(el => el.classList.toggle('active', el.id === `tab-${tab}`));
+  }
+
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3500);
+  }
+
+  // ── DATA ──────────────────────────────────────────
+  async function loadAll() {
+    // The agenda grid is built from operating_hours, so the clinic row has to
+    // land before anything renders.
+    const { data: clinic, error } = await db
+      .from('clinics')
+      .select('id, name, operating_hours, calendar_provider')
+      .eq('id', activeClinicId)
+      .maybeSingle();
+    if (error) console.warn('clinic load:', error.message);
+    activeClinic = clinic || null;
+
+    await Promise.all([
+      loadAgenda(), loadPatients(), loadAppointments(),
+      loadInvoices(), loadOverview(), loadApiKeys(),
+    ]);
+  }
+
+  async function loadOverview() {
+    if (DEMO) {
+      const d = DEMO_DATA;
+      document.getElementById('stat-patients').textContent = d.patients.length;
+      document.getElementById('stat-appointments').textContent = d.appts.length;
+      document.getElementById('stat-week').textContent = d.appts.length;
+      document.getElementById('stat-calls').textContent =
+        Object.values(d.interactions).flat().filter(i => i.channel === 'call').length;
+      return;
+    }
+    const [patientsCount, apptsCount, weekCount, callsCount] = await Promise.all([
+      db.from('patients').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
+      db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
+      db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId)
+        .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+      db.from('interactions').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId).eq('channel', 'call'),
+    ]);
+    document.getElementById('stat-patients').textContent = patientsCount.count ?? '—';
+    document.getElementById('stat-appointments').textContent = apptsCount.count ?? '—';
+    document.getElementById('stat-week').textContent = weekCount.count ?? '—';
+    document.getElementById('stat-calls').textContent = callsCount.count ?? '—';
+  }
+
+  async function loadPatients() {
+    const wrap = document.getElementById('patients-table-wrap');
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.patients, error: null }
+      : await db
+          .from('patients')
+          .select('*')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando pacientes: ${esc(error.message)}</div>`; return; }
+    patients = data || [];
+    if (patients.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin pacientes todavía. Importa un CSV o espera la primera llamada.</div>'; return; }
+
+    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Fecha nac.</th><th>Notas</th></tr></thead><tbody>
+      ${patients.map(p => `<tr onclick="openPatient('${p.id}')">
+        <td>${esc(p.name) || '<span style=\"color:var(--text-muted)\">Sin nombre</span>'}</td>
+        <td>${esc(p.phone_number)}</td>
+        <td>${esc(p.dob) || '—'}</td>
+        <td>${esc(p.notes) || '—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  async function loadAppointments() {
+    const wrap = document.getElementById('appointments-table-wrap');
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.appts.map(a => ({ ...a, appointment_time: toSpokenLocal(a.appointment_date), doctor: '—' })), error: null }
+      : await db
+          .from('appointments')
+          .select('*')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false })
+          .limit(200);
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando citas: ${esc(error.message)}</div>`; return; }
+    if (!data || data.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin citas todavía.</div>'; return; }
+
+    wrap.innerHTML = `<table><thead><tr><th>Paciente</th><th>Motivo</th><th>Doctor</th><th>Cuándo</th><th>Teléfono</th></tr></thead><tbody>
+      ${data.map(a => `<tr>
+        <td>${esc(a.patient_name) || '—'}</td>
+        <td>${esc(a.reason) || '—'}</td>
+        <td>${esc(a.doctor) || '—'}</td>
+        <td>${esc(a.appointment_time) || '—'}</td>
+        <td>${esc(a.phone_number) || '—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  async function loadInvoices() {
+    const wrap = document.getElementById('invoices-table-wrap');
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.invoices, error: null }
+      : await db
+          .from('invoices')
+          .select('*')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando facturas: ${esc(error.message)}</div>`; return; }
+    if (!data || data.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Aún no hay facturación conectada. La integración con la DIAN (vía un Proveedor Tecnológico) llega en una fase posterior.</div>';
+      return;
+    }
+    wrap.innerHTML = `<table><thead><tr><th>Monto</th><th>Estado</th><th>Proveedor</th><th>Referencia</th></tr></thead><tbody>
+      ${data.map(i => `<tr>
+        <td>${i.amount ?? '—'}</td>
+        <td><span class="badge ${esc(i.status)}">${esc(i.status)}</span></td>
+        <td>${esc(i.provider) || '—'}</td>
+        <td>${esc(i.provider_ref) || '—'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  // ── PATIENT DRAWER ────────────────────────────────
+  async function openPatient(id) {
+    const p = patients.find(p => p.id === id);
+    if (!p) return;
+    document.getElementById('drawer-name').textContent = p.name || 'Sin nombre';
+    document.getElementById('drawer-phone').textContent = p.phone_number;
+    document.getElementById('drawer-timeline').innerHTML = '<div class="empty-state">Cargando…</div>';
+    document.getElementById('drawer').style.display = 'block';
+    document.getElementById('drawer-backdrop').style.display = 'block';
+
+    const { data, error } = DEMO
+      ? { data: (DEMO_DATA.interactions[id] || []).slice().reverse(), error: null }
+      : await db
+          .from('interactions')
+          .select('*')
+          .eq('patient_id', id)
+          .order('occurred_at', { ascending: false });
+
+    const tl = document.getElementById('drawer-timeline');
+    if (error) { tl.innerHTML = `<div class="empty-state">${esc(error.message)}</div>`; return; }
+    if (!data || data.length === 0) { tl.innerHTML = '<div class="empty-state">Sin interacciones registradas.</div>'; return; }
+
+    tl.innerHTML = data.map(i => `<div class="timeline-item">
+      <span class="badge ${esc(i.channel)}">${esc(i.channel)}</span>
+      <div class="timeline-summary">${esc(i.summary) || '—'}</div>
+      <div class="timeline-meta">${new Date(i.occurred_at).toLocaleString('es-CO')}</div>
+    </div>`).join('');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer').style.display = 'none';
+    document.getElementById('drawer-backdrop').style.display = 'none';
+  }
+
+  // ── CSV IMPORT ────────────────────────────────────
+  const dropEl = document.getElementById('import-drop');
+  const fileInput = document.getElementById('import-file');
+  dropEl.addEventListener('click', () => fileInput.click());
+  dropEl.addEventListener('dragover', (e) => { e.preventDefault(); dropEl.style.borderColor = 'var(--gold)'; });
+  dropEl.addEventListener('dragleave', () => { dropEl.style.borderColor = ''; });
+  dropEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropEl.style.borderColor = '';
+    if (e.dataTransfer.files[0]) handleCsvFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleCsvFile(fileInput.files[0]); });
+
+  function handleCsvFile(file) {
+    document.getElementById('import-drop-label').textContent = `Procesando ${file.name}…`;
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        document.getElementById('import-drop-label').textContent = 'Haz clic para elegir un archivo CSV, o arrástralo aquí';
+        await submitImport(results.data);
+      },
+      error: (err) => toast('Error leyendo el CSV: ' + err.message),
+    });
+  }
+
+  async function submitImport(rows) {
+    const resultEl = document.getElementById('import-result');
+    resultEl.style.display = 'block';
+    if (DEMO) {
+      resultEl.textContent = `Modo demostración: se habrían importado ${rows.length} pacientes.`;
+      return;
+    }
+    resultEl.textContent = `Importando ${rows.length} filas…`;
+
+    const { data: { session } } = await db.auth.getSession();
+    try {
+      const res = await fetch('/api/import-patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ clinic_id: activeClinicId, rows }),
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || 'Error desconocido');
+      resultEl.textContent = `Importados: ${body.imported}. Omitidos (sin teléfono): ${body.skipped}.`;
+      await loadPatients();
+    } catch (err) {
+      resultEl.textContent = `Error: ${err.message}`;
+    }
+  }
+
+  // ══════════════════════════════════════════════════
+  //  AGENDA
+  // ══════════════════════════════════════════════════
+  const DAY_KEYS = ['sun','mon','tue','wed','thu','fri','sat'];
+  const DAY_LABEL = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const DEFAULT_HOURS = { mon:['08:00','17:00'], tue:['08:00','17:00'], wed:['08:00','17:00'],
+                          thu:['08:00','17:00'], fri:['08:00','17:00'], sat:null, sun:null };
+
+  let weekStart = null;        // 'YYYY-MM-DD' (Monday, Bogota)
+  let agendaAppts = [];
+  let agendaBlocks = [];
+  let slotCtx = null;          // { day, min } for a new entry
+  let openEvent = null;        // { kind:'appt'|'block', row }
+  let rescheduleId = null;
+
+  // Bogota is UTC-5 year-round, so a fixed offset is safe.
+  const bogotaDayStr = d => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(d);
+  const atBogota = (day, min) =>
+    new Date(`${day}T${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}:00-05:00`);
+  const dowOf = day => new Date(`${day}T12:00:00-05:00`).getUTCDay();
+
+  function dayAdd(day, n) {
+    const d = new Date(`${day}T12:00:00-05:00`);
+    d.setUTCDate(d.getUTCDate() + n);
+    return bogotaDayStr(d);
+  }
+  function mondayOf(day) {
+    const dow = dowOf(day);
+    return dayAdd(day, dow === 0 ? -6 : 1 - dow);
+  }
+  function bogotaParts(iso) {
+    const d = new Date(iso);
+    const hm = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hour12: false,
+    }).format(d);
+    const [h, m] = hm.split(':').map(Number);
+    return { day: bogotaDayStr(d), min: h * 60 + m };
+  }
+  const hhmm = min => `${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`;
+  const parseHHMM = s => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '').trim());
+    return m ? +m[1] * 60 + +m[2] : null;
+  };
+  const clinicHours = () => (activeClinic && activeClinic.operating_hours) || DEFAULT_HOURS;
+  const windowFor = day => {
+    const w = clinicHours()[DAY_KEYS[dowOf(day)]];
+    return Array.isArray(w) && w.length >= 2 ? [parseHHMM(w[0]), parseHHMM(w[1])] : null;
+  };
+
+  function shiftWeek(n) { weekStart = dayAdd(weekStart, n * 7); loadAgenda(); }
+  function goToday()    { weekStart = mondayOf(bogotaDayStr(new Date())); loadAgenda(); }
+
+  // Spanish "lunes 4 de agosto, 09:00" for a stored ISO timestamp.
+  function toSpokenLocal(iso) {
+    const p = bogotaParts(iso);
+    return `${DAY_LABEL[dowOf(p.day)]} ${fmtDay(p.day)}, ${hhmm(p.min)}`;
+  }
+
+  async function loadAgenda() {
+    if (!activeClinicId) return;
+    if (!weekStart) weekStart = mondayOf(bogotaDayStr(new Date()));
+    if (DEMO) { renderAgenda(); return; }
+
+    const wrap = document.getElementById('agenda-wrap');
+    const fromIso = atBogota(weekStart, 0).toISOString();
+    const toIso   = atBogota(dayAdd(weekStart, 7), 0).toISOString();
+
+    const [apptRes, blockRes] = await Promise.all([
+      db.from('appointments')
+        .select('id, patient_name, phone_number, reason, status, source, appointment_date, duration_min')
+        .eq('clinic_id', activeClinicId)
+        .not('appointment_date', 'is', null)
+        .gte('appointment_date', fromIso).lt('appointment_date', toIso),
+      db.from('schedule_blocks')
+        .select('id, starts_at, ends_at, reason')
+        .eq('clinic_id', activeClinicId)
+        .lt('starts_at', toIso).gt('ends_at', fromIso),
+    ]);
+
+    if (apptRes.error) { wrap.innerHTML = `<div class="empty-state">Error cargando la agenda: ${esc(apptRes.error.message)}</div>`; return; }
+    agendaAppts = apptRes.data || [];
+    agendaBlocks = blockRes.error ? [] : (blockRes.data || []);
+    if (blockRes.error) console.warn('schedule_blocks:', blockRes.error.message);
+
+    renderAgenda();
+  }
+
+  function renderAgenda() {
+    const wrap = document.getElementById('agenda-wrap');
+
+    // Only show days the clinic actually opens, so a closed Sunday doesn't
+    // waste a whole column.
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const day = dayAdd(weekStart, i);
+      if (windowFor(day)) days.push(day);
+    }
+    if (!days.length) {
+      wrap.innerHTML = '<div class="empty-state">Esta clínica no tiene horario de atención configurado.</div>';
+      return;
+    }
+
+    document.getElementById('agenda-range').textContent =
+      `${fmtDay(days[0])} — ${fmtDay(days[days.length - 1])}`;
+
+    const opens = days.map(d => windowFor(d)[0]);
+    const closes = days.map(d => windowFor(d)[1]);
+    const minOpen = Math.min(...opens), maxClose = Math.max(...closes);
+
+    const rows = [];
+    for (let t = minOpen; t + 30 <= maxClose; t += 30) rows.push(t);
+
+    // Lay events onto each column, tracking multi-row spans.
+    const cells = {};
+    days.forEach(day => {
+      const arr = new Array(rows.length).fill(null);
+      eventsFor(day).forEach(ev => {
+        let idx = rows.indexOf(ev.min);
+        if (idx < 0) idx = rows.findIndex(r => r >= ev.min);
+        if (idx < 0) return;
+        const span = Math.min(Math.max(1, Math.round(ev.dur / 30)), rows.length - idx);
+        arr[idx] = { kind: 'start', ev, span };
+        for (let k = 1; k < span; k++) arr[idx + k] = { kind: 'covered' };
+      });
+      cells[day] = arr;
+    });
+
+    const today = bogotaDayStr(new Date());
+    let html = '<table class="agenda-grid"><thead><tr><th class="timecol"></th>' +
+      days.map(d => `<th class="${d === today ? 'today' : ''}">${DAY_LABEL[dowOf(d)]} ${d.slice(8)}</th>`).join('') +
+      '</tr></thead><tbody>';
+
+    rows.forEach((t, r) => {
+      html += `<tr><td class="timecol">${t % 60 === 0 ? hhmm(t) : ''}</td>`;
+      days.forEach(day => {
+        const cell = cells[day][r];
+        if (cell && cell.kind === 'covered') return;      // spanned by the row above
+        const win = windowFor(day);
+        const inHours = t >= win[0] && t + 30 <= win[1];
+
+        if (cell && cell.kind === 'start') {
+          const ev = cell.ev;
+          const cls = ev.kind === 'block' ? 'block' : ev.status;
+          html += `<td rowspan="${cell.span}"><div class="ev ${cls}" onclick="openEventModal('${ev.kind}','${ev.id}')">` +
+            `<b>${esc(ev.title)}</b><small>${esc(ev.subtitle || '')}</small></div></td>`;
+        } else if (inHours) {
+          html += `<td class="free" onclick="openSlotModal('${day}',${t})"></td>`;
+        } else {
+          html += '<td class="closed"></td>';
+        }
+      });
+      html += '</tr>';
+    });
+
+    wrap.innerHTML = html + '</tbody></table>';
+  }
+
+  function eventsFor(day) {
+    const out = [];
+    agendaAppts.forEach(a => {
+      const p = bogotaParts(a.appointment_date);
+      if (p.day !== day) return;
+      out.push({
+        kind: 'appt', id: a.id, min: p.min, dur: a.duration_min || 30,
+        status: a.status || 'pending',
+        title: a.patient_name || 'Sin nombre',
+        subtitle: a.reason || '',
+      });
+    });
+    agendaBlocks.forEach(b => {
+      const p = bogotaParts(b.starts_at);
+      if (p.day !== day) return;
+      const dur = Math.max(30, Math.round((new Date(b.ends_at) - new Date(b.starts_at)) / 60000));
+      out.push({ kind: 'block', id: b.id, min: p.min, dur, status: 'block',
+                 title: b.reason || 'Bloqueado', subtitle: '' });
+    });
+    return out;
+  }
+
+  function fmtDay(day) {
+    const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const d = new Date(`${day}T12:00:00-05:00`);
+    return `${d.getUTCDate()} de ${MONTHS[d.getUTCMonth()]}`;
+  }
+
+  // ── slot / event modal ────────────────────────────
+  function openSlotModal(day, min) {
+    if (rescheduleId) { doReschedule(day, min); return; }
+    slotCtx = { day, min };
+    openEvent = null;
+    document.getElementById('slot-modal-title').textContent = 'Nuevo';
+    document.getElementById('slot-modal-when').textContent = `${fmtDay(day)} · ${hhmm(min)}`;
+    document.getElementById('slot-modal-new').style.display = 'block';
+    document.getElementById('slot-modal-existing').style.display = 'none';
+    ['slot-name','slot-phone','slot-service','slot-block-reason'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('slot-duration').value = '30';
+    setSlotMode('appt');
+    showModal();
+  }
+
+  function openEventModal(kind, id) {
+    slotCtx = null;
+    const row = kind === 'appt'
+      ? agendaAppts.find(a => a.id === id)
+      : agendaBlocks.find(b => b.id === id);
+    if (!row) return;
+    openEvent = { kind, row };
+
+    const when = kind === 'appt' ? row.appointment_date : row.starts_at;
+    const p = bogotaParts(when);
+    document.getElementById('slot-modal-title').textContent = kind === 'appt' ? 'Cita' : 'Bloqueo';
+    document.getElementById('slot-modal-when').textContent = `${fmtDay(p.day)} · ${hhmm(p.min)}`;
+    document.getElementById('slot-modal-new').style.display = 'none';
+    document.getElementById('slot-modal-existing').style.display = 'block';
+
+    const isAppt = kind === 'appt';
+    document.getElementById('ex-name').textContent    = isAppt ? (row.patient_name || '—') : (row.reason || 'Bloqueado');
+    document.getElementById('ex-phone').textContent   = isAppt ? (row.phone_number || '—') : '—';
+    document.getElementById('ex-service').textContent = isAppt ? (row.reason || '—') : '—';
+    document.getElementById('ex-status').textContent  = isAppt ? (row.status || '—') : 'bloqueado';
+    document.getElementById('ex-source').textContent  = isAppt ? (row.source || '—') : '—';
+    document.querySelector('#slot-modal-existing .modal-actions').style.display = isAppt ? 'flex' : 'none';
+    document.getElementById('ex-block-actions').style.display = isAppt ? 'none' : 'block';
+    showModal();
+  }
+
+  function showModal() {
+    document.getElementById('slot-modal').style.display = 'block';
+    document.getElementById('slot-backdrop').style.display = 'block';
+  }
+  function closeSlotModal() {
+    document.getElementById('slot-modal').style.display = 'none';
+    document.getElementById('slot-backdrop').style.display = 'none';
+  }
+  function setSlotMode(mode) {
+    document.getElementById('seg-appt').classList.toggle('active', mode === 'appt');
+    document.getElementById('seg-block').classList.toggle('active', mode === 'block');
+    document.getElementById('slot-form-appt').style.display  = mode === 'appt' ? 'block' : 'none';
+    document.getElementById('slot-form-block').style.display = mode === 'block' ? 'block' : 'none';
+  }
+
+  async function saveSlot() {
+    if (!slotCtx) return;
+    const isBlock = document.getElementById('seg-block').classList.contains('active');
+    const duration = Number(document.getElementById('slot-duration').value) || 30;
+    const startsAt = atBogota(slotCtx.day, slotCtx.min).toISOString();
+    const btn = document.getElementById('slot-save');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
+    try {
+      // Demo mode mutates the in-memory fixtures so a walkthrough feels live
+      // without ever touching the database.
+      if (DEMO) {
+        if (isBlock) {
+          agendaBlocks.push({
+            id: 'x' + Date.now(), starts_at: startsAt,
+            ends_at: new Date(atBogota(slotCtx.day, slotCtx.min).getTime() + duration * 60000).toISOString(),
+            reason: document.getElementById('slot-block-reason').value.trim() || 'Bloqueado',
+          });
+          toast('Horario bloqueado.');
+        } else {
+          const name = document.getElementById('slot-name').value.trim();
+          if (!name) { toast('Escribe el nombre del paciente.'); return; }
+          agendaAppts.push({
+            id: 'x' + Date.now(), patient_name: name,
+            phone_number: document.getElementById('slot-phone').value.trim(),
+            reason: document.getElementById('slot-service').value.trim() || 'Consulta',
+            status: 'confirmed', source: 'manual',
+            appointment_date: startsAt, duration_min: duration,
+          });
+          toast('Cita agendada.');
+        }
+        closeSlotModal();
+        renderAgenda(); loadOverview();
+        return;
+      }
+
+      if (isBlock) {
+        const endsAt = new Date(atBogota(slotCtx.day, slotCtx.min).getTime() + duration * 60000).toISOString();
+        const { error } = await db.from('schedule_blocks').insert({
+          clinic_id: activeClinicId, starts_at: startsAt, ends_at: endsAt,
+          reason: document.getElementById('slot-block-reason').value.trim() || null,
+        });
+        if (error) throw new Error(error.message);
+        toast('Horario bloqueado.');
+      } else {
+        const name = document.getElementById('slot-name').value.trim();
+        if (!name) { toast('Escribe el nombre del paciente.'); return; }
+        const { data: { session } } = await db.auth.getSession();
+        const res = await fetch('/api/book-manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            clinic_id: activeClinicId, starts_at: startsAt, duration_min: duration,
+            patient_name: name,
+            phone_number: document.getElementById('slot-phone').value.trim(),
+            service: document.getElementById('slot-service').value.trim(),
+          }),
+        });
+        const out = await res.json();
+        if (!res.ok) throw new Error(out.error === 'slot_taken' ? 'Ese horario ya fue tomado.' : (out.error || 'Error'));
+        toast('Cita agendada.');
+      }
+      closeSlotModal();
+      await loadAgenda();
+    } catch (err) {
+      toast(`Error: ${err.message}`);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Guardar';
+    }
+  }
+
+  async function setApptStatus(status) {
+    if (!openEvent || openEvent.kind !== 'appt') return;
+    if (DEMO) {
+      openEvent.row.status = status;
+      toast(status === 'confirmed' ? 'Cita confirmada.' : 'Cita cancelada.');
+      closeSlotModal(); renderAgenda();
+      return;
+    }
+    const { error } = await db.from('appointments').update({ status }).eq('id', openEvent.row.id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast(status === 'confirmed' ? 'Cita confirmada.' : 'Cita cancelada.');
+    closeSlotModal();
+    await loadAgenda();
+  }
+
+  async function deleteBlock() {
+    if (!openEvent || openEvent.kind !== 'block') return;
+    if (DEMO) {
+      agendaBlocks = agendaBlocks.filter(b => b.id !== openEvent.row.id);
+      toast('Bloqueo eliminado.');
+      closeSlotModal(); renderAgenda();
+      return;
+    }
+    const { error } = await db.from('schedule_blocks').delete().eq('id', openEvent.row.id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast('Bloqueo eliminado.');
+    closeSlotModal();
+    await loadAgenda();
+  }
+
+  function startReschedule() {
+    if (!openEvent || openEvent.kind !== 'appt') return;
+    rescheduleId = openEvent.row.id;
+    document.getElementById('reschedule-banner').style.display = 'block';
+    closeSlotModal();
+  }
+  function cancelReschedule() {
+    rescheduleId = null;
+    document.getElementById('reschedule-banner').style.display = 'none';
+  }
+  async function doReschedule(day, min) {
+    const id = rescheduleId;
+    cancelReschedule();
+    if (DEMO) {
+      const row = agendaAppts.find(a => a.id === id);
+      if (row) row.appointment_date = atBogota(day, min).toISOString();
+      toast('Cita reprogramada.');
+      renderAgenda();
+      return;
+    }
+    const { error } = await db.from('appointments')
+      .update({ appointment_date: atBogota(day, min).toISOString(), appointment_time: `${fmtDay(day)} ${hhmm(min)}` })
+      .eq('id', id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast('Cita reprogramada.');
+    await loadAgenda();
+  }
+
+  // ══════════════════════════════════════════════════
+  //  INTEGRATIONS
+  // ══════════════════════════════════════════════════
+  async function loadApiKeys() {
+    const wrap = document.getElementById('api-keys-wrap');
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.apiKeys, error: null }
+      : await db.from('api_keys')
+          .select('id, name, key_prefix, created_at, last_used_at, revoked_at')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false });
+
+    if (error) { wrap.innerHTML = `<div class="empty-state">Error: ${esc(error.message)}</div>`; return; }
+    if (!data || !data.length) { wrap.innerHTML = '<div class="empty-state">Sin claves todavía. Genera una para conectar SmileWeb.</div>'; return; }
+
+    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Clave</th><th>Último uso</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${data.map(k => `<tr>
+        <td>${esc(k.name)}</td>
+        <td style="font-family:var(--font-mono);font-size:11px;">${esc(k.key_prefix)}</td>
+        <td>${k.last_used_at ? new Date(k.last_used_at).toLocaleString('es-CO') : 'Nunca'}</td>
+        <td>${k.revoked_at ? '<span style="color:var(--text-muted)">Revocada</span>' : '<span style="color:var(--green)">Activa</span>'}</td>
+        <td>${k.revoked_at ? '' : `<a style="color:var(--rose);cursor:pointer;font-size:12px;" onclick="revokeApiKey('${k.id}')">Revocar</a>`}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+
+  async function createApiKey() {
+    const name = prompt('Nombre de la clave (ej. "SmileWeb sandbox"):');
+    if (!name) return;
+    const env = confirm('¿Clave de producción?\n\nAceptar = producción (sk_live_…)\nCancelar = pruebas (sk_sandbox_…)') ? 'live' : 'sandbox';
+
+    if (DEMO) {
+      const fake = `sk_${env === 'live' ? 'live' : 'sandbox'}_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+      DEMO_DATA.apiKeys.unshift({
+        id: 'k' + Date.now(), name, key_prefix: fake.slice(0, fake.indexOf('_', 3) + 7) + '…',
+        created_at: new Date().toISOString(), last_used_at: null, revoked_at: null,
+      });
+      const box = document.getElementById('new-key-box');
+      box.style.display = 'block';
+      box.innerHTML = `<b>Copia esta clave ahora — no volverá a mostrarse.</b><code>${esc(fake)}</code>`;
+      await loadApiKeys();
+      return;
+    }
+
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      const res = await fetch('/api/create-api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ clinic_id: activeClinicId, name, env }),
+      });
+      const out = await res.json();
+      if (!res.ok) throw new Error(out.error || 'Error');
+
+      const box = document.getElementById('new-key-box');
+      box.style.display = 'block';
+      box.innerHTML = `<b>Copia esta clave ahora — no volverá a mostrarse.</b><code>${esc(out.api_key)}</code>
+        <button class="btn-ghost" onclick="navigator.clipboard.writeText('${esc(out.api_key)}').then(()=>toast('Clave copiada.'))">Copiar</button>`;
+      await loadApiKeys();
+    } catch (err) {
+      toast(`Error: ${err.message}`);
+    }
+  }
+
+  async function revokeApiKey(id) {
+    if (!confirm('¿Revocar esta clave? Los sistemas que la usen dejarán de tener acceso.')) return;
+    if (DEMO) {
+      const k = DEMO_DATA.apiKeys.find(k => k.id === id);
+      if (k) k.revoked_at = new Date().toISOString();
+      toast('Clave revocada.');
+      await loadApiKeys();
+      return;
+    }
+    const { error } = await db.from('api_keys').update({ revoked_at: new Date().toISOString() }).eq('id', id);
+    if (error) { toast(`Error: ${error.message}`); return; }
+    toast('Clave revocada.');
+    await loadApiKeys();
+  }
+
+  initAuth();
+</script>
+</body>
+</html>
