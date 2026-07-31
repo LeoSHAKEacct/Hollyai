@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
   }
 
   const body = typeof req.body === 'string' ? safeParse(req.body) : (req.body || {});
-  const { clinic_id, starts_at, patient_name, phone_number, service, duration_min } = body;
+  const { clinic_id, starts_at, patient_name, phone_number, doc_id, service, duration_min } = body;
 
   if (!clinic_id || !starts_at) {
     res.status(400).json({ error: 'clinic_id and starts_at are required' });
@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
       const { data: patient } = await supabase
         .from('patients')
         .upsert(
-          { clinic_id, phone_number, name: patient_name || undefined },
+          { clinic_id, phone_number, name: patient_name || undefined, doc_id: doc_id || undefined },
           { onConflict: 'clinic_id,phone_number' }
         )
         .select('id')

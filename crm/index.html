@@ -234,7 +234,6 @@
       <div class="nav-item" data-tab="overview" onclick="setTab('overview')">Resumen</div>
       <div class="nav-item" data-tab="patients" onclick="setTab('patients')">Pacientes</div>
       <div class="nav-item" data-tab="appointments" onclick="setTab('appointments')">Citas</div>
-      <div class="nav-item" data-tab="invoices" onclick="setTab('invoices')">Facturas</div>
       <div class="nav-item" data-tab="import" onclick="setTab('import')">Importar</div>
       <div class="nav-item" data-tab="integrations" onclick="setTab('integrations')">Integraciones</div>
     </div>
@@ -294,11 +293,6 @@
       <div id="appointments-table-wrap"><div class="empty-state">Cargando…</div></div>
     </div>
 
-    <div id="tab-invoices" class="tab-page">
-      <div class="page-title">Facturas</div>
-      <div class="page-sub">Facturación electrónica (DIAN) aún no está conectada para esta clínica.</div>
-      <div id="invoices-table-wrap"><div class="empty-state">Cargando…</div></div>
-    </div>
 
     <div id="tab-import" class="tab-page">
       <div class="page-title">Importar pacientes</div>
@@ -353,6 +347,7 @@
     <div id="slot-form-appt">
       <div class="field"><label>Paciente</label><input type="text" id="slot-name" placeholder="Nombre completo" /></div>
       <div class="field"><label>Teléfono</label><input type="text" id="slot-phone" placeholder="+57…" /></div>
+      <div class="field"><label>Cédula</label><input type="text" id="slot-doc" placeholder="Documento de identidad" /></div>
       <div class="field"><label>Servicio</label><input type="text" id="slot-service" placeholder="Valoración, control…" /></div>
     </div>
 
@@ -375,6 +370,7 @@
   <div id="slot-modal-existing" style="display:none;">
     <div class="detail-row"><span>Paciente</span><b id="ex-name">—</b></div>
     <div class="detail-row"><span>Teléfono</span><b id="ex-phone">—</b></div>
+    <div class="detail-row"><span>Cédula</span><b id="ex-doc">—</b></div>
     <div class="detail-row"><span>Servicio</span><b id="ex-service">—</b></div>
     <div class="detail-row"><span>Estado</span><b id="ex-status">—</b></div>
     <div class="detail-row"><span>Origen</span><b id="ex-source">—</b></div>
@@ -469,12 +465,8 @@
       { id:'k1', name:'SmileWeb sandbox', key_prefix:'sk_sandbox_a4f9c2…', created_at: at(0, 9), last_used_at: at(4, 11, 20), revoked_at:null },
     ];
 
-    const invoices = [
-      { id:'v1', amount:180000, status:'issued',  provider:'Factus', provider_ref:'FE-1042' },
-      { id:'v2', amount:95000,  status:'pending', provider:'Factus', provider_ref:null },
-    ];
 
-    return { patients, appts, blocks, interactions, apiKeys, invoices };
+    return { patients, appts, blocks, interactions, apiKeys };
   }
 
   function startDemo() {
@@ -507,7 +499,7 @@
     document.querySelector('.main').style.paddingTop = '52px';
 
     renderAgenda();
-    loadPatients(); loadAppointments(); loadInvoices(); loadOverview(); loadApiKeys();
+    loadPatients(); loadAppointments(); loadOverview(); loadApiKeys();
   }
 
   // ── AUTH ──────────────────────────────────────────
@@ -655,7 +647,7 @@
 
     await Promise.all([
       loadAgenda(), loadPatients(), loadAppointments(),
-      loadInvoices(), loadOverview(), loadApiKeys(),
+      loadOverview(), loadApiKeys(),
     ]);
   }
 
@@ -719,10 +711,11 @@
     patients = data || [];
     if (patients.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin pacientes todavía. Importa un CSV o espera la primera llamada.</div>'; return; }
 
-    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Fecha nac.</th><th>Notas</th></tr></thead><tbody>
+    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Cédula</th><th>Fecha nac.</th><th>Notas</th></tr></thead><tbody>
       ${patients.map(p => `<tr onclick="openPatient('${p.id}')">
         <td>${esc(p.name) || '<span style=\"color:var(--text-muted)\">Sin nombre</span>'}</td>
         <td>${esc(p.phone_number)}</td>
+        <td>${esc(p.doc_id) || '—'}</td>
         <td>${esc(p.dob) || '—'}</td>
         <td>${esc(p.notes) || '—'}</td>
       </tr>`).join('')}
@@ -754,30 +747,6 @@
     </tbody></table>`;
   }
 
-  async function loadInvoices() {
-    const wrap = document.getElementById('invoices-table-wrap');
-    const { data, error } = DEMO
-      ? { data: DEMO_DATA.invoices, error: null }
-      : await db
-          .from('invoices')
-          .select('*')
-          .eq('clinic_id', activeClinicId)
-          .order('created_at', { ascending: false });
-
-    if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando facturas: ${esc(error.message)}</div>`; return; }
-    if (!data || data.length === 0) {
-      wrap.innerHTML = '<div class="empty-state">Aún no hay facturación conectada. La integración con la DIAN (vía un Proveedor Tecnológico) llega en una fase posterior.</div>';
-      return;
-    }
-    wrap.innerHTML = `<table><thead><tr><th>Monto</th><th>Estado</th><th>Proveedor</th><th>Referencia</th></tr></thead><tbody>
-      ${data.map(i => `<tr>
-        <td>${i.amount ?? '—'}</td>
-        <td><span class="badge ${esc(i.status)}">${esc(i.status)}</span></td>
-        <td>${esc(i.provider) || '—'}</td>
-        <td>${esc(i.provider_ref) || '—'}</td>
-      </tr>`).join('')}
-    </tbody></table>`;
-  }
 
   // ── PATIENT DRAWER ────────────────────────────────
   async function openPatient(id) {
@@ -1058,7 +1027,7 @@
     document.getElementById('slot-modal-when').textContent = `${fmtDay(day)} · ${hhmm(min)}`;
     document.getElementById('slot-modal-new').style.display = 'block';
     document.getElementById('slot-modal-existing').style.display = 'none';
-    ['slot-name','slot-phone','slot-service','slot-block-reason'].forEach(id => document.getElementById(id).value = '');
+    ['slot-name','slot-phone','slot-doc','slot-service','slot-block-reason'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('slot-duration').value = '30';
     setSlotMode('appt');
     showModal();
@@ -1082,6 +1051,8 @@
     const isAppt = kind === 'appt';
     document.getElementById('ex-name').textContent    = isAppt ? (row.patient_name || '—') : (row.reason || 'Bloqueado');
     document.getElementById('ex-phone').textContent   = isAppt ? (row.phone_number || '—') : '—';
+    document.getElementById('ex-doc').textContent     = isAppt
+      ? ((patients.find(p => p.phone_number === row.phone_number) || {}).doc_id || '—') : '—';
     document.getElementById('ex-service').textContent = isAppt ? (row.reason || '—') : '—';
     document.getElementById('ex-status').textContent  = isAppt ? (row.status || '—') : 'bloqueado';
     document.getElementById('ex-source').textContent  = isAppt ? (row.source || '—') : '—';
@@ -1160,6 +1131,7 @@
             clinic_id: activeClinicId, starts_at: startsAt, duration_min: duration,
             patient_name: name,
             phone_number: document.getElementById('slot-phone').value.trim(),
+            doc_id: document.getElementById('slot-doc').value.trim(),
             service: document.getElementById('slot-service').value.trim(),
           }),
         });
