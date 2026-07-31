@@ -288,7 +288,7 @@ module.exports = async function handler(req, res) {
       patient_id = patient?.id || null;
     }
 
-    const { error: dbError } = await supabase.from('appointments').insert({
+    const baseRecord = {
       patient_name,
       dob,
       reason,
@@ -299,12 +299,24 @@ module.exports = async function handler(req, res) {
       retell_agent_id,
       clinic_id,
       patient_id,
+    };
+
+    let { error: dbError } = await supabase.from('appointments').insert({
+      ...baseRecord,
       source: 'call',
       // Left 'pending' on purpose: the SmileWeb integration confirms bookings
       // from the clinic's own agenda via PATCH /v1/appointments/{id}.
       status: 'pending',
       duration_min: 30,
     });
+
+    // This is the live phone-booking path: if the agenda migration hasn't been
+    // applied yet, fall back to the previous column set rather than dropping
+    // a real patient's appointment on the floor.
+    if (dbError && /column .* does not exist|Could not find the '.*' column|PGRST204/i.test(`${dbError.message} ${dbError.code}`)) {
+      console.warn('Agenda columns missing — inserting legacy shape:', dbError.message);
+      ({ error: dbError } = await supabase.from('appointments').insert(baseRecord));
+    }
 
     if (dbError) {
       console.error('Supabase insert error:', JSON.stringify(dbError));

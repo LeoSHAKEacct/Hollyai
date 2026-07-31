@@ -105,12 +105,14 @@ async function loadBusy(supabase, clinicId, timeMinMs, timeMaxMs, excludeAppoint
   const apptFrom = new Date(timeMinMs - 6 * 3600000).toISOString();
   const apptTo = new Date(timeMaxMs).toISOString();
 
+  // select('*') rather than naming status/duration_min: this endpoint serves
+  // the live phone agent, and must keep working whether or not the agenda
+  // migration has been applied yet. Optional fields are read defensively below.
   let apptQuery = supabase
     .from('appointments')
-    .select('id, appointment_date, duration_min')
+    .select('*')
     .eq('clinic_id', clinicId)
     .not('appointment_date', 'is', null)
-    .not('status', 'in', '(cancelled,rejected)')
     .gte('appointment_date', apptFrom)
     .lte('appointment_date', apptTo);
 
@@ -121,10 +123,13 @@ async function loadBusy(supabase, clinicId, timeMinMs, timeMaxMs, excludeAppoint
 
   if (apptErr) throw new Error(`appointments: ${apptErr.message}`);
   (appts || []).forEach(row => {
+    // Pre-migration rows have no status column at all — treat those as active.
+    if (row.status === 'cancelled' || row.status === 'rejected') return;
     const start = new Date(row.appointment_date).getTime();
     busy.push({ start, end: start + (row.duration_min || SLOT_MINUTES) * 60000 });
   });
 
+  // Additive feature: if the table isn't there yet, availability still works.
   const { data: blocks, error: blockErr } = await supabase
     .from('schedule_blocks')
     .select('starts_at, ends_at')
@@ -132,13 +137,16 @@ async function loadBusy(supabase, clinicId, timeMinMs, timeMaxMs, excludeAppoint
     .lt('starts_at', new Date(timeMaxMs).toISOString())
     .gt('ends_at', new Date(timeMinMs).toISOString());
 
-  if (blockErr) throw new Error(`schedule_blocks: ${blockErr.message}`);
-  (blocks || []).forEach(b => {
-    busy.push({
-      start: new Date(b.starts_at).getTime(),
-      end: new Date(b.ends_at).getTime(),
+  if (blockErr) {
+    console.warn('[agenda] schedule_blocks unavailable (non-fatal):', blockErr.message);
+  } else {
+    (blocks || []).forEach(b => {
+      busy.push({
+        start: new Date(b.starts_at).getTime(),
+        end: new Date(b.ends_at).getTime(),
+      });
     });
-  });
+  }
 
   return busy;
 }
@@ -230,6 +238,24 @@ async function getAvailableSlots({
   return free;
 }
 
+// True when Postgres/PostgREST rejected a payload because a column is absent.
+function isMissingColumn(error) {
+  return /column .* does not exist|Could not find the '.*' column|PGRST204/i.test(
+    `${error?.message || ''} ${error?.code || ''}`
+  );
+}
+
+// Insert with the full payload, falling back to the pre-migration column set
+// if the agenda migration hasn't been applied yet. Keeps booking working on
+// both schema versions instead of hard-failing a live caller.
+async function insertAppointment(supabase, full, fallback) {
+  const first = await supabase.from('appointments').insert(full).select('*').single();
+  if (!first.error || !isMissingColumn(first.error)) return first;
+
+  console.warn('[agenda] agenda columns missing — inserting legacy shape:', first.error.message);
+  return supabase.from('appointments').insert(fallback).select('*').single();
+}
+
 /**
  * Book a slot, re-checking availability immediately before insert so two
  * concurrent bookers can't take the same time.
@@ -261,24 +287,21 @@ async function bookSlot({
     return { ok: false, reason: 'slot_taken' };
   }
 
-  const { data, error } = await supabase
-    .from('appointments')
-    .insert({
-      clinic_id: clinicId,
-      patient_id: patientId,
-      patient_name: patientName,
-      phone_number: phoneNumber,
-      dob,
-      reason: service,
-      doctor,
-      appointment_time: toSpoken(startMs),
-      appointment_date: new Date(startMs).toISOString(),
-      duration_min: durationMin,
-      source,
-      status,
-    })
-    .select('*')
-    .single();
+  const base = {
+    clinic_id: clinicId,
+    patient_id: patientId,
+    patient_name: patientName,
+    phone_number: phoneNumber,
+    dob,
+    reason: service,
+    doctor,
+    appointment_time: toSpoken(startMs),
+    appointment_date: new Date(startMs).toISOString(),
+  };
+
+  const { data, error } = await insertAppointment(supabase, {
+    ...base, duration_min: durationMin, source, status,
+  }, base);
 
   if (error) return { ok: false, reason: error.message };
   return { ok: true, appointment: data };
