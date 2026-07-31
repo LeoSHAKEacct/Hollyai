@@ -35,6 +35,8 @@ function decodeCursor(cursor) {
 // Maps an appointments row (plus joined patient) to the pitched contract.
 function serialize(row) {
   const p = row.patients || {};
+  const startMs = row.appointment_date ? new Date(row.appointment_date).getTime() : null;
+  const durationMin = row.duration_min || 30;
   return {
     id: row.id,
     status: row.status,
@@ -45,7 +47,11 @@ function serialize(row) {
       email: p.email || null,
     },
     service: row.reason || null,
-    starts_at: row.appointment_date ? toISO(new Date(row.appointment_date).getTime()) : null,
+    practitioner: row.doctor || null,
+    starts_at: startMs ? toISO(startMs) : null,
+    // A receiving agenda needs the length of the slot, not just its start.
+    ends_at: startMs ? toISO(startMs + durationMin * 60000) : null,
+    duration_min: durationMin,
     source: row.source,
     created_at: row.created_at ? toISO(new Date(row.created_at).getTime()) : null,
   };
@@ -79,7 +85,7 @@ module.exports = async function handler(req, res) {
 
     let q = supabase
       .from('appointments')
-      .select('id, status, source, reason, patient_name, phone_number, appointment_date, created_at, updated_at, patients(name, doc_id, phone_number, email)')
+      .select('*, patients(name, doc_id, phone_number, email)')
       // Scoped to the key's clinic — a partner key can never read another
       // clinic's bookings.
       .eq('clinic_id', auth.clinicId)

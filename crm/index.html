@@ -276,27 +276,10 @@
         <div class="stat-card"><div class="stat-value" id="stat-patients">—</div><div class="stat-label">Pacientes</div></div>
         <div class="stat-card"><div class="stat-value" id="stat-appointments">—</div><div class="stat-label">Citas totales</div></div>
         <div class="stat-card"><div class="stat-value" id="stat-week">—</div><div class="stat-label">Citas esta semana</div></div>
-        <div class="stat-card"><div class="stat-value" id="stat-calls">—</div><div class="stat-label">Llamadas registradas</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-calls">—</div><div class="stat-label">Mensajes de WhatsApp</div></div>
       </div>
       <div class="section-label">Canales conectados</div>
-      <div class="channels-row">
-        <div class="channel-card connected">
-          <div class="channel-name">📞 Llamadas</div>
-          <div class="channel-status">Conectado — Retell</div>
-        </div>
-        <div class="channel-card pending">
-          <div class="channel-name">💬 WhatsApp</div>
-          <div class="channel-status">Próximamente</div>
-        </div>
-        <div class="channel-card connected">
-          <div class="channel-name">📅 Reservas</div>
-          <div class="channel-status">Conectado</div>
-        </div>
-        <div class="channel-card pending">
-          <div class="channel-name">🧾 Facturación DIAN</div>
-          <div class="channel-status">En el roadmap</div>
-        </div>
-      </div>
+      <div class="channels-row" id="channels-row"></div>
     </div>
 
     <div id="tab-patients" class="tab-page">
@@ -329,9 +312,13 @@
 
     <div id="tab-integrations" class="tab-page">
       <div class="page-title">Integraciones</div>
-      <div class="page-sub">Claves de API para que sistemas externos (SmileWeb) lean y actualicen la agenda de esta clínica.</div>
 
       <div class="section-label">Claves de API</div>
+      <div class="page-sub" style="margin-bottom:14px;">
+        Por seguridad la clave completa solo se muestra una vez, al generarla — después guardamos
+        únicamente un resumen cifrado, así que no se puede volver a consultar. Si se pierde, revoca
+        la clave y genera una nueva.
+      </div>
       <div style="margin-bottom:14px;">
         <button class="btn-primary" style="width:auto;padding:9px 16px;" onclick="createApiKey()">Generar clave</button>
       </div>
@@ -444,14 +431,14 @@
     ];
 
     const appts = [
-      { id:'d1', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', status:'confirmed', source:'whatsapp', appointment_date: at(0, 9),      duration_min:30 },
-      { id:'d2', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Valoración inicial',    status:'confirmed', source:'call',     appointment_date: at(0, 11),     duration_min:60 },
-      { id:'d3', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Limpieza dental',       status:'pending',   source:'whatsapp', appointment_date: at(1, 10, 30), duration_min:30 },
-      { id:'d4', patient_id:'p4', patient_name:'Juan Pablo Ossa',      phone_number:'+573014447788', reason:'Resina',                status:'confirmed', source:'manual',   appointment_date: at(2, 14),     duration_min:60 },
-      { id:'d5', patient_id:'p5', patient_name:'Valentina Cardona',    phone_number:'+573182223344', reason:'Primera consulta',      status:'pending',   source:'whatsapp', appointment_date: at(3, 15, 30), duration_min:30 },
-      { id:'d6', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', status:'confirmed', source:'whatsapp', appointment_date: at(4, 9, 30),  duration_min:30 },
-      { id:'d7', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Control',               status:'cancelled', source:'call',     appointment_date: at(4, 16),     duration_min:30 },
-      { id:'d8', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Blanqueamiento',        status:'pending',   source:'whatsapp', appointment_date: at(5, 10),     duration_min:60 },
+      { id:'d1', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', doctor:'Dra. Marta Ochoa', status:'confirmed', source:'whatsapp', appointment_date: at(0, 9),      duration_min:30 },
+      { id:'d2', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Valoración inicial',    doctor:'Dra. Marta Ochoa', status:'confirmed', source:'whatsapp', appointment_date: at(0, 11),     duration_min:60 },
+      { id:'d3', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Limpieza dental',       doctor:'Dra. Marta Ochoa', status:'pending',   source:'whatsapp', appointment_date: at(1, 10, 30), duration_min:30 },
+      { id:'d4', patient_id:'p4', patient_name:'Juan Pablo Ossa',      phone_number:'+573014447788', reason:'Resina',                doctor:'Dra. Marta Ochoa', status:'confirmed', source:'manual',   appointment_date: at(2, 14),     duration_min:60 },
+      { id:'d5', patient_id:'p5', patient_name:'Valentina Cardona',    phone_number:'+573182223344', reason:'Primera consulta',      doctor:'Dra. Marta Ochoa', status:'pending',   source:'whatsapp', appointment_date: at(3, 15, 30), duration_min:30 },
+      { id:'d6', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', doctor:'Dra. Marta Ochoa', status:'confirmed', source:'whatsapp', appointment_date: at(4, 9, 30),  duration_min:30 },
+      { id:'d7', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Control',               doctor:'Dra. Marta Ochoa', status:'cancelled', source:'whatsapp', appointment_date: at(4, 16),     duration_min:30 },
+      { id:'d8', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Blanqueamiento',        doctor:'Dra. Marta Ochoa', status:'pending',   source:'whatsapp', appointment_date: at(5, 10),     duration_min:60 },
     ];
 
     const blocks = [
@@ -467,7 +454,7 @@
         { id:'i3', channel:'booking',  direction:'inbound',  summary:'Cita agendada — lunes 9:00',                        occurred_at: at(0, 8, 14) },
       ],
       p2: [
-        { id:'i4', channel:'call',     direction:'inbound',  summary:'Llamada — valoración inicial, agendada',            occurred_at: at(0, 10, 2) },
+        { id:'i4', channel:'whatsapp', direction:'inbound',  summary:'Quiero una valoración inicial, por favor',            occurred_at: at(0, 10, 2) },
       ],
       p3: [
         { id:'i5', channel:'whatsapp', direction:'inbound',  summary:'Buenas, ¿tienen cita para limpieza esta semana?',    occurred_at: at(1, 9, 40) },
@@ -499,6 +486,8 @@
     activeClinicId = 'demo-clinic';
     activeClinic = {
       id: 'demo-clinic', name: 'Clínica Sonrisa · Medellín', calendar_provider: 'internal',
+      // WhatsApp-only clinic: no retell_agent_id, so no phone channel is shown.
+      whatsapp_phone_number_id: '1168027626394912',
       operating_hours: { mon:['08:00','18:00'], tue:['08:00','18:00'], wed:['08:00','18:00'],
                          thu:['08:00','18:00'], fri:['08:00','18:00'], sat:['09:00','13:00'], sun:null },
     };
@@ -670,14 +659,37 @@
     ]);
   }
 
+  // Channel status is derived from the clinic's own configuration rather than
+  // hardcoded, so a WhatsApp-only clinic never shows a phone channel it
+  // doesn't use.
+  function renderChannels() {
+    const c = activeClinic || {};
+    const cards = [
+      c.whatsapp_phone_number_id
+        ? { icon:'💬', name:'WhatsApp', on:true,  status:'Conectado' }
+        : { icon:'💬', name:'WhatsApp', on:false, status:'Sin configurar' },
+      { icon:'📅', name:'Reservas', on:true, status:'Conectado' },
+    ];
+    // Only surface the phone channel for clinics that actually have a voice agent.
+    if (c.retell_agent_id) {
+      cards.push({ icon:'📞', name:'Llamadas', on:true, status:'Conectado' });
+    }
+    document.getElementById('channels-row').innerHTML = cards.map(x =>
+      `<div class="channel-card ${x.on ? 'connected' : 'pending'}">
+         <div class="channel-name">${x.icon} ${esc(x.name)}</div>
+         <div class="channel-status">${esc(x.status)}</div>
+       </div>`).join('');
+  }
+
   async function loadOverview() {
+    renderChannels();
     if (DEMO) {
       const d = DEMO_DATA;
       document.getElementById('stat-patients').textContent = d.patients.length;
       document.getElementById('stat-appointments').textContent = d.appts.length;
       document.getElementById('stat-week').textContent = d.appts.length;
       document.getElementById('stat-calls').textContent =
-        Object.values(d.interactions).flat().filter(i => i.channel === 'call').length;
+        Object.values(d.interactions).flat().filter(i => i.channel === 'whatsapp').length;
       return;
     }
     const [patientsCount, apptsCount, weekCount, callsCount] = await Promise.all([
@@ -685,7 +697,7 @@
       db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
       db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId)
         .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString()),
-      db.from('interactions').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId).eq('channel', 'call'),
+      db.from('interactions').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId).eq('channel', 'whatsapp'),
     ]);
     document.getElementById('stat-patients').textContent = patientsCount.count ?? '—';
     document.getElementById('stat-appointments').textContent = apptsCount.count ?? '—';
@@ -720,7 +732,7 @@
   async function loadAppointments() {
     const wrap = document.getElementById('appointments-table-wrap');
     const { data, error } = DEMO
-      ? { data: DEMO_DATA.appts.map(a => ({ ...a, appointment_time: toSpokenLocal(a.appointment_date), doctor: '—' })), error: null }
+      ? { data: DEMO_DATA.appts.map(a => ({ ...a, appointment_time: toSpokenLocal(a.appointment_date) })), error: null }
       : await db
           .from('appointments')
           .select('*')
@@ -1237,7 +1249,7 @@
     if (error) { wrap.innerHTML = `<div class="empty-state">Error: ${esc(error.message)}</div>`; return; }
     if (!data || !data.length) { wrap.innerHTML = '<div class="empty-state">Sin claves todavía. Genera una para conectar SmileWeb.</div>'; return; }
 
-    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Clave</th><th>Último uso</th><th>Estado</th><th></th></tr></thead><tbody>
+    wrap.innerHTML = `<table><thead><tr><th>Nombre</th><th>Identificador (no es la clave)</th><th>Último uso</th><th>Estado</th><th></th></tr></thead><tbody>
       ${data.map(k => `<tr>
         <td>${esc(k.name)}</td>
         <td style="font-family:var(--font-mono);font-size:11px;">${esc(k.key_prefix)}</td>
@@ -1246,6 +1258,25 @@
         <td>${k.revoked_at ? '' : `<a style="color:var(--rose);cursor:pointer;font-size:12px;" onclick="revokeApiKey('${k.id}')">Revocar</a>`}</td>
       </tr>`).join('')}
     </tbody></table>`;
+  }
+
+  // The plaintext key exists only in this response — once dismissed it is gone
+  // for good, so make copying it the obvious action.
+  function showNewKey(plaintext) {
+    const box = document.getElementById('new-key-box');
+    box.style.display = 'block';
+    box.innerHTML =
+      `<b>Copia esta clave ahora — no volverá a mostrarse.</b>
+       <code id="new-key-value">${esc(plaintext)}</code>
+       <button class="btn-ghost" onclick="copyNewKey()">Copiar clave</button>
+       <button class="btn-ghost" onclick="document.getElementById('new-key-box').style.display='none'">Ya la guardé</button>`;
+  }
+
+  function copyNewKey() {
+    const v = document.getElementById('new-key-value').textContent;
+    navigator.clipboard.writeText(v)
+      .then(() => toast('Clave copiada.'))
+      .catch(() => toast('No se pudo copiar — selecciónala manualmente.'));
   }
 
   async function createApiKey() {
@@ -1259,9 +1290,7 @@
         id: 'k' + Date.now(), name, key_prefix: fake.slice(0, fake.indexOf('_', 3) + 7) + '…',
         created_at: new Date().toISOString(), last_used_at: null, revoked_at: null,
       });
-      const box = document.getElementById('new-key-box');
-      box.style.display = 'block';
-      box.innerHTML = `<b>Copia esta clave ahora — no volverá a mostrarse.</b><code>${esc(fake)}</code>`;
+      showNewKey(fake);
       await loadApiKeys();
       return;
     }
@@ -1276,10 +1305,7 @@
       const out = await res.json();
       if (!res.ok) throw new Error(out.error || 'Error');
 
-      const box = document.getElementById('new-key-box');
-      box.style.display = 'block';
-      box.innerHTML = `<b>Copia esta clave ahora — no volverá a mostrarse.</b><code>${esc(out.api_key)}</code>
-        <button class="btn-ghost" onclick="navigator.clipboard.writeText('${esc(out.api_key)}').then(()=>toast('Clave copiada.'))">Copiar</button>`;
+      showNewKey(out.api_key);
       await loadApiKeys();
     } catch (err) {
       toast(`Error: ${err.message}`);

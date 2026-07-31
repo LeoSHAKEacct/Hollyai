@@ -105,7 +105,7 @@ module.exports = async function handler(req, res) {
       .from('appointments')
       .update(patch)
       .eq('id', existing.id)
-      .select('id, status, reason, appointment_date, updated_at')
+      .select('id, status, reason, doctor, appointment_date, duration_min, updated_at')
       .single();
 
     if (updErr) throw new Error(updErr.message);
@@ -114,8 +114,12 @@ module.exports = async function handler(req, res) {
       id: updated.id,
       status: updated.status,
       service: updated.reason || null,
+      practitioner: updated.doctor || null,
       starts_at: updated.appointment_date
         ? toISO(new Date(updated.appointment_date).getTime())
+        : null,
+      ends_at: updated.appointment_date
+        ? toISO(new Date(updated.appointment_date).getTime() + (updated.duration_min || 30) * 60000)
         : null,
       updated_at: updated.updated_at
         ? toISO(new Date(updated.updated_at).getTime())
