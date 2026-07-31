@@ -658,7 +658,7 @@
     // land before anything renders.
     const { data: clinic, error } = await db
       .from('clinics')
-      .select('id, name, operating_hours, calendar_provider')
+      .select('*')
       .eq('id', activeClinicId)
       .maybeSingle();
     if (error) console.warn('clinic load:', error.message);

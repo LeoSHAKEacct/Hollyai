@@ -190,9 +190,11 @@ function generateSlots(nowMs, operatingHours, days, slotMinutes) {
 // ── public API ───────────────────────────────────────────────────────────
 
 async function getClinic(supabase, clinicId) {
+  // select('*') so this keeps working before agenda-schema.sql adds
+  // calendar_provider — naming it would break the live phone agent.
   const { data, error } = await supabase
     .from('clinics')
-    .select('id, name, operating_hours, calendar_provider')
+    .select('*')
     .eq('id', clinicId)
     .maybeSingle();
   if (error) throw new Error(`clinic lookup: ${error.message}`);

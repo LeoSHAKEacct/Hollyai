@@ -47,6 +47,11 @@ async function authenticate(req) {
     .maybeSingle();
 
   if (error) {
+    // Before agenda-schema.sql runs there is no api_keys table, which means
+    // no key can be valid — that's a 401, not a server fault.
+    if (/does not exist|PGRST205/i.test(`${error.message} ${error.code || ''}`)) {
+      return { ok: false, status: 401, error: 'Invalid or revoked API key' };
+    }
     console.error('[apikey] lookup failed:', error.message);
     return { ok: false, status: 500, error: 'Key verification failed' };
   }
