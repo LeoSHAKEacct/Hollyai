@@ -289,7 +289,7 @@
 
     <div id="tab-appointments" class="tab-page">
       <div class="page-title">Citas</div>
-      <div class="page-sub">Citas agendadas por Holly.</div>
+      <div class="page-sub">Citas agendadas por Holly. Haz clic en una cita para ver la conversación.</div>
       <div id="appointments-table-wrap"><div class="empty-state">Cargando…</div></div>
     </div>
 
@@ -376,6 +376,7 @@
     <div class="detail-row"><span>Origen</span><b id="ex-source">—</b></div>
     <div class="modal-actions">
       <button class="btn-primary" id="ex-confirm" onclick="setApptStatus('confirmed')">Confirmar</button>
+      <button class="btn-ghost" id="ex-conversation">Ver conversación</button>
       <button class="btn-ghost" onclick="startReschedule()">Reprogramar</button>
       <button class="btn-danger" onclick="setApptStatus('cancelled')">Cancelar cita</button>
     </div>
@@ -725,10 +726,14 @@
   async function loadAppointments() {
     const wrap = document.getElementById('appointments-table-wrap');
     const { data, error } = DEMO
-      ? { data: DEMO_DATA.appts.map(a => ({ ...a, appointment_time: toSpokenLocal(a.appointment_date) })), error: null }
+      ? { data: DEMO_DATA.appts.map(a => ({
+          ...a,
+          appointment_time: toSpokenLocal(a.appointment_date),
+          patients: DEMO_DATA.patients.find(p => p.id === a.patient_id) || null,
+        })), error: null }
       : await db
           .from('appointments')
-          .select('*')
+          .select('*, patients(doc_id)')
           .eq('clinic_id', activeClinicId)
           .order('created_at', { ascending: false })
           .limit(200);
@@ -736,9 +741,10 @@
     if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando citas: ${esc(error.message)}</div>`; return; }
     if (!data || data.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin citas todavía.</div>'; return; }
 
-    wrap.innerHTML = `<table><thead><tr><th>Paciente</th><th>Motivo</th><th>Doctor</th><th>Cuándo</th><th>Teléfono</th></tr></thead><tbody>
-      ${data.map(a => `<tr>
+    wrap.innerHTML = `<table><thead><tr><th>Paciente</th><th>Cédula</th><th>Motivo</th><th>Doctor</th><th>Cuándo</th><th>Teléfono</th></tr></thead><tbody>
+      ${data.map(a => `<tr onclick="openConversation('${a.patient_id || ''}','${esc(a.phone_number || '')}')" title="Ver conversación">
         <td>${esc(a.patient_name) || '—'}</td>
+        <td>${esc(a.patients && a.patients.doc_id) || '—'}</td>
         <td>${esc(a.reason) || '—'}</td>
         <td>${esc(a.doctor) || '—'}</td>
         <td>${esc(a.appointment_time) || '—'}</td>
@@ -747,6 +753,17 @@
     </tbody></table>`;
   }
 
+
+  // Opens a patient's conversation timeline from anywhere an appointment is
+  // shown, so history is always one click away.
+  function openConversation(patientId, phone) {
+    let p = patientId ? patients.find(x => x.id === patientId) : null;
+    if (!p && phone) p = patients.find(x => x.phone_number === phone);
+    if (!p) { toast('Este paciente todavía no tiene historial registrado.'); return; }
+    closeSlotModal();
+    setTab('patients');
+    openPatient(p.id);
+  }
 
   // ── PATIENT DRAWER ────────────────────────────────
   async function openPatient(id) {
@@ -1056,6 +1073,8 @@
     document.getElementById('ex-service').textContent = isAppt ? (row.reason || '—') : '—';
     document.getElementById('ex-status').textContent  = isAppt ? (row.status || '—') : 'bloqueado';
     document.getElementById('ex-source').textContent  = isAppt ? (row.source || '—') : '—';
+    document.getElementById('ex-conversation').onclick =
+      () => openConversation(row.patient_id, row.phone_number);
     document.querySelector('#slot-modal-existing .modal-actions').style.display = isAppt ? 'flex' : 'none';
     document.getElementById('ex-block-actions').style.display = isAppt ? 'none' : 'block';
     showModal();
