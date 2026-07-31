@@ -422,8 +422,109 @@
   let activeClinic = null;   // full clinic row — the agenda needs operating_hours
   let patients = [];
 
+  // ── DEMO MODE ─────────────────────────────────────
+  // /crm?demo=1 runs the real interface against fictional data with no login
+  // and no database access. Used for client walkthroughs so nobody has to be
+  // given credentials to a live clinic containing real patient records.
+  const DEMO = new URLSearchParams(location.search).has('demo');
+  let DEMO_DATA = null;
+
+  function buildDemoData() {
+    const today = bogotaDayStr(new Date());
+    const wk = mondayOf(today);
+    const d = n => dayAdd(wk, n);
+    const at = (n, h, m) => atBogota(d(n), h * 60 + (m || 0)).toISOString();
+
+    const patients = [
+      { id:'p1', name:'María Gómez Restrepo', phone_number:'+573001234567', dob:'1991-04-12', doc_id:'1017234891', email:'maria.gomez@ejemplo.com', notes:'Ortodoncia — control mensual' },
+      { id:'p2', name:'Carlos Andrés Vélez',  phone_number:'+573109876543', dob:'1985-11-03', doc_id:'71234567',   email:null, notes:null },
+      { id:'p3', name:'Laura Restrepo Díaz',  phone_number:'+573225558899', dob:'1996-07-21', doc_id:'1094556677', email:'laura.rd@ejemplo.com', notes:'Alergia a la penicilina' },
+      { id:'p4', name:'Juan Pablo Ossa',      phone_number:'+573014447788', dob:'1978-02-28', doc_id:'98765432',   email:null, notes:null },
+      { id:'p5', name:'Valentina Cardona',    phone_number:'+573182223344', dob:'2001-09-09', doc_id:'1152233445', email:null, notes:'Primera visita' },
+    ];
+
+    const appts = [
+      { id:'d1', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', status:'confirmed', source:'whatsapp', appointment_date: at(0, 9),      duration_min:30 },
+      { id:'d2', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Valoración inicial',    status:'confirmed', source:'call',     appointment_date: at(0, 11),     duration_min:60 },
+      { id:'d3', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Limpieza dental',       status:'pending',   source:'whatsapp', appointment_date: at(1, 10, 30), duration_min:30 },
+      { id:'d4', patient_id:'p4', patient_name:'Juan Pablo Ossa',      phone_number:'+573014447788', reason:'Resina',                status:'confirmed', source:'manual',   appointment_date: at(2, 14),     duration_min:60 },
+      { id:'d5', patient_id:'p5', patient_name:'Valentina Cardona',    phone_number:'+573182223344', reason:'Primera consulta',      status:'pending',   source:'whatsapp', appointment_date: at(3, 15, 30), duration_min:30 },
+      { id:'d6', patient_id:'p1', patient_name:'María Gómez Restrepo', phone_number:'+573001234567', reason:'Control de ortodoncia', status:'confirmed', source:'whatsapp', appointment_date: at(4, 9, 30),  duration_min:30 },
+      { id:'d7', patient_id:'p2', patient_name:'Carlos Andrés Vélez',  phone_number:'+573109876543', reason:'Control',               status:'cancelled', source:'call',     appointment_date: at(4, 16),     duration_min:30 },
+      { id:'d8', patient_id:'p3', patient_name:'Laura Restrepo Díaz',  phone_number:'+573225558899', reason:'Blanqueamiento',        status:'pending',   source:'whatsapp', appointment_date: at(5, 10),     duration_min:60 },
+    ];
+
+    const blocks = [
+      { id:'b1', starts_at: at(0, 13), ends_at: at(0, 14), reason:'Almuerzo' },
+      { id:'b2', starts_at: at(2, 13), ends_at: at(2, 14), reason:'Almuerzo' },
+      { id:'b3', starts_at: at(3, 8),  ends_at: at(3, 10), reason:'Reunión de equipo' },
+    ];
+
+    const interactions = {
+      p1: [
+        { id:'i1', channel:'whatsapp', direction:'inbound',  summary:'Hola, quiero mover mi control de ortodoncia',       occurred_at: at(0, 8, 12) },
+        { id:'i2', channel:'whatsapp', direction:'outbound', summary:'Claro. Tengo lunes 9:00 o viernes 9:30. ¿Cuál te sirve?', occurred_at: at(0, 8, 12) },
+        { id:'i3', channel:'booking',  direction:'inbound',  summary:'Cita agendada — lunes 9:00',                        occurred_at: at(0, 8, 14) },
+      ],
+      p2: [
+        { id:'i4', channel:'call',     direction:'inbound',  summary:'Llamada — valoración inicial, agendada',            occurred_at: at(0, 10, 2) },
+      ],
+      p3: [
+        { id:'i5', channel:'whatsapp', direction:'inbound',  summary:'Buenas, ¿tienen cita para limpieza esta semana?',    occurred_at: at(1, 9, 40) },
+        { id:'i6', channel:'whatsapp', direction:'outbound', summary:'Sí — martes 10:30 está libre.',                      occurred_at: at(1, 9, 41) },
+        { id:'i7', channel:'booking',  direction:'inbound',  summary:'Cita agendada — martes 10:30',                       occurred_at: at(1, 9, 42) },
+      ],
+      p4: [{ id:'i8', channel:'note', direction:null, summary:'Paciente prefiere horarios de tarde', occurred_at: at(2, 13, 30) }],
+      p5: [{ id:'i9', channel:'whatsapp', direction:'inbound', summary:'Hola! Quisiera una primera consulta', occurred_at: at(3, 15, 0) }],
+    };
+
+    const apiKeys = [
+      { id:'k1', name:'SmileWeb sandbox', key_prefix:'sk_sandbox_a4f9c2…', created_at: at(0, 9), last_used_at: at(4, 11, 20), revoked_at:null },
+    ];
+
+    const invoices = [
+      { id:'v1', amount:180000, status:'issued',  provider:'Factus', provider_ref:'FE-1042' },
+      { id:'v2', amount:95000,  status:'pending', provider:'Factus', provider_ref:null },
+    ];
+
+    return { patients, appts, blocks, interactions, apiKeys, invoices };
+  }
+
+  function startDemo() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('user-email-display').textContent = 'demostración';
+    document.getElementById('clinic-name-display').textContent = 'Clínica Sonrisa · Medellín';
+
+    activeClinicId = 'demo-clinic';
+    activeClinic = {
+      id: 'demo-clinic', name: 'Clínica Sonrisa · Medellín', calendar_provider: 'internal',
+      operating_hours: { mon:['08:00','18:00'], tue:['08:00','18:00'], wed:['08:00','18:00'],
+                         thu:['08:00','18:00'], fri:['08:00','18:00'], sat:['09:00','13:00'], sun:null },
+    };
+
+    weekStart = mondayOf(bogotaDayStr(new Date()));
+    DEMO_DATA = buildDemoData();
+    agendaAppts = DEMO_DATA.appts;
+    agendaBlocks = DEMO_DATA.blocks;
+    patients = DEMO_DATA.patients;
+
+    // Make it unmistakable that nothing here is a real patient record.
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:220px;right:0;z-index:150;background:var(--gold);color:var(--midnight);' +
+      'font-size:12px;font-weight:600;text-align:center;padding:6px;';
+    banner.textContent = 'Modo demostración · datos ficticios · ningún dato real de pacientes';
+    document.body.appendChild(banner);
+    document.querySelector('.main').style.paddingTop = '52px';
+
+    renderAgenda();
+    loadPatients(); loadAppointments(); loadInvoices(); loadOverview(); loadApiKeys();
+  }
+
   // ── AUTH ──────────────────────────────────────────
   async function initAuth() {
+    if (DEMO) { startDemo(); return; }
+
     const { data: { session } } = await db.auth.getSession();
     if (session) await onLoggedIn(session);
     else showLogin();
@@ -570,6 +671,15 @@
   }
 
   async function loadOverview() {
+    if (DEMO) {
+      const d = DEMO_DATA;
+      document.getElementById('stat-patients').textContent = d.patients.length;
+      document.getElementById('stat-appointments').textContent = d.appts.length;
+      document.getElementById('stat-week').textContent = d.appts.length;
+      document.getElementById('stat-calls').textContent =
+        Object.values(d.interactions).flat().filter(i => i.channel === 'call').length;
+      return;
+    }
     const [patientsCount, apptsCount, weekCount, callsCount] = await Promise.all([
       db.from('patients').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
       db.from('appointments').select('id', { count: 'exact', head: true }).eq('clinic_id', activeClinicId),
@@ -585,11 +695,13 @@
 
   async function loadPatients() {
     const wrap = document.getElementById('patients-table-wrap');
-    const { data, error } = await db
-      .from('patients')
-      .select('*')
-      .eq('clinic_id', activeClinicId)
-      .order('created_at', { ascending: false });
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.patients, error: null }
+      : await db
+          .from('patients')
+          .select('*')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false });
 
     if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando pacientes: ${esc(error.message)}</div>`; return; }
     patients = data || [];
@@ -607,12 +719,14 @@
 
   async function loadAppointments() {
     const wrap = document.getElementById('appointments-table-wrap');
-    const { data, error } = await db
-      .from('appointments')
-      .select('*')
-      .eq('clinic_id', activeClinicId)
-      .order('created_at', { ascending: false })
-      .limit(200);
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.appts.map(a => ({ ...a, appointment_time: toSpokenLocal(a.appointment_date), doctor: '—' })), error: null }
+      : await db
+          .from('appointments')
+          .select('*')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false })
+          .limit(200);
 
     if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando citas: ${esc(error.message)}</div>`; return; }
     if (!data || data.length === 0) { wrap.innerHTML = '<div class="empty-state">Sin citas todavía.</div>'; return; }
@@ -630,11 +744,13 @@
 
   async function loadInvoices() {
     const wrap = document.getElementById('invoices-table-wrap');
-    const { data, error } = await db
-      .from('invoices')
-      .select('*')
-      .eq('clinic_id', activeClinicId)
-      .order('created_at', { ascending: false });
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.invoices, error: null }
+      : await db
+          .from('invoices')
+          .select('*')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false });
 
     if (error) { wrap.innerHTML = `<div class="empty-state">Error cargando facturas: ${esc(error.message)}</div>`; return; }
     if (!data || data.length === 0) {
@@ -661,11 +777,13 @@
     document.getElementById('drawer').style.display = 'block';
     document.getElementById('drawer-backdrop').style.display = 'block';
 
-    const { data, error } = await db
-      .from('interactions')
-      .select('*')
-      .eq('patient_id', id)
-      .order('occurred_at', { ascending: false });
+    const { data, error } = DEMO
+      ? { data: (DEMO_DATA.interactions[id] || []).slice().reverse(), error: null }
+      : await db
+          .from('interactions')
+          .select('*')
+          .eq('patient_id', id)
+          .order('occurred_at', { ascending: false });
 
     const tl = document.getElementById('drawer-timeline');
     if (error) { tl.innerHTML = `<div class="empty-state">${esc(error.message)}</div>`; return; }
@@ -712,6 +830,10 @@
   async function submitImport(rows) {
     const resultEl = document.getElementById('import-result');
     resultEl.style.display = 'block';
+    if (DEMO) {
+      resultEl.textContent = `Modo demostración: se habrían importado ${rows.length} pacientes.`;
+      return;
+    }
     resultEl.textContent = `Importando ${rows.length} filas…`;
 
     const { data: { session } } = await db.auth.getSession();
@@ -782,9 +904,16 @@
   function shiftWeek(n) { weekStart = dayAdd(weekStart, n * 7); loadAgenda(); }
   function goToday()    { weekStart = mondayOf(bogotaDayStr(new Date())); loadAgenda(); }
 
+  // Spanish "lunes 4 de agosto, 09:00" for a stored ISO timestamp.
+  function toSpokenLocal(iso) {
+    const p = bogotaParts(iso);
+    return `${DAY_LABEL[dowOf(p.day)]} ${fmtDay(p.day)}, ${hhmm(p.min)}`;
+  }
+
   async function loadAgenda() {
     if (!activeClinicId) return;
     if (!weekStart) weekStart = mondayOf(bogotaDayStr(new Date()));
+    if (DEMO) { renderAgenda(); return; }
 
     const wrap = document.getElementById('agenda-wrap');
     const fromIso = atBogota(weekStart, 0).toISOString();
@@ -973,6 +1102,33 @@
     btn.disabled = true; btn.textContent = 'Guardando…';
 
     try {
+      // Demo mode mutates the in-memory fixtures so a walkthrough feels live
+      // without ever touching the database.
+      if (DEMO) {
+        if (isBlock) {
+          agendaBlocks.push({
+            id: 'x' + Date.now(), starts_at: startsAt,
+            ends_at: new Date(atBogota(slotCtx.day, slotCtx.min).getTime() + duration * 60000).toISOString(),
+            reason: document.getElementById('slot-block-reason').value.trim() || 'Bloqueado',
+          });
+          toast('Horario bloqueado.');
+        } else {
+          const name = document.getElementById('slot-name').value.trim();
+          if (!name) { toast('Escribe el nombre del paciente.'); return; }
+          agendaAppts.push({
+            id: 'x' + Date.now(), patient_name: name,
+            phone_number: document.getElementById('slot-phone').value.trim(),
+            reason: document.getElementById('slot-service').value.trim() || 'Consulta',
+            status: 'confirmed', source: 'manual',
+            appointment_date: startsAt, duration_min: duration,
+          });
+          toast('Cita agendada.');
+        }
+        closeSlotModal();
+        renderAgenda(); loadOverview();
+        return;
+      }
+
       if (isBlock) {
         const endsAt = new Date(atBogota(slotCtx.day, slotCtx.min).getTime() + duration * 60000).toISOString();
         const { error } = await db.from('schedule_blocks').insert({
@@ -1010,6 +1166,12 @@
 
   async function setApptStatus(status) {
     if (!openEvent || openEvent.kind !== 'appt') return;
+    if (DEMO) {
+      openEvent.row.status = status;
+      toast(status === 'confirmed' ? 'Cita confirmada.' : 'Cita cancelada.');
+      closeSlotModal(); renderAgenda();
+      return;
+    }
     const { error } = await db.from('appointments').update({ status }).eq('id', openEvent.row.id);
     if (error) { toast(`Error: ${error.message}`); return; }
     toast(status === 'confirmed' ? 'Cita confirmada.' : 'Cita cancelada.');
@@ -1019,6 +1181,12 @@
 
   async function deleteBlock() {
     if (!openEvent || openEvent.kind !== 'block') return;
+    if (DEMO) {
+      agendaBlocks = agendaBlocks.filter(b => b.id !== openEvent.row.id);
+      toast('Bloqueo eliminado.');
+      closeSlotModal(); renderAgenda();
+      return;
+    }
     const { error } = await db.from('schedule_blocks').delete().eq('id', openEvent.row.id);
     if (error) { toast(`Error: ${error.message}`); return; }
     toast('Bloqueo eliminado.');
@@ -1039,6 +1207,13 @@
   async function doReschedule(day, min) {
     const id = rescheduleId;
     cancelReschedule();
+    if (DEMO) {
+      const row = agendaAppts.find(a => a.id === id);
+      if (row) row.appointment_date = atBogota(day, min).toISOString();
+      toast('Cita reprogramada.');
+      renderAgenda();
+      return;
+    }
     const { error } = await db.from('appointments')
       .update({ appointment_date: atBogota(day, min).toISOString(), appointment_time: `${fmtDay(day)} ${hhmm(min)}` })
       .eq('id', id);
@@ -1052,10 +1227,12 @@
   // ══════════════════════════════════════════════════
   async function loadApiKeys() {
     const wrap = document.getElementById('api-keys-wrap');
-    const { data, error } = await db.from('api_keys')
-      .select('id, name, key_prefix, created_at, last_used_at, revoked_at')
-      .eq('clinic_id', activeClinicId)
-      .order('created_at', { ascending: false });
+    const { data, error } = DEMO
+      ? { data: DEMO_DATA.apiKeys, error: null }
+      : await db.from('api_keys')
+          .select('id, name, key_prefix, created_at, last_used_at, revoked_at')
+          .eq('clinic_id', activeClinicId)
+          .order('created_at', { ascending: false });
 
     if (error) { wrap.innerHTML = `<div class="empty-state">Error: ${esc(error.message)}</div>`; return; }
     if (!data || !data.length) { wrap.innerHTML = '<div class="empty-state">Sin claves todavía. Genera una para conectar SmileWeb.</div>'; return; }
@@ -1075,6 +1252,19 @@
     const name = prompt('Nombre de la clave (ej. "SmileWeb sandbox"):');
     if (!name) return;
     const env = confirm('¿Clave de producción?\n\nAceptar = producción (sk_live_…)\nCancelar = pruebas (sk_sandbox_…)') ? 'live' : 'sandbox';
+
+    if (DEMO) {
+      const fake = `sk_${env === 'live' ? 'live' : 'sandbox'}_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+      DEMO_DATA.apiKeys.unshift({
+        id: 'k' + Date.now(), name, key_prefix: fake.slice(0, fake.indexOf('_', 3) + 7) + '…',
+        created_at: new Date().toISOString(), last_used_at: null, revoked_at: null,
+      });
+      const box = document.getElementById('new-key-box');
+      box.style.display = 'block';
+      box.innerHTML = `<b>Copia esta clave ahora — no volverá a mostrarse.</b><code>${esc(fake)}</code>`;
+      await loadApiKeys();
+      return;
+    }
 
     try {
       const { data: { session } } = await db.auth.getSession();
@@ -1098,6 +1288,13 @@
 
   async function revokeApiKey(id) {
     if (!confirm('¿Revocar esta clave? Los sistemas que la usen dejarán de tener acceso.')) return;
+    if (DEMO) {
+      const k = DEMO_DATA.apiKeys.find(k => k.id === id);
+      if (k) k.revoked_at = new Date().toISOString();
+      toast('Clave revocada.');
+      await loadApiKeys();
+      return;
+    }
     const { error } = await db.from('api_keys').update({ revoked_at: new Date().toISOString() }).eq('id', id);
     if (error) { toast(`Error: ${error.message}`); return; }
     toast('Clave revocada.');
